@@ -4,6 +4,7 @@ import android.app.IntentService;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.net.Uri;
+import android.nfc.Tag;
 import android.util.Log;
 
 import com.example.olivi.maphap.R;
@@ -34,7 +35,6 @@ public class MapHapService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        Log.i(LOG_TAG, "onHandleIntent called.");
         String searchQuery = intent.getStringExtra(SEARCH_QUERY_EXTRA);
         double latitude = intent.getDoubleExtra(LATITUDE_QUERY_EXTRA, 0.00);
         String latitudeQuery = Double
@@ -46,8 +46,6 @@ public class MapHapService extends IntentService {
         String withinQuery = Integer.toString(within) + "mi";
 
         String expansions = intent.getStringExtra(EXPANSIONS_QUERY_EXTRA);
-
-        Log.i(LOG_TAG, "expansions: " + expansions);
 
         // These two need to be declared outside the try/catch
         // so that they can be closed in the finally block.
@@ -111,7 +109,7 @@ public class MapHapService extends IntentService {
                 return;
             }
             eventsJsonStr = buffer.toString();
-            Log.i(LOG_TAG, "Response from Eventbrite API: " + eventsJsonStr);
+
             getEventsFromJson(eventsJsonStr, latitude, longitude, within, searchQuery);
         } catch (IOException e) {
             Log.e(LOG_TAG, "Error ", e);
@@ -154,7 +152,17 @@ public class MapHapService extends IntentService {
         parser.parse();
 
 
+        ContentValues[] venuesContentValues =  parser.getVenuesContentValues();
         ContentValues[] eventsContentValues =  parser.getEventsContentValues();
+
+        for (ContentValues cv : venuesContentValues) {
+            Log.i(LOG_TAG, "Venue: " + cv);
+        }
+
+        for (ContentValues cv : eventsContentValues) {
+            Log.i(LOG_TAG, "Event: " + cv);
+        }
+
 
         //TODO add eventsContentValues to db via content provider.
         //Note that venues needs to be added first because the events table

@@ -3,6 +3,9 @@ package com.example.olivi.maphap.service;
 import android.content.ContentValues;
 import android.util.Log;
 
+import com.example.olivi.maphap.data.EventsColumns;
+import com.example.olivi.maphap.data.VenuesColumns;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -20,6 +23,7 @@ public class EventsDataJsonParser {
 
     //Event attributes
     final String EB_NAME = "name";
+    final String EB_ID = "id";
     final String EB_EVENT_TEXT = "text";
     final String EB_EVENT_DESCRIPTION = "description";
     final String EB_URL = "url";
@@ -50,12 +54,14 @@ public class EventsDataJsonParser {
             JSONObject eventsJson = new JSONObject(mEventsJson);
             JSONArray eventsArray = eventsJson.getJSONArray(EB_EVENTS);
 
+            mVenuesCVVector = new Vector<ContentValues>(eventsArray.length());
             mEventsCVVector = new Vector<ContentValues>(eventsArray.length());
 
             for (int i = 0; i < 5; i++) {
                 //TODO change for loop limit to size of array to be parsed
                 // These are the values that will be collected for the events table
                 String name;
+                String eventBriteId;
                 String description;
                 String url;
                 String startLocal;
@@ -67,15 +73,15 @@ public class EventsDataJsonParser {
 
                 //These are the values that will be collected for the venues table
                 String venueName;
+                String venueEBId;
                 double venueLat;
                 double venueLong;
 
                 // Get the JSON object representing the event
                 JSONObject event = eventsArray.getJSONObject(i);
 
-                Log.i(LOG_TAG, "Here's the event JSONObject" + event);
-
                 name = event.getJSONObject(EB_NAME).getString(EB_EVENT_TEXT);
+                eventBriteId = event.getString(EB_ID);
                 description = event.getJSONObject(EB_EVENT_DESCRIPTION).getString(EB_EVENT_TEXT);
                 url = event.getString(EB_URL);
 
@@ -91,41 +97,36 @@ public class EventsDataJsonParser {
 
                 JSONObject venue = event.getJSONObject(EB_VENUE);
                 venueName = venue.getString(EB_NAME);
+                venueEBId = venue.getString(EB_ID);
                 venueLat = Double.parseDouble(venue.getString(EB_LATITUDE));
                 venueLong = Double.parseDouble(venue.getString(EB_LONGITUDE));
 
+                ContentValues venueValues = new ContentValues();
 
+                venueValues.put(VenuesColumns.NAME, venueName);
+                venueValues.put(VenuesColumns.EVENTBRITE_VENUE_ID, venueEBId);
+                venueValues.put(VenuesColumns.LATITUDE, venueLat);
+                venueValues.put(VenuesColumns.LONGITUDE, venueLong);
+
+                mVenuesCVVector.add(venueValues);
 
                 ContentValues eventValues = new ContentValues();
 
+                eventValues.put(EventsColumns.EVENTBRITE_VENUE_ID, venueEBId);
+                eventValues.put(EventsColumns.NAME, name);
+                eventValues.put(EventsColumns.EB_ID, eventBriteId);
+                eventValues.put(EventsColumns.DESCRIPTION, description);
+                eventValues.put(EventsColumns.URL, url);
+                eventValues.put(EventsColumns.START_DATE_TIME, startLocal);
+                eventValues.put(EventsColumns.END_DATE_TIME, endLocal);
+                eventValues.put(EventsColumns.CAPACITY, capacity);
+                eventValues.put(EventsColumns.STATUS, status);
+                eventValues.put(EventsColumns.LOGO_URL, logoUrl);
+                eventValues.put(EventsColumns.CATEGORY, category);
+
+                mEventsCVVector.add(eventValues);
+
                 //TODO make ContentValues from event data and add to content values vector
-
-//                mEventsCVVector.add(eventValues);
-//                Log.i(LOG_TAG, "Got JSON event object: " + name
-//                                + " " +
-//                                description
-//                                + " " +
-//                                url
-//                                + " " +
-//                                startLocal
-//                                + " " +
-//                                endLocal
-//                                + " " +
-//                                capacity
-//                                + " " +
-//                                status
-//                );
-
-                Log.i(LOG_TAG, "Got more info: " + logoUrl
-                                + " " +
-                                category
-                                + " " +
-                                venueName
-                                + " " +
-                                venueLat
-                                + " " +
-                                venueLong
-                );
             }
 
             int inserted = 0;
@@ -140,12 +141,20 @@ public class EventsDataJsonParser {
         }
     }
 
+    public ContentValues[] getVenuesContentValues() {
+        return getContentValuesArray(mVenuesCVVector);
+    }
     public ContentValues[] getEventsContentValues() {
+        return getContentValuesArray(mEventsCVVector);
+    }
+
+    //Helper method to return a ContentValues array from a Vector.
+    private ContentValues[] getContentValuesArray(Vector<ContentValues> cvVector) {
         ContentValues[] cvArray = new ContentValues[0];
 
-        if (mEventsCVVector.size() > 0) {
-            cvArray = new ContentValues[mEventsCVVector.size()];
-            mEventsCVVector.toArray(cvArray);
+        if (cvVector.size() > 0) {
+            cvArray = new ContentValues[cvVector.size()];
+            cvVector.toArray(cvArray);
         }
         return cvArray;
     }

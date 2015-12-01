@@ -35,6 +35,14 @@
             </intent-filter>
         </activity>
         <service android:name=".service.MapHapService"/>
+
+
     </application>
 
 </manifest>
+
+
+<!--<provider-->
+<!--android:authorities="com.sam_chordas.android.schematicplanets.data.EventProvider"-->
+<!--android:name="com.example.olivi.maphap.data.generated.EventProvider"-->
+<!--android:exported="false"/>-->
