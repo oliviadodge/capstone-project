@@ -4,5 +4,9 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
+    <string name="action_refresh">Refresh</string>
     <string name="action_settings">Settings</string>
+
+    API Strings
+    <string name="my_personal_oauth_token"></string>
 </resources>
