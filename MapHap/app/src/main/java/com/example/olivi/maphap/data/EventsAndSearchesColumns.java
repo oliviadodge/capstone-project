@@ -12,18 +12,21 @@ import net.simonvt.schematic.annotation.References;
  */
 public interface EventsAndSearchesColumns {
 
-    @DataType(DataType.Type.INTEGER)
+
     @PrimaryKey
-    @References(table = EventDatabase.Tables.EVENTS,
-            column = EventsColumns._ID)
-    public static final String EVENT_ID =
+    @DataType(DataType.Type.TEXT)
+    @References(table = EventDatabase.EVENTS,
+            column = EventsColumns.EB_ID)
+    String EVENT_ID =
             "event_id";
 
 
-    @DataType(DataType.Type.INTEGER)
     @PrimaryKey
-    @References(table = EventDatabase.Tables.SEARCHES,
+    @DataType(DataType.Type.INTEGER)
+    @References(table = EventDatabase.SEARCHES,
             column = SearchColumns._ID)
-    public static final String SEARCH_ID =
+    String SEARCH_ID =
             "search_id";
+
+
 }

@@ -4,10 +4,14 @@ import android.app.IntentService;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.net.Uri;
-import android.nfc.Tag;
 import android.util.Log;
 
 import com.example.olivi.maphap.R;
+import com.example.olivi.maphap.data.EventProvider;
+import com.example.olivi.maphap.data.EventsColumns;
+import com.example.olivi.maphap.data.RegionsColumns;
+import com.example.olivi.maphap.data.SearchColumns;
+import com.example.olivi.maphap.data.VenuesColumns;
 
 import org.json.JSONException;
 
@@ -148,30 +152,86 @@ public class MapHapService extends IntentService {
             throws JSONException {
 
 
-        EventsDataJsonParser parser = new EventsDataJsonParser(eventJsonStr);
+        //TODO delete the following lines that delete data in the database. They are for testing purposes only.
+        this.getContentResolver().delete(EventProvider.Events.CONTENT_URI, null, null);
+        this.getContentResolver().delete(EventProvider.Venues.CONTENT_URI, null, null);
+        this.getContentResolver().delete(EventProvider.Searches.CONTENT_URI, null, null);
+        this.getContentResolver().delete(EventProvider.Regions.CONTENT_URI, null, null);
+        this.getContentResolver().delete(EventProvider.EventsAndSearches.CONTENT_URI, null, null);
+        this.getContentResolver().delete(EventProvider.EventsAndRegions.CONTENT_URI, null, null);
+
+
+        long searchId = addSearchTermToDB(searchTerm);
+        long regionId = addRegionToDB(latitude, longitude, within);
+
+        EventsDataJsonParser parser = new EventsDataJsonParser(eventJsonStr, searchId, regionId);
         parser.parse();
 
+        ContentValues regionValues = new ContentValues();
+        regionValues.put(RegionsColumns.LATITUDE, latitude);
+        regionValues.put(RegionsColumns.LONGITUDE, longitude);
+        regionValues.put(RegionsColumns.RADIUS, within);
 
-        ContentValues[] venuesContentValues =  parser.getVenuesContentValues();
-        ContentValues[] eventsContentValues =  parser.getEventsContentValues();
+        ContentValues searchValues = new ContentValues();
+        searchValues.put(SearchColumns.SEARCH_TERM, searchTerm);
 
-        for (ContentValues cv : venuesContentValues) {
-            Log.i(LOG_TAG, "Venue: " + cv);
-        }
+        ContentValues[] venuesContentValues = parser.getVenuesContentValues();
+        ContentValues[] eventsContentValues = parser.getEventsContentValues();
+        ContentValues[] eventsAndSearchContentValues = parser.getEventsAndSearchContentValues();
+        ContentValues[] eventsAndRegionContentValues = parser.getEventsAndRegionContentValues();
 
-        for (ContentValues cv : eventsContentValues) {
-            Log.i(LOG_TAG, "Event: " + cv);
-        }
+        String[] allEventsColumns = {
+                EventsColumns._ID,
+                EventsColumns.CAPACITY,
+                EventsColumns.CATEGORY,
+                EventsColumns.DESCRIPTION,
+                EventsColumns.EB_ID,
+                EventsColumns.END_DATE_TIME,
+                EventsColumns.EVENTBRITE_VENUE_ID,
+                EventsColumns.LOGO_URL,
+                EventsColumns.NAME,
+                EventsColumns.START_DATE_TIME,
+                EventsColumns.STATUS,
+                EventsColumns.URL
+        };
+        String[] allVenuesColumns = {
+                VenuesColumns._ID,
+                VenuesColumns.NAME,
+                VenuesColumns.EVENTBRITE_VENUE_ID,
+                VenuesColumns.LATITUDE,
+                VenuesColumns.LONGITUDE,
+        };
 
+        //Insert the data
+        this.getContentResolver().bulkInsert(EventProvider.Venues.CONTENT_URI, venuesContentValues);
+        this.getContentResolver().bulkInsert(EventProvider.Events.CONTENT_URI, eventsContentValues);
+        this.getContentResolver().bulkInsert(EventProvider
+                .EventsAndSearches.CONTENT_URI, eventsAndSearchContentValues);
+        this.getContentResolver().bulkInsert(EventProvider
+                .EventsAndRegions.CONTENT_URI, eventsAndRegionContentValues);
+    }
 
-        //TODO add eventsContentValues to db via content provider.
-        //Note that venues needs to be added first because the events table
-        //references the venues. Venues is added in the getEventsContentValues() method
+    public long addSearchTermToDB(String searchTerm) {
+        ContentValues searchCV = new ContentValues();
+        searchCV.put(SearchColumns.SEARCH_TERM, searchTerm);
+        Uri searchUri = this.getContentResolver().insert(EventProvider.Searches.CONTENT_URI,
+                searchCV);
 
-//            long locationId = addSearchRegion(latitude, longitude, within);
-//            long searchId = addSearchTerm(searchTerm);
-        //TODO create method to add search term to database and fix addSearchRegion
+        return getIdFromUri(searchUri);
+    }
 
+    public long addRegionToDB(double latitude, double longitude, int within) {
+        ContentValues regionCV = new ContentValues();
+        regionCV.put(RegionsColumns.LATITUDE, latitude);
+        regionCV.put(RegionsColumns.LONGITUDE, longitude);
+        regionCV.put(RegionsColumns.RADIUS, within);
+        Uri regionUri = this.getContentResolver().insert(EventProvider.Regions.CONTENT_URI,
+                regionCV);
 
+        return getIdFromUri(regionUri);
+    }
+
+    public static long getIdFromUri(Uri uri) {
+        return Long.parseLong(uri.getPathSegments().get(1));
     }
 }

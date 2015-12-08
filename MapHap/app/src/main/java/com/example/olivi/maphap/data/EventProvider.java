@@ -19,6 +19,8 @@ public final class EventProvider {
         String REGIONS = "regions";
         String SEARCHES = "searches";
         String VENUES="venues";
+        String EVENTS_SEARCHES = "events_searches";
+        String EVENTS_REGIONS = "events_regions";
     }
 
     private static Uri buildUri(String ... paths){
@@ -30,14 +32,22 @@ public final class EventProvider {
     }
 
 
-    @TableEndpoint(table = EventDatabase.Tables.EVENTS) public static class Events {
+    @TableEndpoint(table = EventDatabase.EVENTS) public static class Events {
+
+        @ContentUri(
+                path = Path.EVENTS,
+                type = "vnd.android.cursor.dir/event",
+                defaultSort = EventsColumns._ID + " ASC")
+        public static final Uri CONTENT_URI = buildUri(Path.EVENTS);
+
+
         @InexactContentUri(
                 name = "EVENTS_WITH_REGION",
                 path = Path.EVENTS + "/" + Path.REGIONS + "/#",
                 type= "vnd.android.cursor.dir/event",
                 whereColumn = EventsAndRegionsColumns.REGION_ID,
                 pathSegment = 1,
-                join = EventDatabase.Tables.EVENTS_REGIONS)
+                join = EventDatabase.EVENTS_REGIONS)
 
         public static Uri withRegionId(long id){
             return buildUri(Path.EVENTS, Path.REGIONS, String.valueOf(id));
@@ -51,20 +61,20 @@ public final class EventProvider {
                 type = "vnd.android.cursor.item/event",
                 whereColumn = EventsColumns._ID,
                 pathSegment = 1,
-                join = EventDatabase.Tables.VENUES)
+                join = EventDatabase.VENUES)
 
         public static Uri withId(long id){
             return buildUri(Path.EVENTS, String.valueOf(id));
         }
     }
-//
-//    @TableEndpoint(table = EventDatabase.VENUES) public static class ArchivedPlanets{
-//        @ContentUri(
-//                path = Path.ARCHIVED_PLANETS,
-//                type = "vnd.android.cursor.dir/archived_planet",
-//                defaultSort = VenuesColumns.DIST_FROM_SUN + " ASC"
-//        )
-//        public static final Uri CONTENT_URI = buildUri(Path.ARCHIVED_PLANETS);
+
+    @TableEndpoint(table = EventDatabase.VENUES) public static class Venues{
+        @ContentUri(
+                path = Path.VENUES,
+                type = "vnd.android.cursor.dir/venue",
+                defaultSort = VenuesColumns._ID + " ASC"
+        )
+        public static final Uri CONTENT_URI = buildUri(Path.VENUES);
 //
 //        @InexactContentUri(
 //                name = "ARCHIVED_PLANET_ID",
@@ -76,5 +86,86 @@ public final class EventProvider {
 //        public static Uri withId(long id){
 //            return buildUri(Path.ARCHIVED_PLANETS, String.valueOf(id));
 //        }
-//    }
+    }
+
+    @TableEndpoint(table = EventDatabase.REGIONS) public static class Regions{
+        @ContentUri(
+                path = Path.REGIONS,
+                type = "vnd.android.cursor.dir/region",
+                defaultSort = RegionsColumns._ID + " ASC"
+        )
+        public static final Uri CONTENT_URI = buildUri(Path.REGIONS);
+
+        @InexactContentUri(
+                name = "REGION_ID",
+                path = Path.REGIONS + "/#",
+                type = "vnd.android.cursor.item/region",
+                whereColumn = RegionsColumns._ID,
+                pathSegment = 1
+        )
+        public static Uri withId(long id){
+            return buildUri(Path.REGIONS, String.valueOf(id));
+        }
+    }
+
+    @TableEndpoint(table = EventDatabase.SEARCHES) public static class Searches{
+        @ContentUri(
+                path = Path.SEARCHES,
+                type = "vnd.android.cursor.dir/search",
+                defaultSort = SearchColumns._ID + " ASC"
+        )
+        public static final Uri CONTENT_URI = buildUri(Path.SEARCHES);
+
+        @InexactContentUri(
+                name = "SEARCH_ID",
+                path = Path.SEARCHES + "/#",
+                type = "vnd.android.cursor.item/search",
+                whereColumn = SearchColumns._ID,
+                pathSegment = 1
+        )
+        public static Uri withId(long id){
+            return buildUri(Path.SEARCHES, String.valueOf(id));
+        }
+    }
+
+    @TableEndpoint(table = EventDatabase.EVENTS_SEARCHES) public static class EventsAndSearches{
+        @ContentUri(
+                path = Path.EVENTS_SEARCHES,
+                type = "vnd.android.cursor.dir/event_search",
+                defaultSort = EventsAndSearchesColumns.EVENT_ID + " ASC"
+        )
+        public static final Uri CONTENT_URI = buildUri(Path.EVENTS_SEARCHES);
+//
+//        @InexactContentUri(
+//                name = "SEARCH_ID",
+//                path = Path.SEARCHES + "/#",
+//                type = "vnd.android.cursor.item/search",
+//                whereColumn = SearchColumns._ID,
+//                pathSegment = 1
+//        )
+//        public static Uri withId(long id){
+//            return buildUri(Path.SEARCHES, String.valueOf(id));
+//        }
+    }
+
+    @TableEndpoint(table = EventDatabase.EVENTS_REGIONS) public static class EventsAndRegions{
+        @ContentUri(
+                path = Path.EVENTS_REGIONS,
+                type = "vnd.android.cursor.dir/event_region",
+                defaultSort = EventsAndRegionsColumns.EVENT_ID + " ASC"
+        )
+        public static final Uri CONTENT_URI = buildUri(Path.EVENTS_REGIONS);
+//
+//        @InexactContentUri(
+//                name = "REGION_ID",
+//                path = Path.REGIONS + "/#",
+//                type = "vnd.android.cursor.item/region",
+//                whereColumn = RegionColumns._ID,
+//                pathSegment = 1
+//        )
+//        public static Uri withId(long id){
+//            return buildUri(Path.REGIONES, String.valueOf(id));
+//        }
+    }
 }
+

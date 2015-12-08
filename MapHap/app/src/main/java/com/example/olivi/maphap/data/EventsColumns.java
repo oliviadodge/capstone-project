@@ -13,53 +13,53 @@ public interface EventsColumns {
 
     @DataType(DataType.Type.INTEGER) @PrimaryKey
     @AutoIncrement
-    public static final String _ID =
+    String _ID =
             "_id";
 
     @DataType(DataType.Type.INTEGER)
-    @References(table = EventDatabase.Tables.VENUES, column = VenuesColumns.EVENTBRITE_VENUE_ID)
-    public static final String EVENTBRITE_VENUE_ID =
+    @References(table = EventDatabase.VENUES, column = VenuesColumns.EVENTBRITE_VENUE_ID)
+    String EVENTBRITE_VENUE_ID =
             "eb_venue_id";
 
     @DataType(DataType.Type.TEXT) @NotNull
-    public static final String NAME =
+    String NAME =
             "event_name";
 
     @DataType(DataType.Type.TEXT) @NotNull
     @Unique(onConflict = ConflictResolutionType.REPLACE)
-    public static final String EB_ID =
+    String EB_ID =
             "eventbride_id";
 
     @DataType(DataType.Type.TEXT)
-    public static final String DESCRIPTION = "description";
+    String DESCRIPTION = "description";
 
 
     @DataType(DataType.Type.TEXT)
-    public static final String URL =
+    String URL =
             "event_url";
 
     @DataType(DataType.Type.TEXT) @NotNull
-    public static final String START_DATE_TIME =
+    String START_DATE_TIME =
             "start_date_time";
 
     @DataType(DataType.Type.TEXT) @NotNull
-    public static final String END_DATE_TIME =
+    String END_DATE_TIME =
             "end_date_time";
 
     @DataType(DataType.Type.INTEGER)
-    public static final String CAPACITY =
+    String CAPACITY =
             "capacity";
 
     @DataType(DataType.Type.TEXT) @NotNull
-    public static final String STATUS =
+    String STATUS =
             "status";
 
     @DataType(DataType.Type.TEXT)
-    public static final String LOGO_URL =
+    String LOGO_URL =
             "logo_url";
 
     @DataType(DataType.Type.TEXT)
-    public static final String CATEGORY =
+    String CATEGORY =
             "category";
 }
 
