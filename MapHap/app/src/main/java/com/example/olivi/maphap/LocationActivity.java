@@ -251,4 +251,5 @@ public abstract class LocationActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
 }

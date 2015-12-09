@@ -1,16 +1,22 @@
 package com.example.olivi.maphap;
 
 import android.app.LoaderManager;
+import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.example.olivi.maphap.data.EventProvider;
+import com.example.olivi.maphap.data.RegionsColumns;
 import com.example.olivi.maphap.service.MapHapService;
+import com.example.olivi.maphap.utils.Constants;
+import com.example.olivi.maphap.utils.LocationUtils;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
@@ -25,7 +31,7 @@ public class MainActivity extends LocationActivity
         OnMapReadyCallback{
 
     private static final String TAG = MainActivity.class.getSimpleName();
-    private static final int EVENTS_LOADER = 0;
+    private static final int REGIONS_LOADER = 0;
 
 
 
@@ -48,6 +54,9 @@ public class MainActivity extends LocationActivity
         zoomToPosition(latitude, longitude);
         addMarker(latitude, longitude);
         mLastLocation = location;
+
+
+        getLoaderManager().initLoader(REGIONS_LOADER, null, this);
     }
 
     @Override
@@ -119,16 +128,69 @@ public class MainActivity extends LocationActivity
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        return null;
+        switch (id) {
+            case REGIONS_LOADER:
+
+                String[] radius = {LocationUtils.getPreferredRadius(this)};
+                String selection = RegionsColumns.RADIUS + " = ?";
+                Uri regionsUri = EventProvider.Regions.CONTENT_URI;
+
+                //TODO check for how old data is. If it's older than a day we should probably refetch
+
+                return new CursorLoader(this,
+                        regionsUri,
+                        RegionProjections.REGION_COLUMNS,
+                        selection,
+                        radius,
+                        null);
+            default:
+                return null;
+        }
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        int id = loader.getId();
+        switch (id) {
+            case REGIONS_LOADER:
+                if ((data != null) && (data.moveToFirst())) {
+                    long regionId = checkIfRegionIsInDB(data);
+                    if (regionId != -1) {
+                        //TODO start loader to query for events matching the region id found in the db
+                    }
+                } else {
+                    //TODO start MapHapService to fetch events data since region is not in DB
+                }
+            default:
+        }
 
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
 
+    }
+
+    public long checkIfRegionIsInDB(Cursor cursor) {
+        long regionId = -1;
+
+        double userLat = mLastLocation.getLatitude();
+        double userLon = mLastLocation.getLongitude();
+
+        for (int i = 0; i < cursor.getCount(); i++) {
+            double regionLat = cursor.getDouble(RegionProjections.COL_LATITUDE);
+            double regionLon = cursor.getDouble(RegionProjections.COL_LONGITUDE);
+
+            double distInMi = LocationUtils.milesBetweenTwoPoints(userLat, userLon,
+                    regionLat, regionLon);
+
+            if (distInMi <= Constants.TOLERANCE_DIST_IN_MILES) {
+                regionId = cursor.getLong(RegionProjections.COL_ID);
+                break;
+            }
+
+        }
+
+        return regionId;
     }
 }
