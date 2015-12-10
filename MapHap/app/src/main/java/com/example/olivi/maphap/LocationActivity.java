@@ -93,11 +93,9 @@ public abstract class LocationActivity extends AppCompatActivity
 
     @Override
     public void onLocationChanged(Location location) {
-        Log.i(TAG, "onLocationChanged called!");
         mLastLocation = location;
         if (mLastLocation != null) {
-            Log.i(TAG, "Last known latitude: " + mLastLocation.getLatitude());
-            Log.i(TAG, "Last known longitude: " + mLastLocation.getLongitude());
+            Log.i(TAG, "onLocationChanged called. Calling onUserLocationFound");
             onUserLocationFound(mLastLocation);
         }
     }
@@ -137,19 +135,21 @@ public abstract class LocationActivity extends AppCompatActivity
         mLastLocation = LocationServices.FusedLocationApi
                 .getLastLocation(mGoogleApiClient);
         if (mLastLocation != null) {
-            Log.i(TAG, "Last known latitude: " + mLastLocation.getLatitude());
-            Log.i(TAG, "Last known longitude: " + mLastLocation.getLongitude());
+            Log.i(TAG, "getUserLocation() called. Calling onUserLocationFound");
             onUserLocationFound(mLastLocation);
         }
 
-        //TODO revise the following LocationRequest. There is no need to get location every 10 sec.
-        mLocationRequest = LocationRequest.create();
-        mLocationRequest
-                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-                .setInterval(10000);
+        /*TODO delete the following commented code.
+        This is only here in case we need to request a location update again.
+         */
 
-        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient,
-                mLocationRequest, this);
+//        mLocationRequest = LocationRequest.create();
+//        mLocationRequest
+//                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
+//                .setInterval(300000);
+//
+//        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient,
+//                mLocationRequest, this);
 
     }
 
@@ -165,6 +165,8 @@ public abstract class LocationActivity extends AppCompatActivity
 
     private void askPermissionForLocation() {
         // Should we show an explanation?
+
+        mAskPermissionForLocation = false;
         if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                 Manifest.permission.READ_CONTACTS)) {
 

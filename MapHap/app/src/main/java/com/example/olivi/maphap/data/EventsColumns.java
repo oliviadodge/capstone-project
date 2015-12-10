@@ -28,7 +28,7 @@ public interface EventsColumns {
     @DataType(DataType.Type.TEXT) @NotNull
     @Unique(onConflict = ConflictResolutionType.REPLACE)
     String EB_ID =
-            "eventbride_id";
+            "eventbrite_id";
 
     @DataType(DataType.Type.TEXT)
     String DESCRIPTION = "description";

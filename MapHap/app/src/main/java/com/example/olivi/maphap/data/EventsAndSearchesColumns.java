@@ -3,6 +3,7 @@ package com.example.olivi.maphap.data;
 import com.example.olivi.maphap.service.EventsDataJsonParser;
 
 import net.simonvt.schematic.annotation.AutoIncrement;
+import net.simonvt.schematic.annotation.ConflictResolutionType;
 import net.simonvt.schematic.annotation.DataType;
 import net.simonvt.schematic.annotation.PrimaryKey;
 import net.simonvt.schematic.annotation.References;
@@ -13,7 +14,7 @@ import net.simonvt.schematic.annotation.References;
 public interface EventsAndSearchesColumns {
 
 
-    @PrimaryKey
+    @PrimaryKey(onConflict = ConflictResolutionType.REPLACE)
     @DataType(DataType.Type.TEXT)
     @References(table = EventDatabase.EVENTS,
             column = EventsColumns.EB_ID)
@@ -21,7 +22,7 @@ public interface EventsAndSearchesColumns {
             "event_id";
 
 
-    @PrimaryKey
+    @PrimaryKey(onConflict = ConflictResolutionType.REPLACE)
     @DataType(DataType.Type.INTEGER)
     @References(table = EventDatabase.SEARCHES,
             column = SearchColumns._ID)

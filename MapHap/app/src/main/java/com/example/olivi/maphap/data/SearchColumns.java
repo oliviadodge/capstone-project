@@ -1,6 +1,7 @@
 package com.example.olivi.maphap.data;
 
 import net.simonvt.schematic.annotation.AutoIncrement;
+import net.simonvt.schematic.annotation.ConflictResolutionType;
 import net.simonvt.schematic.annotation.DataType;
 import net.simonvt.schematic.annotation.NotNull;
 import net.simonvt.schematic.annotation.PrimaryKey;
@@ -17,7 +18,7 @@ public interface SearchColumns {
             "_id";
 
     @DataType(DataType.Type.TEXT) @NotNull
-    @Unique
+    @Unique(onConflict = ConflictResolutionType.IGNORE)
     public static final String SEARCH_TERM = "search_term";
 
 }

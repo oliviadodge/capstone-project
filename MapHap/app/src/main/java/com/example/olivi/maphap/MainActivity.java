@@ -4,6 +4,7 @@ import android.app.LoaderManager;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
+import android.database.ContentObserver;
 import android.database.Cursor;
 import android.location.Location;
 import android.net.Uri;
@@ -37,6 +38,7 @@ public class MainActivity extends LocationActivity
 
     private Location mLastLocation;
     private boolean mMapReady;
+    private boolean mDataFetched;
     private GoogleMap mMap;
 
     @Override
@@ -55,8 +57,9 @@ public class MainActivity extends LocationActivity
         addMarker(latitude, longitude);
         mLastLocation = location;
 
-
-        getLoaderManager().initLoader(REGIONS_LOADER, null, this);
+        Log.i(TAG, "Loader initialized to query for regions");
+        Loader<Cursor> loader = getLoaderManager().initLoader(REGIONS_LOADER, null, this);
+        loader.onContentChanged();
     }
 
     @Override
@@ -113,11 +116,10 @@ public class MainActivity extends LocationActivity
         } else if (id == R.id.refresh) {
             String expansions = "logo,venue,category";
             Intent i = new Intent(this, MapHapService.class);
-            i.putExtra(MapHapService.SEARCH_QUERY_EXTRA, "music");
+            i.putExtra(MapHapService.SEARCH_QUERY_EXTRA, "holiday");
             i.putExtra(MapHapService.LATITUDE_QUERY_EXTRA, mLastLocation.getLatitude());
             i.putExtra(MapHapService.LONGITUDE_QUERY_EXTRA, mLastLocation.getLongitude());
-            i.putExtra(MapHapService.WITHIN_QUERY_EXTRA, 30);
-            i.putExtra(MapHapService.EXPANSIONS_QUERY_EXTRA, expansions);
+            i.putExtra(MapHapService.WITHIN_QUERY_EXTRA, LocationUtils.getPreferredRadius(this));
 
             Log.i("MainActivity", "refresh button hit. Starting service...");
             startService(i);
@@ -153,14 +155,27 @@ public class MainActivity extends LocationActivity
         int id = loader.getId();
         switch (id) {
             case REGIONS_LOADER:
+                getLoaderManager().destroyLoader(REGIONS_LOADER);
                 if ((data != null) && (data.moveToFirst())) {
                     long regionId = checkIfRegionIsInDB(data);
                     if (regionId != -1) {
+                        Log.i(TAG, "found region: " + regionId);
                         //TODO start loader to query for events matching the region id found in the db
                     }
-                } else {
-                    //TODO start MapHapService to fetch events data since region is not in DB
+                } else if (!mDataFetched){
+                    //TODO revise search query extra to be an input from the user.
+                    Intent i = new Intent(this, MapHapService.class);
+                    i.putExtra(MapHapService.SEARCH_QUERY_EXTRA, "music");
+                    i.putExtra(MapHapService.LATITUDE_QUERY_EXTRA, mLastLocation.getLatitude());
+                    i.putExtra(MapHapService.LONGITUDE_QUERY_EXTRA, mLastLocation.getLongitude());
+                    i.putExtra(MapHapService.WITHIN_QUERY_EXTRA,
+                            LocationUtils.getPreferredRadius(this));
+
+                    Log.i("MainActivity", "No matching region found. Starting service...");
+                    startService(i);
                 }
+                mDataFetched = true;
+
             default:
         }
 
@@ -168,7 +183,6 @@ public class MainActivity extends LocationActivity
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-
     }
 
     public long checkIfRegionIsInDB(Cursor cursor) {

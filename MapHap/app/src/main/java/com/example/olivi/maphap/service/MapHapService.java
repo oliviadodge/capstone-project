@@ -31,7 +31,9 @@ public class MapHapService extends IntentService {
     public static final String LATITUDE_QUERY_EXTRA = "latqe";
     public static final String LONGITUDE_QUERY_EXTRA = "longqe";
     public static final String WITHIN_QUERY_EXTRA = "wqe";
-    public static final String EXPANSIONS_QUERY_EXTRA = "eqe";
+
+    private static final String EXPANSIONS = "logo,venue,category";
+
     private final String LOG_TAG = MapHapService.class.getSimpleName();
     public MapHapService() {
         super("MapHap");
@@ -48,8 +50,6 @@ public class MapHapService extends IntentService {
                 .toString(longitude);
         int within = intent.getIntExtra(WITHIN_QUERY_EXTRA, 50);
         String withinQuery = Integer.toString(within) + "mi";
-
-        String expansions = intent.getStringExtra(EXPANSIONS_QUERY_EXTRA);
 
         // These two need to be declared outside the try/catch
         // so that they can be closed in the finally block.
@@ -78,7 +78,7 @@ public class MapHapService extends IntentService {
                     .appendQueryParameter(LATITUDE_PARAM, latitudeQuery)
                     .appendQueryParameter(LONGITUDE_PARAM, longitudeQuery)
                     .appendQueryParameter(WITHIN_PARAM, withinQuery)
-                    .appendQueryParameter(EXPAND_PARAM, expansions)
+                    .appendQueryParameter(EXPAND_PARAM, EXPANSIONS)
                     .appendQueryParameter(OAUTH_TOKEN, getString(R.string.my_personal_oauth_token))
                     .build();
 
@@ -150,16 +150,6 @@ public class MapHapService extends IntentService {
                                    int within,
                                    String searchTerm)
             throws JSONException {
-
-
-        //TODO delete the following lines that delete data in the database. They are for testing purposes only.
-        this.getContentResolver().delete(EventProvider.Events.CONTENT_URI, null, null);
-        this.getContentResolver().delete(EventProvider.Venues.CONTENT_URI, null, null);
-        this.getContentResolver().delete(EventProvider.Searches.CONTENT_URI, null, null);
-        this.getContentResolver().delete(EventProvider.Regions.CONTENT_URI, null, null);
-        this.getContentResolver().delete(EventProvider.EventsAndSearches.CONTENT_URI, null, null);
-        this.getContentResolver().delete(EventProvider.EventsAndRegions.CONTENT_URI, null, null);
-
 
         long searchId = addSearchTermToDB(searchTerm);
         long regionId = addRegionToDB(latitude, longitude, within);

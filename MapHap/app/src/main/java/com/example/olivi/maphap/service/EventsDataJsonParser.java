@@ -138,7 +138,9 @@ public class EventsDataJsonParser {
 
                 ContentValues eventsAndSearchValues = new ContentValues();
                 eventsAndSearchValues.put(EventsAndSearchesColumns.SEARCH_ID, mSearchId);
+                Log.i(LOG_TAG, "searchId " + mSearchId);
                 eventsAndSearchValues.put(EventsAndSearchesColumns.EVENT_ID, eventBriteId);
+                Log.i(LOG_TAG, "eventBriteId " + eventBriteId);
                 mEventsAndSearchCVVector.add(eventsAndSearchValues);
 
                 ContentValues eventsAndRegionValues = new ContentValues();
