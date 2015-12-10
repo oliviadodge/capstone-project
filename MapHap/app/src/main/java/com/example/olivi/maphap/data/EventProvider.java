@@ -17,9 +17,7 @@ public final class EventProvider {
     interface Path{
         String EVENTS = "events";
         String REGIONS = "regions";
-        String SEARCHES = "searches";
-        String VENUES="venues";
-        String EVENTS_SEARCHES = "events_searches";
+        String VENUES = "venues";
         String EVENTS_REGIONS = "events_regions";
     }
 
@@ -108,45 +106,6 @@ public final class EventProvider {
         }
     }
 
-    @TableEndpoint(table = EventDatabase.SEARCHES) public static class Searches{
-        @ContentUri(
-                path = Path.SEARCHES,
-                type = "vnd.android.cursor.dir/search",
-                defaultSort = SearchColumns._ID + " ASC"
-        )
-        public static final Uri CONTENT_URI = buildUri(Path.SEARCHES);
-
-        @InexactContentUri(
-                name = "SEARCH_ID",
-                path = Path.SEARCHES + "/#",
-                type = "vnd.android.cursor.item/search",
-                whereColumn = SearchColumns._ID,
-                pathSegment = 1
-        )
-        public static Uri withId(long id){
-            return buildUri(Path.SEARCHES, String.valueOf(id));
-        }
-    }
-
-    @TableEndpoint(table = EventDatabase.EVENTS_SEARCHES) public static class EventsAndSearches{
-        @ContentUri(
-                path = Path.EVENTS_SEARCHES,
-                type = "vnd.android.cursor.dir/event_search",
-                defaultSort = EventsAndSearchesColumns.EVENT_ID + " ASC"
-        )
-        public static final Uri CONTENT_URI = buildUri(Path.EVENTS_SEARCHES);
-//
-//        @InexactContentUri(
-//                name = "SEARCH_ID",
-//                path = Path.SEARCHES + "/#",
-//                type = "vnd.android.cursor.item/search",
-//                whereColumn = SearchColumns._ID,
-//                pathSegment = 1
-//        )
-//        public static Uri withId(long id){
-//            return buildUri(Path.SEARCHES, String.valueOf(id));
-//        }
-    }
 
     @TableEndpoint(table = EventDatabase.EVENTS_REGIONS) public static class EventsAndRegions{
         @ContentUri(

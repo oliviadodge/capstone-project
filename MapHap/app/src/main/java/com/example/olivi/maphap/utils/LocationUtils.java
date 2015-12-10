@@ -34,9 +34,9 @@ public class LocationUtils {
         return (rad * 180 / Math.PI);
     }
 
-    public static String getPreferredRadius(Context context) {
+    public static int getPreferredRadius(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        return prefs.getString(context.getString(R.string.pref_radius_key),
-                context.getString(R.string.pref_radius_default));
+        return Integer.parseInt(prefs.getString(context.getString(R.string.pref_radius_key),
+                context.getString(R.string.pref_radius_default)));
     }
 }

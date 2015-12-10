@@ -22,19 +22,7 @@ public final class EventDatabase {
     public static final String REGIONS =
             "regions";
 
-    @Table(SearchColumns.class)
-    public static final String SEARCHES =
-            "searches";
-
     @Table(EventsAndRegionsColumns.class)
     public static final String EVENTS_REGIONS =
             "events_regions";
-
-    @Table(EventsAndSearchesColumns.class)
-    public static final String EVENTS_SEARCHES =
-            "events_searches";
-
-
-
-
 }

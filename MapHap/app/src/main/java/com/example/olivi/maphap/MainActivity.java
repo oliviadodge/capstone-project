@@ -116,7 +116,6 @@ public class MainActivity extends LocationActivity
         } else if (id == R.id.refresh) {
             String expansions = "logo,venue,category";
             Intent i = new Intent(this, MapHapService.class);
-            i.putExtra(MapHapService.SEARCH_QUERY_EXTRA, "holiday");
             i.putExtra(MapHapService.LATITUDE_QUERY_EXTRA, mLastLocation.getLatitude());
             i.putExtra(MapHapService.LONGITUDE_QUERY_EXTRA, mLastLocation.getLongitude());
             i.putExtra(MapHapService.WITHIN_QUERY_EXTRA, LocationUtils.getPreferredRadius(this));
@@ -133,7 +132,7 @@ public class MainActivity extends LocationActivity
         switch (id) {
             case REGIONS_LOADER:
 
-                String[] radius = {LocationUtils.getPreferredRadius(this)};
+                String[] radius = {Integer.toString(LocationUtils.getPreferredRadius(this))};
                 String selection = RegionsColumns.RADIUS + " = ?";
                 Uri regionsUri = EventProvider.Regions.CONTENT_URI;
 
@@ -165,7 +164,6 @@ public class MainActivity extends LocationActivity
                 } else if (!mDataFetched){
                     //TODO revise search query extra to be an input from the user.
                     Intent i = new Intent(this, MapHapService.class);
-                    i.putExtra(MapHapService.SEARCH_QUERY_EXTRA, "music");
                     i.putExtra(MapHapService.LATITUDE_QUERY_EXTRA, mLastLocation.getLatitude());
                     i.putExtra(MapHapService.LONGITUDE_QUERY_EXTRA, mLastLocation.getLongitude());
                     i.putExtra(MapHapService.WITHIN_QUERY_EXTRA,

@@ -41,6 +41,7 @@ public abstract class LocationActivity extends AppCompatActivity
     private LocationRequest mLocationRequest;
     private Location mLastLocation;
     private boolean mAskPermissionForLocation;
+    private boolean mIsUserLocated;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -80,12 +81,13 @@ public abstract class LocationActivity extends AppCompatActivity
     @Override
     protected void onStart() {
         super.onStart();
+        Log.i(TAG, "onStart() called. Attempting to connect GoogleApiClient...");
         mGoogleApiClient.connect();
     }
 
     @Override
     protected void onStop() {
-        if (mGoogleApiClient.isConnected()) {
+        if (mGoogleApiClient.isConnected()){
             mGoogleApiClient.disconnect();
         }
         super.onStop();
@@ -106,14 +108,12 @@ public abstract class LocationActivity extends AppCompatActivity
     }
 
     @Override
-    public void onConnected(Bundle bundle) {
-        Log.i(TAG, "mGoogleApiClient is connected!");
+    public void onConnected (Bundle bundle){
         if (isLocationPermissionGranted()) {
-            Log.i(TAG, "mGoogleApiClient is connected, and location access" +
-                    " is granted! Getting user location now...");
-            getUserLocation();
+            if (!mIsUserLocated) {
+                getUserLocation();
+            }
         } else {
-
             mAskPermissionForLocation = true;
             Log.i(TAG, "mGoogleApiClient is connected, but location permission" +
                     "has not been granted yet. Asking permission now.");
@@ -136,6 +136,7 @@ public abstract class LocationActivity extends AppCompatActivity
                 .getLastLocation(mGoogleApiClient);
         if (mLastLocation != null) {
             Log.i(TAG, "getUserLocation() called. Calling onUserLocationFound");
+            mIsUserLocated = true;
             onUserLocationFound(mLastLocation);
         }
 
@@ -198,7 +199,8 @@ public abstract class LocationActivity extends AppCompatActivity
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    if ((mLastLocation == null) && (mGoogleApiClient.isConnected())){
+                    if ((mLastLocation == null) && (mGoogleApiClient.isConnected())) {
+                        Log.i(TAG, "Location permission granted. Calling getUserLocation()");
                         getUserLocation();
                     }
                 } else if (grantResults.length == 0) {

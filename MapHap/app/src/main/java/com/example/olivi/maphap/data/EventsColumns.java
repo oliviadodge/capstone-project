@@ -16,8 +16,8 @@ public interface EventsColumns {
     String _ID =
             "_id";
 
-    @DataType(DataType.Type.INTEGER)
-    @References(table = EventDatabase.VENUES, column = VenuesColumns.EVENTBRITE_VENUE_ID)
+    @DataType(DataType.Type.TEXT)
+    @References(table = EventDatabase.VENUES, column = VenuesColumns.EB_VENUE_ID)
     String EVENTBRITE_VENUE_ID =
             "eb_venue_id";
 
@@ -28,7 +28,7 @@ public interface EventsColumns {
     @DataType(DataType.Type.TEXT) @NotNull
     @Unique(onConflict = ConflictResolutionType.REPLACE)
     String EB_ID =
-            "eventbrite_id";
+            "eb_id";
 
     @DataType(DataType.Type.TEXT)
     String DESCRIPTION = "description";

@@ -19,7 +19,7 @@ public interface EventsAndRegionsColumns {
     @DataType(DataType.Type.INTEGER)
     @PrimaryKey
     @References(table = EventDatabase.REGIONS,
-            column = SearchColumns._ID)
+            column = RegionsColumns._ID)
     String REGION_ID =
             "region_id";
 }

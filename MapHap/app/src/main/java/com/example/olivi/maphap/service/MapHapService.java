@@ -10,7 +10,6 @@ import com.example.olivi.maphap.R;
 import com.example.olivi.maphap.data.EventProvider;
 import com.example.olivi.maphap.data.EventsColumns;
 import com.example.olivi.maphap.data.RegionsColumns;
-import com.example.olivi.maphap.data.SearchColumns;
 import com.example.olivi.maphap.data.VenuesColumns;
 
 import org.json.JSONException;
@@ -27,7 +26,6 @@ import java.net.URL;
  */
 
 public class MapHapService extends IntentService {
-    public static final String SEARCH_QUERY_EXTRA = "sqe";
     public static final String LATITUDE_QUERY_EXTRA = "latqe";
     public static final String LONGITUDE_QUERY_EXTRA = "longqe";
     public static final String WITHIN_QUERY_EXTRA = "wqe";
@@ -41,7 +39,6 @@ public class MapHapService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        String searchQuery = intent.getStringExtra(SEARCH_QUERY_EXTRA);
         double latitude = intent.getDoubleExtra(LATITUDE_QUERY_EXTRA, 0.00);
         String latitudeQuery = Double
                 .toString(latitude);
@@ -74,7 +71,6 @@ public class MapHapService extends IntentService {
             final String OAUTH_TOKEN = "token";
 
             Uri builtUri = Uri.parse(EVENTS_BASE_URL).buildUpon()
-                    .appendQueryParameter(SEARCH_QUERY_PARAM, searchQuery)
                     .appendQueryParameter(LATITUDE_PARAM, latitudeQuery)
                     .appendQueryParameter(LONGITUDE_PARAM, longitudeQuery)
                     .appendQueryParameter(WITHIN_PARAM, withinQuery)
@@ -114,7 +110,7 @@ public class MapHapService extends IntentService {
             }
             eventsJsonStr = buffer.toString();
 
-            getEventsFromJson(eventsJsonStr, latitude, longitude, within, searchQuery);
+            getEventsFromJson(eventsJsonStr, latitude, longitude, within);
         } catch (IOException e) {
             Log.e(LOG_TAG, "Error ", e);
             // If the code didn't successfully get the data, there's no point in attempting
@@ -147,27 +143,17 @@ public class MapHapService extends IntentService {
     private void getEventsFromJson(String eventJsonStr,
                                    double latitude,
                                    double longitude,
-                                   int within,
-                                   String searchTerm)
+                                   int within
+                                   )
             throws JSONException {
 
-        long searchId = addSearchTermToDB(searchTerm);
         long regionId = addRegionToDB(latitude, longitude, within);
 
-        EventsDataJsonParser parser = new EventsDataJsonParser(eventJsonStr, searchId, regionId);
+        EventsDataJsonParser parser = new EventsDataJsonParser(eventJsonStr, regionId);
         parser.parse();
-
-        ContentValues regionValues = new ContentValues();
-        regionValues.put(RegionsColumns.LATITUDE, latitude);
-        regionValues.put(RegionsColumns.LONGITUDE, longitude);
-        regionValues.put(RegionsColumns.RADIUS, within);
-
-        ContentValues searchValues = new ContentValues();
-        searchValues.put(SearchColumns.SEARCH_TERM, searchTerm);
 
         ContentValues[] venuesContentValues = parser.getVenuesContentValues();
         ContentValues[] eventsContentValues = parser.getEventsContentValues();
-        ContentValues[] eventsAndSearchContentValues = parser.getEventsAndSearchContentValues();
         ContentValues[] eventsAndRegionContentValues = parser.getEventsAndRegionContentValues();
 
         String[] allEventsColumns = {
@@ -187,7 +173,7 @@ public class MapHapService extends IntentService {
         String[] allVenuesColumns = {
                 VenuesColumns._ID,
                 VenuesColumns.NAME,
-                VenuesColumns.EVENTBRITE_VENUE_ID,
+                VenuesColumns.EB_VENUE_ID,
                 VenuesColumns.LATITUDE,
                 VenuesColumns.LONGITUDE,
         };
@@ -196,18 +182,7 @@ public class MapHapService extends IntentService {
         this.getContentResolver().bulkInsert(EventProvider.Venues.CONTENT_URI, venuesContentValues);
         this.getContentResolver().bulkInsert(EventProvider.Events.CONTENT_URI, eventsContentValues);
         this.getContentResolver().bulkInsert(EventProvider
-                .EventsAndSearches.CONTENT_URI, eventsAndSearchContentValues);
-        this.getContentResolver().bulkInsert(EventProvider
                 .EventsAndRegions.CONTENT_URI, eventsAndRegionContentValues);
-    }
-
-    public long addSearchTermToDB(String searchTerm) {
-        ContentValues searchCV = new ContentValues();
-        searchCV.put(SearchColumns.SEARCH_TERM, searchTerm);
-        Uri searchUri = this.getContentResolver().insert(EventProvider.Searches.CONTENT_URI,
-                searchCV);
-
-        return getIdFromUri(searchUri);
     }
 
     public long addRegionToDB(double latitude, double longitude, int within) {

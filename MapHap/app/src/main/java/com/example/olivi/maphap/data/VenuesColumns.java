@@ -14,14 +14,14 @@ public interface VenuesColumns {
     public static final String _ID =
             "_id";
 
-    @DataType(DataType.Type.TEXT) @NotNull
+    @DataType(DataType.Type.TEXT)
     public static final String NAME =
             "venue_name";
 
     @DataType(DataType.Type.TEXT) @NotNull
     @Unique(onConflict = ConflictResolutionType.REPLACE)
-    public static final String EVENTBRITE_VENUE_ID =
-            "eventbrite_venue_id";
+    public static final String EB_VENUE_ID =
+            "eb_venue_id";
 
     @DataType(DataType.Type.REAL) @NotNull
     public static final String LATITUDE =

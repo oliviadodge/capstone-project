@@ -1,15 +1,10 @@
 package com.example.olivi.maphap.service;
 
 import android.content.ContentValues;
-import android.graphics.Region;
 import android.util.Log;
 
-import com.example.olivi.maphap.data.EventProvider;
 import com.example.olivi.maphap.data.EventsAndRegionsColumns;
-import com.example.olivi.maphap.data.EventsAndSearchesColumns;
 import com.example.olivi.maphap.data.EventsColumns;
-import com.example.olivi.maphap.data.RegionsColumns;
-import com.example.olivi.maphap.data.SearchColumns;
 import com.example.olivi.maphap.data.VenuesColumns;
 
 import org.json.JSONArray;
@@ -47,20 +42,17 @@ public class EventsDataJsonParser {
     final String EB_CATEGORY = "category";
 
     String mEventsJson;
-    long mSearchId;
     long mRegionId;
     Vector<ContentValues>  mEventsCVVector;
     Vector<ContentValues>  mVenuesCVVector;
-    Vector<ContentValues>  mEventsAndSearchCVVector;
     Vector<ContentValues>  mEventsAndRegionCVVector;
 
-    public EventsDataJsonParser(String jsonStr, long searchId, long regionId) {
+    public EventsDataJsonParser(String jsonStr, long regionId) {
         mEventsJson = jsonStr;
-        mSearchId = searchId;
         mRegionId = regionId;
     }
 
-    public void parse() {
+    public void parse() throws JSONException {
 
         try {
             JSONObject eventsJson = new JSONObject(mEventsJson);
@@ -68,7 +60,6 @@ public class EventsDataJsonParser {
 
             mVenuesCVVector = new Vector<ContentValues>(eventsArray.length());
             mEventsCVVector = new Vector<ContentValues>(eventsArray.length());
-            mEventsAndSearchCVVector = new Vector<ContentValues>(eventsArray.length());
             mEventsAndRegionCVVector = new Vector<ContentValues>(eventsArray.length());
 
             for (int i = 0; i < 5; i++) {
@@ -76,27 +67,29 @@ public class EventsDataJsonParser {
                 // These are the values that will be collected for the events table
                 String name;
                 String eventBriteId;
-                String description;
+                String description = ""; //This is optional so it may not get set during parsing
                 String url;
                 String startLocal;
                 String endLocal;
                 int capacity;
                 String status;
-                String logoUrl;
-                String category;
+                String logoUrl = ""; //This is optional so it may not get set during parsing
+                String category = ""; //This is optional so it may not get set during parsing
 
                 //These are the values that will be collected for the venues table
-                String venueName;
-                String venueEBId;
-                double venueLat;
-                double venueLong;
+                //This object is optional so these must all be initialized b/c they may not be set
+                //during parsing
+                String venueName = "";
+                String venueEBId = "";
+                double venueLat = 0.0;
+                double venueLong = 0.0;
 
                 // Get the JSON object representing the event
                 JSONObject event = eventsArray.getJSONObject(i);
 
                 name = event.getJSONObject(EB_NAME).getString(EB_EVENT_TEXT);
                 eventBriteId = event.getString(EB_ID);
-                description = event.getJSONObject(EB_EVENT_DESCRIPTION).getString(EB_EVENT_TEXT);
+
                 url = event.getString(EB_URL);
 
                 //Json objects representing start and end time date and timezones.
@@ -106,18 +99,38 @@ public class EventsDataJsonParser {
                 capacity = event.getInt(EB_EVENT_CAPACITY);
                 status = event.getString(EB_EVENT_STATUS);
 
-                logoUrl = event.getJSONObject(EB_LOGO).getString(EB_URL);
-                category = event.getJSONObject(EB_CATEGORY).getString(EB_NAME);
+                //The following 4 items are optional meaning they may be null if the organiser
+                //didn't provide values for them. Therefore we need to check if they exist and
+                //are not null, otherwise a JSONException will be thrown.
 
-                JSONObject venue = event.getJSONObject(EB_VENUE);
-                venueName = venue.getString(EB_NAME);
-                venueEBId = venue.getString(EB_ID);
-                venueLat = Double.parseDouble(venue.getString(EB_LATITUDE));
-                venueLong = Double.parseDouble(venue.getString(EB_LONGITUDE));
+                if (!event.isNull(EB_EVENT_DESCRIPTION)) {
+                    description = event.getJSONObject(EB_EVENT_DESCRIPTION).getString(EB_EVENT_TEXT);
+                }
+
+                if (!event.isNull(EB_LOGO)) {
+                    logoUrl = event.getJSONObject(EB_LOGO).getString(EB_URL);
+                }
+
+                if (!event.isNull(EB_CATEGORY)) {
+                    category = event.getJSONObject(EB_CATEGORY).getString(EB_NAME);
+                }
+
+                if (!event.isNull(EB_VENUE)) {
+                    JSONObject venue = event.getJSONObject(EB_VENUE);
+                    venueName = venue.getString(EB_NAME);
+                    venueEBId = venue.getString(EB_ID);
+                    venueLat = Double.parseDouble(venue.getString(EB_LATITUDE));
+                    venueLong = Double.parseDouble(venue.getString(EB_LONGITUDE));
+                } else {
+                    //If there is no venue object, we should skip this iteration because
+                    //we can't display an event with no venue on a map.
+                    continue;
+                }
 
                 ContentValues venueValues = new ContentValues();
+
                 venueValues.put(VenuesColumns.NAME, venueName);
-                venueValues.put(VenuesColumns.EVENTBRITE_VENUE_ID, venueEBId);
+                venueValues.put(VenuesColumns.EB_VENUE_ID, venueEBId);
                 venueValues.put(VenuesColumns.LATITUDE, venueLat);
                 venueValues.put(VenuesColumns.LONGITUDE, venueLong);
                 mVenuesCVVector.add(venueValues);
@@ -136,24 +149,11 @@ public class EventsDataJsonParser {
                 eventValues.put(EventsColumns.CATEGORY, category);
                 mEventsCVVector.add(eventValues);
 
-                ContentValues eventsAndSearchValues = new ContentValues();
-                eventsAndSearchValues.put(EventsAndSearchesColumns.SEARCH_ID, mSearchId);
-                Log.i(LOG_TAG, "searchId " + mSearchId);
-                eventsAndSearchValues.put(EventsAndSearchesColumns.EVENT_ID, eventBriteId);
-                Log.i(LOG_TAG, "eventBriteId " + eventBriteId);
-                mEventsAndSearchCVVector.add(eventsAndSearchValues);
-
                 ContentValues eventsAndRegionValues = new ContentValues();
                 eventsAndRegionValues.put(EventsAndRegionsColumns.REGION_ID, mRegionId);
                 eventsAndRegionValues.put(EventsAndRegionsColumns.EVENT_ID, eventBriteId);
                 mEventsAndRegionCVVector.add(eventsAndRegionValues);
-
-                //TODO make ContentValues from event data and add to content values vector
             }
-
-            int inserted = 0;
-            // add to database
-
 
             Log.d(LOG_TAG, "MapHap Service Complete. " + mEventsCVVector.size() + " Inserted");
 
@@ -168,10 +168,6 @@ public class EventsDataJsonParser {
     }
     public ContentValues[] getEventsContentValues() {
         return getContentValuesArray(mEventsCVVector);
-    }
-
-    public ContentValues[] getEventsAndSearchContentValues() {
-        return getContentValuesArray(mEventsAndSearchCVVector);
     }
 
     public ContentValues[] getEventsAndRegionContentValues() {
