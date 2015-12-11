@@ -124,6 +124,7 @@ public class EventsDataJsonParser {
                 } else {
                     //If there is no venue object, we should skip this iteration because
                     //we can't display an event with no venue on a map.
+                    Log.i(LOG_TAG, "venue for this event is null. skipping event");
                     continue;
                 }
 

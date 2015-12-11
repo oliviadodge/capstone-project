@@ -5,6 +5,7 @@ import android.net.Uri;
 import net.simonvt.schematic.annotation.ContentProvider;
 import net.simonvt.schematic.annotation.ContentUri;
 import net.simonvt.schematic.annotation.InexactContentUri;
+import net.simonvt.schematic.annotation.NotifyBulkInsert;
 import net.simonvt.schematic.annotation.TableEndpoint;
 
 
@@ -44,8 +45,13 @@ public final class EventProvider {
                 path = Path.EVENTS + "/" + Path.REGIONS + "/#",
                 type= "vnd.android.cursor.dir/event",
                 whereColumn = EventsAndRegionsColumns.REGION_ID,
-                pathSegment = 1,
-                join = EventDatabase.EVENTS_REGIONS)
+                pathSegment = 2,
+                join = "INNER JOIN " + EventDatabase.EVENTS_REGIONS + " ON "
+                + EventDatabase.EVENTS + "." + EventsColumns.EB_ID
+                + " = "
+                + EventDatabase.EVENTS_REGIONS + "." + EventsAndRegionsColumns.EVENT_ID
+
+        )
 
         public static Uri withRegionId(long id){
             return buildUri(Path.EVENTS, Path.REGIONS, String.valueOf(id));
