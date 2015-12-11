@@ -13,8 +13,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.example.olivi.maphap.data.EventProvider;
-import com.example.olivi.maphap.data.EventsAndRegionsColumns;
-import com.example.olivi.maphap.data.EventsColumns;
 import com.example.olivi.maphap.data.RegionsColumns;
 import com.example.olivi.maphap.service.MapHapService;
 import com.example.olivi.maphap.utils.Constants;
@@ -55,7 +53,7 @@ public class MainActivity extends LocationActivity
         double latitude = location.getLatitude();
         double longitude = location.getLongitude();
         zoomToPosition(latitude, longitude);
-        addMarker(latitude, longitude);
+        addMarker("you're here", latitude, longitude);
         mLastLocation = location;
 
         Log.i(TAG, "Loader initialized to query for regions");
@@ -84,14 +82,16 @@ public class MainActivity extends LocationActivity
                 .newCameraPosition(target));
     }
 
-    private void addMarker(double latitude, double longitude) {
+    private void addMarker(String name, double latitude, double longitude) {
         if (mMapReady) {
             MarkerOptions place = new MarkerOptions()
                     .position(new LatLng(latitude, longitude))
-                    .title("place")
+                    .title(name)
                     .icon(BitmapDescriptorFactory
                             .fromResource(R.mipmap.ic_launcher));
             mMap.addMarker(place);
+        } else {
+            Log.i(TAG, "map not ready!");
         }
     }
 
@@ -135,8 +135,6 @@ public class MainActivity extends LocationActivity
                 String selection = RegionsColumns.RADIUS + " = ?";
                 Uri regionsUri = EventProvider.Regions.CONTENT_URI;
 
-                //TODO check for how old data is. If it's older than a day we should probably refetch
-
                 return new CursorLoader(this,
                         regionsUri,
                         Projections.REGION_COLUMNS,
@@ -146,13 +144,10 @@ public class MainActivity extends LocationActivity
             case EVENTS_LOADER:
                 long regionId = args.getLong(REGION_ID_EXTRA);
                 Uri eventsUri = EventProvider.Events.withRegionId(regionId);
-                //TODO check for how old data is. If it's older than a day we should probably refetch
-                String[] testProj = {EventsAndRegionsColumns.REGION_ID,
-                        EventsAndRegionsColumns.EVENT_ID,
-                        EventsColumns.NAME};
+
                 return new CursorLoader(this,
                         eventsUri,
-                        testProj,
+                        Projections.EVENT_COLUMNS,
                         null,
                         null,
                         null);
@@ -185,10 +180,7 @@ public class MainActivity extends LocationActivity
             case EVENTS_LOADER:
                 if ((data != null) && (data.moveToFirst())) {
                     Log.i(TAG, "Events load finished!");
-                    Log.i(TAG, "Events: " + data.getInt(0)
-                            + " " + data.getString(1)
-                            + " " + data.getString(2)
-                    );
+                    addEventsToMap(data);
                 } break;
             default:
                 break;
@@ -230,5 +222,21 @@ public class MainActivity extends LocationActivity
         }
 
         return regionId;
+    }
+
+    private void addEventsToMap(Cursor data) {
+
+        Log.i(TAG, "adding events to map");
+        data.moveToFirst();
+        for (int i = 0; i < data.getCount(); i++) {
+            double lat = data.getDouble(Projections.Events.COL_VENUE_LAT);
+            double lon = data.getDouble(Projections.Events.COL_VENUE_LON);
+            String eventName = data.getString(Projections.Events.COL_NAME);
+
+            Log.i(TAG, "adding event: " + eventName + " at " + lat + " " + lon);
+            addMarker(eventName, lat, lon);
+
+            data.moveToNext();
+        }
     }
 }

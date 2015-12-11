@@ -50,6 +50,10 @@ public final class EventProvider {
                 + EventDatabase.EVENTS + "." + EventsColumns.EB_ID
                 + " = "
                 + EventDatabase.EVENTS_REGIONS + "." + EventsAndRegionsColumns.EVENT_ID
+                + " INNER JOIN " + EventDatabase.VENUES + " ON "
+                + EventDatabase.EVENTS + "." + EventsColumns.EVENTBRITE_VENUE_ID
+                + " = "
+                + EventDatabase.VENUES + "." + VenuesColumns.EB_VENUE_ID
 
         )
 

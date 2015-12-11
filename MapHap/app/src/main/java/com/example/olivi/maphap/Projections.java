@@ -8,6 +8,7 @@ import com.example.olivi.maphap.service.EventsDataJsonParser;
 
 /**
  * Created by olivi on 12/8/2015.
+ * This class lists the columns we seek from the database.
  */
 public class Projections {
 
@@ -21,26 +22,18 @@ public class Projections {
     };
 
     public static final String[] EVENT_COLUMNS = {
-            EventDatabase.EVENTS + "." + EventsColumns._ID,
+            EventsColumns.NAME,
+            EventsColumns.DESCRIPTION,
             EventsColumns.CAPACITY,
             EventsColumns.CATEGORY,
-            EventsColumns.DESCRIPTION,
-            EventsColumns.EB_ID,
-            EventsColumns.END_DATE_TIME,
-            EventsColumns.EVENTBRITE_VENUE_ID,
-            EventsColumns.LOGO_URL,
-            EventsColumns.NAME,
-            EventsColumns.START_DATE_TIME,
             EventsColumns.STATUS,
-            EventsColumns.URL
-    };
-
-    public static final String[] VENUE_COLUMNS = {
-            VenuesColumns._ID,
+            EventsColumns.URL,
+            EventsColumns.LOGO_URL,
+            EventsColumns.START_DATE_TIME,
+            EventsColumns.END_DATE_TIME,
             VenuesColumns.NAME,
-            VenuesColumns.EB_VENUE_ID,
             VenuesColumns.LATITUDE,
-            VenuesColumns.LONGITUDE,
+            VenuesColumns.LONGITUDE
     };
 
 
@@ -58,19 +51,17 @@ public class Projections {
     // must change.
 
     public static class Events {
-        static final int COL_ID = 0;
-        static final int COL_CAPACITY = 1;
-        static final int COL_CATEGORY = 2;
-        static final int COL_DESCRIPTION = 3;
-        static final int EB_ID = 4;
-        static final int END_DATE_TIME = 5;
-        static final int EVENTBRITE_VENUE_ID = 6;
-        static final int LOGO_URL = 7;
-        static final int NAME = 8;
-        static final int START_DATE_TIME = 9;
-        static final int STATUS = 10;
-        static final int URL = 11;
+        static final int COL_NAME = 0;
+        static final int COL_DESCRIPTION = 1;
+        static final int COL_CAPACITY = 2;
+        static final int COL_CATEGORY = 3;
+        static final int COL_STATUS = 4;
+        static final int COL_URL = 5;
+        static final int COL_LOGO_URL = 6;
+        static final int COL_START_DATE_TIME = 7;
+        static final int COL_END_DATE_TIME = 8;
+        static final int COL_VENUE_NAME = 9;
+        static final int COL_VENUE_LAT = 10;
+        static final int COL_VENUE_LON = 11;
     }
-
-
 }
