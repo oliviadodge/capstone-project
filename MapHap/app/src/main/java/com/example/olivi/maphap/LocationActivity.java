@@ -45,7 +45,6 @@ public abstract class LocationActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        Debug.startMethodTracing("method-trace");
         setContentView(R.layout.activity_main);
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -150,6 +149,7 @@ public abstract class LocationActivity extends AppCompatActivity
     private void askPermissionForLocation() {
         // TODO show an explanation of why location is needed for this app
         Log.i(TAG, "askPermissionForLocation() called");
+        Log.d(TAG, "askPermissionForLocation() should only be called once - on installation");
 
         mAskPermissionForLocation = false;
         if (ActivityCompat.shouldShowRequestPermissionRationale(this,
@@ -240,11 +240,5 @@ public abstract class LocationActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
         return true;
-    }
-
-    @Override
-    protected void onDestroy() {
-        Debug.stopMethodTracing();
-        super.onDestroy();
     }
 }

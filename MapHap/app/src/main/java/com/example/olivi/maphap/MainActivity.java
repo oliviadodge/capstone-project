@@ -146,17 +146,17 @@ public class MainActivity extends LocationActivity
                     newLatLng.longitude, mLastLocation.latitude,
                     mLastLocation.longitude);
             if (dist > Constants.TOLERANCE_DIST_IN_MILES) {
-                Log.i(TAG, "Dist is greater than tolerance. Returning true");
+                Log.d(TAG, "Dist is greater than tolerance. Returning true");
                 mLastLocation = newLatLng;
                 return true;
             }
         } else if (newLatLng != null) {
-            Log.i(TAG, "checkIfLocationChanged called and mLastLocation is null. Return true");
+            Log.d(TAG, "checkIfLocationChanged called and mLastLocation is null. Return true");
             mLastLocation = newLatLng;
             return true;
         }
 
-        Log.i(TAG, "checkIfLocationChanged called but newLatLng is null! Returning false");
+        Log.d(TAG, "checkIfLocationChanged called but newLatLng is null! Returning false");
         return false;
     }
 
@@ -250,8 +250,12 @@ public class MainActivity extends LocationActivity
 
             if (distInMi <= Constants.TOLERANCE_DIST_IN_MILES) {
                 regionId = cursor.getLong(Projections.Regions.COL_ID);
+
+                Log.d(TAG, "region is in DB. ID is " + regionId);
                 break;
             }
+
+            cursor.moveToNext();
 
         }
 
