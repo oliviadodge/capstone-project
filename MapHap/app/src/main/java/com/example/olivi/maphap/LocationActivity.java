@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
+import android.os.Debug;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -19,33 +20,32 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.example.olivi.maphap.utils.Constants;
+import com.example.olivi.maphap.utils.LocationUtils;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.model.LatLng;
 
 public abstract class LocationActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener,
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
-        LocationListener
-        {
+        LocationListener {
 
     private static final String TAG = LocationActivity.class.getSimpleName();
     private static final int MY_PERMISSIONS_REQUEST_ACCESS_LOCATION = 0;
-    private static final int EVENTS_LOADER = 0;
-
 
     private GoogleApiClient mGoogleApiClient;
-    private LocationRequest mLocationRequest;
-    private Location mLastLocation;
+    private LatLng mLastLocation;
     private boolean mAskPermissionForLocation;
-    private boolean mIsUserLocated;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        Debug.startMethodTracing("method-trace");
         setContentView(R.layout.activity_main);
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -76,7 +76,7 @@ public abstract class LocationActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
     }
 
-    abstract void onUserLocationFound(Location location);
+    abstract void onUserLocationFound(LatLng latLng);
 
     @Override
     protected void onStart() {
@@ -87,7 +87,7 @@ public abstract class LocationActivity extends AppCompatActivity
 
     @Override
     protected void onStop() {
-        if (mGoogleApiClient.isConnected()){
+        if (mGoogleApiClient.isConnected()) {
             mGoogleApiClient.disconnect();
         }
         super.onStop();
@@ -95,11 +95,7 @@ public abstract class LocationActivity extends AppCompatActivity
 
     @Override
     public void onLocationChanged(Location location) {
-        mLastLocation = location;
-        if (mLastLocation != null) {
-            Log.i(TAG, "onLocationChanged called. Calling onUserLocationFound");
-            onUserLocationFound(mLastLocation);
-        }
+        Log.i(TAG, "onLocationChanged called.");
     }
 
     @Override
@@ -108,11 +104,11 @@ public abstract class LocationActivity extends AppCompatActivity
     }
 
     @Override
-    public void onConnected (Bundle bundle){
+    public void onConnected(Bundle bundle) {
         if (isLocationPermissionGranted()) {
-            if (!mIsUserLocated) {
-                getUserLocation();
-            }
+            Log.i(TAG, "mGoogleApiClient is connected and permission granted! Getting user location");
+            mLastLocation = getUserLocation();
+            onUserLocationFound(mLastLocation);
         } else {
             mAskPermissionForLocation = true;
             Log.i(TAG, "mGoogleApiClient is connected, but location permission" +
@@ -126,32 +122,19 @@ public abstract class LocationActivity extends AppCompatActivity
         super.onResume();
         if (mAskPermissionForLocation) {
             askPermissionForLocation();
-        } else {
-            Log.i(TAG, "mAskPermissionForLocation is false!");
         }
     }
 
-    private void getUserLocation() {
-        mLastLocation = LocationServices.FusedLocationApi
+    private LatLng getUserLocation() {
+        Location newLoc = LocationServices.FusedLocationApi
                 .getLastLocation(mGoogleApiClient);
-        if (mLastLocation != null) {
-            Log.i(TAG, "getUserLocation() called. Calling onUserLocationFound");
-            mIsUserLocated = true;
-            onUserLocationFound(mLastLocation);
+
+        if (newLoc != null) {
+            return new LatLng(newLoc.getLatitude(), newLoc.getLongitude());
+        } else {
+            Log.i(TAG, "couldn't get user location");
+            return null;
         }
-
-        /*TODO delete the following commented code.
-        This is only here in case we need to request a location update again.
-         */
-
-//        mLocationRequest = LocationRequest.create();
-//        mLocationRequest
-//                .setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY)
-//                .setInterval(300000);
-//
-//        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient,
-//                mLocationRequest, this);
-
     }
 
     private boolean isLocationPermissionGranted() {
@@ -165,7 +148,8 @@ public abstract class LocationActivity extends AppCompatActivity
     }
 
     private void askPermissionForLocation() {
-        // Should we show an explanation?
+        // TODO show an explanation of why location is needed for this app
+        Log.i(TAG, "askPermissionForLocation() called");
 
         mAskPermissionForLocation = false;
         if (ActivityCompat.shouldShowRequestPermissionRationale(this,
@@ -200,8 +184,10 @@ public abstract class LocationActivity extends AppCompatActivity
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     if ((mLastLocation == null) && (mGoogleApiClient.isConnected())) {
-                        Log.i(TAG, "Location permission granted. Calling getUserLocation()");
+                        Log.i(TAG, "Location permission granted. Calling getUserLocation()" +
+                                "and onUserLocationFound");
                         getUserLocation();
+                        onUserLocationFound(mLastLocation);
                     }
                 } else if (grantResults.length == 0) {
                     Log.i(TAG, "Request was canceled! Can't access user's location");
@@ -256,4 +242,9 @@ public abstract class LocationActivity extends AppCompatActivity
         return true;
     }
 
+    @Override
+    protected void onDestroy() {
+        Debug.stopMethodTracing();
+        super.onDestroy();
+    }
 }

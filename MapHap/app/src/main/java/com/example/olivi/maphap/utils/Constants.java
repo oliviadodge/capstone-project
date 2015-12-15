@@ -11,5 +11,6 @@ public class Constants {
 //did a search, this new location will not be recorded because the previous
 //one will suffice for the purposes of this app.
 
-    public static final double TOLERANCE_DIST_IN_MILES = 0.25;
+    public static final double TOLERANCE_DIST_IN_MILES = 5;
+    public static final int MAP_ZOOM_LEVEL = 10;
 }

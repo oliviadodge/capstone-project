@@ -36,7 +36,10 @@ public class MainActivity extends LocationActivity
 
     public static final String REGION_ID_EXTRA = "region_id";
 
-    private Location mLastLocation;
+    private static final String LATITUDE_KEY = "latitude_key";
+    private static final String LONGITUDE_KEY = "longitude_key";
+
+    private LatLng mLastLocation;
     private boolean mMapReady;
     private GoogleMap mMap;
 
@@ -46,18 +49,29 @@ public class MainActivity extends LocationActivity
         MapFragment mapFragment = (MapFragment) getFragmentManager()
                 .findFragmentById(R.id.mapFragment);
         mapFragment.getMapAsync(this);
+
+        if (savedInstanceState != null && savedInstanceState.containsKey(LATITUDE_KEY)) {
+            mLastLocation = new LatLng(savedInstanceState.getDouble(LATITUDE_KEY),
+                    savedInstanceState.getDouble(LONGITUDE_KEY));
+        }
+
+        if (mLastLocation != null) {
+            Log.i(TAG, "in onCreate. Loader restarted to query for regions");
+            getLoaderManager().restartLoader(REGIONS_LOADER, null, this);
+        }
     }
 
     @Override
-    void onUserLocationFound(Location location) {
-        double latitude = location.getLatitude();
-        double longitude = location.getLongitude();
-        zoomToPosition(latitude, longitude);
-        addMarker("you're here", latitude, longitude);
-        mLastLocation = location;
-
-        Log.i(TAG, "Loader initialized to query for regions");
-        getLoaderManager().initLoader(REGIONS_LOADER, null, this);
+    void onUserLocationFound(LatLng latLng) {
+        if (checkIfLocationChanged(latLng)) {
+            double latitude = latLng.latitude;
+            double longitude = latLng.longitude;
+            zoomToPosition(latitude, longitude);
+            addMarker("you're here", latitude, longitude);
+            mLastLocation = latLng;
+            Log.i(TAG, "onUserLocationFound called and location changed. Initializing loader");
+            getLoaderManager().initLoader(REGIONS_LOADER, null, this);
+        }
     }
 
     @Override
@@ -66,9 +80,8 @@ public class MainActivity extends LocationActivity
         mMap = googleMap;
 
         if (mLastLocation != null) {
-            zoomToPosition(mLastLocation.getLatitude(), mLastLocation.getLongitude());
-        } else {
-            zoomToPosition(37.808196, -122.286276);
+            zoomToPosition(mLastLocation.latitude, mLastLocation.longitude);
+            addMarker("you're here", mLastLocation.latitude, mLastLocation.longitude);
         }
     }
 
@@ -77,7 +90,7 @@ public class MainActivity extends LocationActivity
                 longitude);
         CameraPosition target = CameraPosition.builder()
                 .target(position)
-                .zoom(14).build();
+                .zoom(Constants.MAP_ZOOM_LEVEL).build();
         mMap.moveCamera(CameraUpdateFactory
                 .newCameraPosition(target));
     }
@@ -91,7 +104,7 @@ public class MainActivity extends LocationActivity
                             .fromResource(R.mipmap.ic_launcher));
             mMap.addMarker(place);
         } else {
-            Log.i(TAG, "map not ready!");
+            Log.i(TAG, "addMarker called but map is not ready!");
         }
     }
 
@@ -116,8 +129,8 @@ public class MainActivity extends LocationActivity
         } else if (id == R.id.refresh) {
             String expansions = "logo,venue,category";
             Intent i = new Intent(this, MapHapService.class);
-            i.putExtra(MapHapService.LATITUDE_QUERY_EXTRA, mLastLocation.getLatitude());
-            i.putExtra(MapHapService.LONGITUDE_QUERY_EXTRA, mLastLocation.getLongitude());
+            i.putExtra(MapHapService.LATITUDE_QUERY_EXTRA, mLastLocation.latitude);
+            i.putExtra(MapHapService.LONGITUDE_QUERY_EXTRA, mLastLocation.longitude);
             i.putExtra(MapHapService.WITHIN_QUERY_EXTRA, LocationUtils.getPreferredRadius(this));
 
             Log.i("MainActivity", "refresh button hit. Starting service...");
@@ -125,6 +138,26 @@ public class MainActivity extends LocationActivity
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private boolean checkIfLocationChanged(LatLng newLatLng) {
+        if ((newLatLng != null) && (mLastLocation != null)) {
+            double dist = LocationUtils.milesBetweenTwoPoints(newLatLng.latitude,
+                    newLatLng.longitude, mLastLocation.latitude,
+                    mLastLocation.longitude);
+            if (dist > Constants.TOLERANCE_DIST_IN_MILES) {
+                Log.i(TAG, "Dist is greater than tolerance. Returning true");
+                mLastLocation = newLatLng;
+                return true;
+            }
+        } else if (newLatLng != null) {
+            Log.i(TAG, "checkIfLocationChanged called and mLastLocation is null. Return true");
+            mLastLocation = newLatLng;
+            return true;
+        }
+
+        Log.i(TAG, "checkIfLocationChanged called but newLatLng is null! Returning false");
+        return false;
     }
 
     @Override
@@ -190,8 +223,8 @@ public class MainActivity extends LocationActivity
 
     private void fetchEventsData() {
         Intent i = new Intent(this, MapHapService.class);
-        i.putExtra(MapHapService.LATITUDE_QUERY_EXTRA, mLastLocation.getLatitude());
-        i.putExtra(MapHapService.LONGITUDE_QUERY_EXTRA, mLastLocation.getLongitude());
+        i.putExtra(MapHapService.LATITUDE_QUERY_EXTRA, mLastLocation.latitude);
+        i.putExtra(MapHapService.LONGITUDE_QUERY_EXTRA, mLastLocation.longitude);
         i.putExtra(MapHapService.WITHIN_QUERY_EXTRA,
                 LocationUtils.getPreferredRadius(this));
         startService(i);
@@ -199,13 +232,14 @@ public class MainActivity extends LocationActivity
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
+        Log.i(TAG, "onLoaderReset called");
     }
 
     public long checkIfRegionIsInDB(Cursor cursor) {
         long regionId = -1;
 
-        double userLat = mLastLocation.getLatitude();
-        double userLon = mLastLocation.getLongitude();
+        double userLat = mLastLocation.latitude;
+        double userLon = mLastLocation.longitude;
 
         for (int i = 0; i < cursor.getCount(); i++) {
             double regionLat = cursor.getDouble(Projections.Regions.COL_LATITUDE);
@@ -238,5 +272,14 @@ public class MainActivity extends LocationActivity
 
             data.moveToNext();
         }
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        if (mLastLocation != null) {
+            outState.putDouble(LATITUDE_KEY, mLastLocation.latitude);
+            outState.putDouble(LONGITUDE_KEY, mLastLocation.longitude);
+        }
+        super.onSaveInstanceState(outState);
     }
 }

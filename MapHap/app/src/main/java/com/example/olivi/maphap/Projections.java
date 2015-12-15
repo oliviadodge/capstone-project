@@ -7,7 +7,7 @@ import com.example.olivi.maphap.data.VenuesColumns;
 import com.example.olivi.maphap.service.EventsDataJsonParser;
 
 /**
- * Created by olivi on 12/8/2015.
+ * Created by olivia on 12/8/2015.
  * This class lists the columns we seek from the database.
  */
 public class Projections {
