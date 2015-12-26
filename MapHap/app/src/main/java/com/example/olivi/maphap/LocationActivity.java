@@ -25,6 +25,7 @@ import com.example.olivi.maphap.utils.LocationUtils;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
 
@@ -40,6 +41,7 @@ public abstract class LocationActivity extends AppCompatActivity
     private GoogleApiClient mGoogleApiClient;
     private LatLng mLastLocation;
     private boolean mAskPermissionForLocation;
+    private LocationRequest mLocationRequest;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,9 +94,34 @@ public abstract class LocationActivity extends AppCompatActivity
         super.onStop();
     }
 
+    protected void createLocationRequest() {
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(10000);
+        mLocationRequest.setFastestInterval(5000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+    }
+
+    protected void startLocationUpdates() {
+        LocationServices.FusedLocationApi.requestLocationUpdates(
+                mGoogleApiClient, mLocationRequest, this);
+    }
+
     @Override
     public void onLocationChanged(Location location) {
         Log.i(TAG, "onLocationChanged called.");
+        mLastLocation = new LatLng(location.getLatitude(), location.getLongitude());
+        onUserLocationFound(mLastLocation);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        stopLocationUpdates();
+    }
+
+    protected void stopLocationUpdates() {
+        LocationServices.FusedLocationApi.removeLocationUpdates(
+                mGoogleApiClient, this);
     }
 
     @Override
@@ -127,6 +154,9 @@ public abstract class LocationActivity extends AppCompatActivity
     private LatLng getUserLocation() {
         Location newLoc = LocationServices.FusedLocationApi
                 .getLastLocation(mGoogleApiClient);
+
+        createLocationRequest();
+        startLocationUpdates();
 
         if (newLoc != null) {
             return new LatLng(newLoc.getLatitude(), newLoc.getLongitude());

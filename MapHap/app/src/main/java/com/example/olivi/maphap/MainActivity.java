@@ -70,10 +70,17 @@ public class MainActivity extends LocationActivity
             addMarker("you're here", latitude, longitude);
             mLastLocation = latLng;
             Log.i(TAG, "onUserLocationFound called and location changed. Initializing loader");
+            clearMap();
             getLoaderManager().initLoader(REGIONS_LOADER, null, this);
         }
     }
 
+    private void clearMap() {
+        if (mMapReady) {
+            Log.i(TAG, "clearing map");
+            mMap.clear();
+        }
+    }
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMapReady = true;
@@ -199,6 +206,7 @@ public class MainActivity extends LocationActivity
                     long regionId = checkIfRegionIsInDB(data);
                     if (regionId != -1) {
                         Log.i(TAG, "found region: " + regionId + " Starting events loader");
+                        //TODO test this data to see if it is older than a day. If so, we should refetch from API
                         Bundle args = new Bundle();
                         args.putLong(REGION_ID_EXTRA, regionId);
                         getLoaderManager().initLoader(EVENTS_LOADER, args, this);
@@ -286,4 +294,9 @@ public class MainActivity extends LocationActivity
         }
         super.onSaveInstanceState(outState);
     }
+    //TODO add a task to periodically check database for old data and delete it, so we don't rack up endless history
+    //TODO cont. data should be deleted from the regions table based on how old it is. Then cascade to the region_events
+    //TODO cont. table and events and venues unless there is another search region that is not too old that
+    //TODO cont. matches that same region. I think a simple join across all these tables will do, deleting the rows
+    //TODO cont. with the matching region ID of the old data.
 }
