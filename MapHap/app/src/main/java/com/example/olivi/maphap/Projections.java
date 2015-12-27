@@ -33,7 +33,8 @@ public class Projections {
             EventsColumns.END_DATE_TIME,
             VenuesColumns.NAME,
             VenuesColumns.LATITUDE,
-            VenuesColumns.LONGITUDE
+            VenuesColumns.LONGITUDE,
+            EventDatabase.EVENTS + "." + EventsColumns._ID
     };
 
 
@@ -63,5 +64,6 @@ public class Projections {
         static final int COL_VENUE_NAME = 9;
         static final int COL_VENUE_LAT = 10;
         static final int COL_VENUE_LON = 11;
+        static final int COL_EVENT_ID = 12;
     }
 }

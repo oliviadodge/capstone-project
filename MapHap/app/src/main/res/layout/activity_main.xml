@@ -15,11 +15,35 @@
 
     </android.support.design.widget.NavigationView>
 
-
-    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
-        android:id="@+id/mapFragment"
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="fill_parent"
-        class="com.google.android.gms.maps.MapFragment" />
+        android:layout_height="match_parent"
+        android:baselineAligned="false"
+        android:divider="?android:attr/dividerVertical"
+        android:orientation="vertical"
+        tools:context="com.example.android.sunshine.app.MainActivity">
+
+
+        <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:id="@+id/mapFragment"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="2"
+            class="com.google.android.gms.maps.MapFragment"
+            tools:layout="@android:layout/simple_gallery_item"/>
+
+        <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:id="@+id/eventListFragment"
+            android:name="com.example.olivi.maphap.EventListFragment"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="4"
+            tools:context="com.example.olivi.maphap.EventListFragment"
+            tools:layout="@android:layout/list_content" />
+
+    </LinearLayout>
 
 </android.support.v4.widget.DrawerLayout>

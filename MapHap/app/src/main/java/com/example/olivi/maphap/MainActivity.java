@@ -5,7 +5,6 @@ import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
-import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
@@ -28,7 +27,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 public class MainActivity extends LocationActivity
         implements LoaderManager.LoaderCallbacks<Cursor>,
-        OnMapReadyCallback{
+        OnMapReadyCallback, EventListFragment.OnListFragmentInteractionListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int REGIONS_LOADER = 0;
@@ -41,7 +40,9 @@ public class MainActivity extends LocationActivity
 
     private LatLng mLastLocation;
     private boolean mMapReady;
+    private boolean mListFragmentReady;
     private GoogleMap mMap;
+    private Cursor mDataSet;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,6 +82,7 @@ public class MainActivity extends LocationActivity
             mMap.clear();
         }
     }
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMapReady = true;
@@ -145,6 +147,26 @@ public class MainActivity extends LocationActivity
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onItemSelected(Uri eventUri) {
+        //TODO open new detail fragment/activity showing the event.
+        //The detail activity will load the event info unless its a tablet
+        //in which case we will load it here.
+    }
+
+    @Override
+    public void onListFragmentReady(MyEventRecyclerViewAdapter adapter) {
+        //TODO The list fragment is ready to receive the cursor of data. Send it to the adapter
+        //and keep a handle on the adapter in case the cursor changes or the loader is reset.
+        //if the loader has not finished loading data, set a boolean to true so we can add the cursor
+        //to the adapter once the load has finished.
+        mListFragmentReady = true;
+        EventListFragment eventListFragment =
+                (EventListFragment) getFragmentManager()
+                        .findFragmentById(R.id.eventListFragment);
+        eventListFragment.setUpAdapter(mDataSet);
     }
 
     private boolean checkIfLocationChanged(LatLng newLatLng) {
@@ -217,12 +239,18 @@ public class MainActivity extends LocationActivity
                 } else {
                     Log.i(TAG, "database is empty. fetching data now");
                     fetchEventsData();
-                } break;
+                }
+                break;
             case EVENTS_LOADER:
                 if ((data != null) && (data.moveToFirst())) {
                     Log.i(TAG, "Events load finished!");
+                    mDataSet = data;
                     addEventsToMap(data);
-                } break;
+                    if (mListFragmentReady) {
+                        getAdapterFromListFragment().changeCursor(mDataSet);
+                    }
+                }
+                break;
             default:
                 break;
         }
@@ -240,7 +268,24 @@ public class MainActivity extends LocationActivity
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-        Log.i(TAG, "onLoaderReset called");
+        switch (loader.getId()) {
+            case EVENTS_LOADER:
+                getAdapterFromListFragment().changeCursor(null);
+                mDataSet.close();
+                mDataSet = null;
+                break;
+            default:
+                break;
+        }
+
+    }
+
+    private MyEventRecyclerViewAdapter getAdapterFromListFragment() {
+        EventListFragment eventListFragment =
+                (EventListFragment) getFragmentManager()
+                        .findFragmentById(R.id.eventListFragment);
+        MyEventRecyclerViewAdapter adapter = eventListFragment.getAdapter();
+        return adapter;
     }
 
     public long checkIfRegionIsInDB(Cursor cursor) {
