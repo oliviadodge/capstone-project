@@ -44,10 +44,16 @@ dependencies {
     androidTestCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:23.1.1'
     compile 'com.android.support:design:23.1.1'
+
     compile 'com.google.android.gms:play-services:8.3.0'
+
     compile 'net.simonvt.schematic:schematic:0.6.4'
+
     compile 'com.facebook.stetho:stetho:1.2.0'
     compile 'com.facebook.stetho:stetho-urlconnection:1.2.0'
+
     compile 'com.android.support:support-v4:23.1.1'
     compile 'com.android.support:recyclerview-v7:23.1.1'
+
+    compile 'com.squareup.picasso:picasso:2.5.2'
 }

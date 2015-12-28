@@ -1,6 +1,7 @@
 package com.example.olivi.maphap;
 
 import android.app.LoaderManager;
+import android.content.Context;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
@@ -330,6 +331,8 @@ public class MainActivity extends LocationActivity
             data.moveToNext();
         }
     }
+
+
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {

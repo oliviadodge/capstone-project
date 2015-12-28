@@ -14,5 +14,15 @@
     <string name="pref_radius_key">radius_key</string>
     <string name="pref_radius_default">30</string>
 
+    <!--Design time strings for TextViews-->
+    <string name="list_item_event_name">Event Title Here (this is what happens when the event title is hecka long</string>
+    <string name="list_item_venue_name">San Francisco Center of the Performing Arts</string>
+    <string name="list_item_start_date_time">December 31 at 7:30 PM</string>
+    <string name="list_item_start_date">December 18</string>
+    <string name="list_item_end_date">January 3</string>
+
+    <!-- List View Strings-->
+    <string name="list_item_to">to</string>
+
 
 </resources>
