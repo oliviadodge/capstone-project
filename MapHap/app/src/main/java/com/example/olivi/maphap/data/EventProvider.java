@@ -1,11 +1,14 @@
 package com.example.olivi.maphap.data;
 
+import android.content.Context;
+import android.database.Cursor;
 import android.net.Uri;
 
 import net.simonvt.schematic.annotation.ContentProvider;
 import net.simonvt.schematic.annotation.ContentUri;
 import net.simonvt.schematic.annotation.InexactContentUri;
 import net.simonvt.schematic.annotation.NotifyBulkInsert;
+import net.simonvt.schematic.annotation.NotifyDelete;
 import net.simonvt.schematic.annotation.TableEndpoint;
 
 
@@ -13,6 +16,7 @@ import net.simonvt.schematic.annotation.TableEndpoint;
 public final class EventProvider {
     public static final String AUTHORITY =
             "com.example.olivi.maphap.data.EventProvider";
+
     static final Uri BASE_CONTENT_URI = Uri.parse("content://" + AUTHORITY);
 
     interface Path{
@@ -74,6 +78,19 @@ public final class EventProvider {
         public static Uri withId(long id){
             return buildUri(Path.EVENTS, String.valueOf(id));
         }
+//
+//        @NotifyDelete(paths = Path.EVENTS + "/#") public static Uri[] onDelete(Context context,
+//                                                                              Uri uri) {
+//            final long noteId = Long.valueOf(uri.getPathSegments().get(1));
+//            Cursor c = context.getContentResolver().query(uri, null, null, null, null);
+//            c.moveToFirst();
+//            final long listId = c.getLong(c.getColumnIndex(EventsColumns.LIST_ID));
+//            c.close();
+//
+//            return new Uri[] {
+//                    withId(noteId), fromList(listId), Lists.withId(listId),
+//            };
+//        }
     }
 
     @TableEndpoint(table = EventDatabase.VENUES) public static class Venues{

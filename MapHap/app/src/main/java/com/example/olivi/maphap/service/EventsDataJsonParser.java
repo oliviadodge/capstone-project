@@ -6,6 +6,7 @@ import android.util.Log;
 import com.example.olivi.maphap.data.EventsAndRegionsColumns;
 import com.example.olivi.maphap.data.EventsColumns;
 import com.example.olivi.maphap.data.VenuesColumns;
+import com.example.olivi.maphap.utils.Constants;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -62,7 +63,10 @@ public class EventsDataJsonParser {
             mEventsCVVector = new Vector<ContentValues>(eventsArray.length());
             mEventsAndRegionCVVector = new Vector<ContentValues>(eventsArray.length());
 
-            for (int i = 0; i < 5; i++) {
+            Log.i(LOG_TAG, "eventsArray.length() is " + eventsArray.length());
+
+            for (int i = 0; i < (eventsArray.length() <= Constants.MAX_EVENTS_PER_REQUEST ?
+                    eventsArray.length() : Constants.MAX_EVENTS_PER_REQUEST) ; i++) {
                 //TODO change for loop limit to size of array to be parsed
                 // These are the values that will be collected for the events table
                 String name;

@@ -15,6 +15,7 @@ import android.view.MenuItem;
 import com.example.olivi.maphap.data.EventProvider;
 import com.example.olivi.maphap.data.RegionsColumns;
 import com.example.olivi.maphap.service.MapHapService;
+import com.example.olivi.maphap.sync.MapHapSyncAdapter;
 import com.example.olivi.maphap.utils.Constants;
 import com.example.olivi.maphap.utils.LocationUtils;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -72,7 +73,6 @@ public class MainActivity extends LocationActivity
             addMarker("you're here", latitude, longitude);
             mLastLocation = latLng;
             Log.i(TAG, "onUserLocationFound called and location changed. Initializing loader");
-            clearMap();
             getLoaderManager().initLoader(REGIONS_LOADER, null, this);
         }
     }
@@ -179,6 +179,9 @@ public class MainActivity extends LocationActivity
                 Log.d(TAG, "Dist is greater than tolerance. Returning true");
                 mLastLocation = newLatLng;
                 return true;
+            } else {
+                Log.i(TAG, "Dist is less than tolerance. No need to reload data Return false");
+                return false;
             }
         } else if (newLatLng != null) {
             Log.d(TAG, "checkIfLocationChanged called and mLastLocation is null. Return true");
@@ -259,12 +262,14 @@ public class MainActivity extends LocationActivity
     }
 
     private void fetchEventsData() {
-        Intent i = new Intent(this, MapHapService.class);
-        i.putExtra(MapHapService.LATITUDE_QUERY_EXTRA, mLastLocation.latitude);
-        i.putExtra(MapHapService.LONGITUDE_QUERY_EXTRA, mLastLocation.longitude);
-        i.putExtra(MapHapService.WITHIN_QUERY_EXTRA,
+
+        Log.i(TAG, "FetchEventsData called. Attempting to sync immediately");
+        Bundle bundle = new Bundle();
+        bundle.putDouble(MapHapService.LATITUDE_QUERY_EXTRA, mLastLocation.latitude);
+        bundle.putDouble(MapHapService.LONGITUDE_QUERY_EXTRA, mLastLocation.longitude);
+        bundle.putInt(MapHapService.WITHIN_QUERY_EXTRA,
                 LocationUtils.getPreferredRadius(this));
-        startService(i);
+        MapHapSyncAdapter.syncImmediately(getApplicationContext(), bundle);
     }
 
     @Override

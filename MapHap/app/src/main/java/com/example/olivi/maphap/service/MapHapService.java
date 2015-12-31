@@ -11,6 +11,7 @@ import com.example.olivi.maphap.data.EventProvider;
 import com.example.olivi.maphap.data.EventsColumns;
 import com.example.olivi.maphap.data.RegionsColumns;
 import com.example.olivi.maphap.data.VenuesColumns;
+import com.example.olivi.maphap.utils.Constants;
 
 import org.json.JSONException;
 
@@ -67,6 +68,7 @@ public class MapHapService extends IntentService {
             final String LATITUDE_PARAM = "location.latitude";
             final String LONGITUDE_PARAM = "location.longitude";
             final String WITHIN_PARAM = "location.within";
+            final String POPULAR_PARAM = "popular";
             final String EXPAND_PARAM = "expand";
             final String OAUTH_TOKEN = "token";
 
@@ -74,6 +76,7 @@ public class MapHapService extends IntentService {
                     .appendQueryParameter(LATITUDE_PARAM, latitudeQuery)
                     .appendQueryParameter(LONGITUDE_PARAM, longitudeQuery)
                     .appendQueryParameter(WITHIN_PARAM, withinQuery)
+                    .appendQueryParameter(POPULAR_PARAM, Boolean.toString(Constants.RETURN_POPULAR))
                     .appendQueryParameter(EXPAND_PARAM, EXPANSIONS)
                     .appendQueryParameter(OAUTH_TOKEN, getString(R.string.my_personal_oauth_token))
                     .build();

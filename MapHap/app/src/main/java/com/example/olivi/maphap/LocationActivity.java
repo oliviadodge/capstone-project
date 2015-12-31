@@ -109,8 +109,10 @@ public abstract class LocationActivity extends AppCompatActivity
     @Override
     public void onLocationChanged(Location location) {
         Log.i(TAG, "onLocationChanged called.");
-        mLastLocation = new LatLng(location.getLatitude(), location.getLongitude());
-        onUserLocationFound(mLastLocation);
+        if (location != null) {
+            mLastLocation = new LatLng(location.getLatitude(), location.getLongitude());
+            onUserLocationFound(mLastLocation);
+        }
     }
 
     @Override
