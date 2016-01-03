@@ -1,9 +1,7 @@
 package com.example.olivi.maphap;
 
 import android.app.LoaderManager;
-import android.content.Context;
 import android.content.CursorLoader;
-import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
@@ -14,9 +12,9 @@ import android.view.MenuItem;
 
 import com.example.olivi.maphap.data.EventProvider;
 import com.example.olivi.maphap.data.RegionsColumns;
-import com.example.olivi.maphap.service.MapHapService;
 import com.example.olivi.maphap.sync.MapHapSyncAdapter;
 import com.example.olivi.maphap.utils.Constants;
+import com.example.olivi.maphap.utils.DateUtils;
 import com.example.olivi.maphap.utils.LocationUtils;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -62,6 +60,9 @@ public class MainActivity extends LocationActivity
             Log.i(TAG, "in onCreate. Loader restarted to query for regions");
             getLoaderManager().restartLoader(REGIONS_LOADER, null, this);
         }
+
+        Log.i(TAG, "initialize SyncAdapter in onCreate");
+        MapHapSyncAdapter.initializeSyncAdapter(this);
     }
 
     @Override
@@ -136,15 +137,6 @@ public class MainActivity extends LocationActivity
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
-        } else if (id == R.id.refresh) {
-            String expansions = "logo,venue,category";
-            Intent i = new Intent(this, MapHapService.class);
-            i.putExtra(MapHapService.LATITUDE_QUERY_EXTRA, mLastLocation.latitude);
-            i.putExtra(MapHapService.LONGITUDE_QUERY_EXTRA, mLastLocation.longitude);
-            i.putExtra(MapHapService.WITHIN_QUERY_EXTRA, LocationUtils.getPreferredRadius(this));
-
-            Log.i("MainActivity", "refresh button hit. Starting service...");
-            startService(i);
         }
 
         return super.onOptionsItemSelected(item);
@@ -263,11 +255,11 @@ public class MainActivity extends LocationActivity
 
     private void fetchEventsData() {
 
-        Log.i(TAG, "FetchEventsData called. Attempting to sync immediately");
+        Log.i(TAG, "FetchEventsData called. Attempting to sync immediately with full bundle");
         Bundle bundle = new Bundle();
-        bundle.putDouble(MapHapService.LATITUDE_QUERY_EXTRA, mLastLocation.latitude);
-        bundle.putDouble(MapHapService.LONGITUDE_QUERY_EXTRA, mLastLocation.longitude);
-        bundle.putInt(MapHapService.WITHIN_QUERY_EXTRA,
+        bundle.putDouble(MapHapSyncAdapter.LATITUDE_QUERY_EXTRA, mLastLocation.latitude);
+        bundle.putDouble(MapHapSyncAdapter.LONGITUDE_QUERY_EXTRA, mLastLocation.longitude);
+        bundle.putInt(MapHapSyncAdapter.WITHIN_QUERY_EXTRA,
                 LocationUtils.getPreferredRadius(this));
         MapHapSyncAdapter.syncImmediately(getApplicationContext(), bundle);
     }
@@ -307,7 +299,10 @@ public class MainActivity extends LocationActivity
             double distInMi = LocationUtils.milesBetweenTwoPoints(userLat, userLon,
                     regionLat, regionLon);
 
-            if (distInMi <= Constants.TOLERANCE_DIST_IN_MILES) {
+            String addedDateString = cursor.getString(Projections.Regions.ADDED_DATE_TIME);
+
+            if ((distInMi <= Constants.TOLERANCE_DIST_IN_MILES) && (DateUtils
+                    .isDateTimeStringAfterCutOff(addedDateString))){
                 regionId = cursor.getLong(Projections.Regions.COL_ID);
 
                 Log.d(TAG, "region is in DB. ID is " + regionId);

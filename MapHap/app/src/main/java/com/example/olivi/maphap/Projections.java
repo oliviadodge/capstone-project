@@ -17,6 +17,7 @@ public class Projections {
             EventDatabase.REGIONS + "." + RegionsColumns.LATITUDE,
             EventDatabase.REGIONS + "." + RegionsColumns.LONGITUDE,
             EventDatabase.REGIONS + "." + RegionsColumns.RADIUS,
+            EventDatabase.REGIONS + "." + RegionsColumns.ADDED_DATE_TIME
 
 
     };
@@ -42,10 +43,11 @@ public class Projections {
     // must change.
 
     public static class Regions {
-        static final int COL_ID = 0;
-        static final int COL_LATITUDE = 1;
-        static final int COL_LONGITUDE = 2;
-        static final int COL_RADIUS = 3;
+        public static final int COL_ID = 0;
+        public static final int COL_LATITUDE = 1;
+        public static final int COL_LONGITUDE = 2;
+        public static final int COL_RADIUS = 3;
+        public static final int ADDED_DATE_TIME = 4;
     }
 
     // These indices are tied to EVENT_COLUMNS.  If EVENT_COLUMNS changes, these

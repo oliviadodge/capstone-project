@@ -7,11 +7,13 @@ import com.example.olivi.maphap.data.EventsAndRegionsColumns;
 import com.example.olivi.maphap.data.EventsColumns;
 import com.example.olivi.maphap.data.VenuesColumns;
 import com.example.olivi.maphap.utils.Constants;
+import com.example.olivi.maphap.utils.DateUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.util.Date;
 import java.util.Vector;
 
 /**

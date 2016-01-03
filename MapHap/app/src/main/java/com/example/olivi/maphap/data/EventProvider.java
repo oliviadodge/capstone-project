@@ -22,6 +22,7 @@ public final class EventProvider {
     interface Path{
         String EVENTS = "events";
         String REGIONS = "regions";
+        String REGIONS_DELETE = "regions_delete";
         String VENUES = "venues";
         String EVENTS_REGIONS = "events_regions";
     }
@@ -120,6 +121,22 @@ public final class EventProvider {
                 defaultSort = RegionsColumns._ID + " ASC"
         )
         public static final Uri CONTENT_URI = buildUri(Path.REGIONS);
+
+        @ContentUri(
+                path = Path.REGIONS_DELETE,
+                type = "vnd.android.cursor.dir/region",
+
+                join= "INNER JOIN " + EventDatabase.EVENTS_REGIONS + " ON "
+                + EventDatabase.EVENTS_REGIONS + "." + EventsAndRegionsColumns.REGION_ID
+                + " = "
+                + EventDatabase.REGIONS + "." + RegionsColumns._ID
+                + " INNER JOIN " + EventDatabase.EVENTS + " ON "
+                + EventDatabase.EVENTS + "." + EventsColumns.EB_ID
+                + " = "
+                + EventDatabase.EVENTS_REGIONS + "." + EventsAndRegionsColumns.EVENT_ID
+        )
+
+        public static final Uri CONTENT_URI_DELETE = buildUri(Path.REGIONS_DELETE);
 
         @InexactContentUri(
                 name = "REGION_ID",

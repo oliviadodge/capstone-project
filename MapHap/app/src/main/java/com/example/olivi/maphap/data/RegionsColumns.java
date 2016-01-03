@@ -29,4 +29,13 @@ public interface RegionsColumns {
     @NotNull
     public static final String RADIUS =
             "radius";
+
+
+    @DataType(DataType.Type.TEXT)
+    String ADDED_DATE_TIME =
+            "added_date_time";
+
+    @DataType(DataType.Type.TEXT)
+    String CUTOFF_DATE_TIME =
+            "cutoff_date_time";
 }
