@@ -31,11 +31,10 @@ public interface RegionsColumns {
             "radius";
 
 
-    @DataType(DataType.Type.TEXT)
+    //in Julian days so we can compare
+    @DataType(DataType.Type.REAL)
+    @NotNull
     String ADDED_DATE_TIME =
             "added_date_time";
 
-    @DataType(DataType.Type.TEXT)
-    String CUTOFF_DATE_TIME =
-            "cutoff_date_time";
 }

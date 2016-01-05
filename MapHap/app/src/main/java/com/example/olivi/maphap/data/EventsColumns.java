@@ -62,5 +62,14 @@ public interface EventsColumns {
     @DataType(DataType.Type.TEXT)
     String CATEGORY =
             "category";
+
+    //in Julian days so we can compare
+    @DataType(DataType.Type.REAL)
+    @NotNull
+    @References(table = EventDatabase.REGIONS,
+            column = RegionsColumns.ADDED_DATE_TIME)
+    String ADDED_DATE_TIME =
+            "added_date_time";
+
 }
 

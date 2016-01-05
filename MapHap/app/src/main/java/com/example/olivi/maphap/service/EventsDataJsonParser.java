@@ -1,8 +1,10 @@
 package com.example.olivi.maphap.service;
 
 import android.content.ContentValues;
+import android.net.Uri;
 import android.util.Log;
 
+import com.example.olivi.maphap.data.EventProvider;
 import com.example.olivi.maphap.data.EventsAndRegionsColumns;
 import com.example.olivi.maphap.data.EventsColumns;
 import com.example.olivi.maphap.data.VenuesColumns;
@@ -46,13 +48,15 @@ public class EventsDataJsonParser {
 
     String mEventsJson;
     long mRegionId;
+    double mJulianDateAdded;
     Vector<ContentValues>  mEventsCVVector;
     Vector<ContentValues>  mVenuesCVVector;
     Vector<ContentValues>  mEventsAndRegionCVVector;
 
-    public EventsDataJsonParser(String jsonStr, long regionId) {
+    public EventsDataJsonParser(String jsonStr, long regionId, double julianDateAdded) {
         mEventsJson = jsonStr;
         mRegionId = regionId;
+        mJulianDateAdded = julianDateAdded;
     }
 
     public void parse() throws JSONException {
@@ -154,11 +158,13 @@ public class EventsDataJsonParser {
                 eventValues.put(EventsColumns.STATUS, status);
                 eventValues.put(EventsColumns.LOGO_URL, logoUrl);
                 eventValues.put(EventsColumns.CATEGORY, category);
+                eventValues.put(EventsColumns.ADDED_DATE_TIME, mJulianDateAdded);
                 mEventsCVVector.add(eventValues);
 
                 ContentValues eventsAndRegionValues = new ContentValues();
                 eventsAndRegionValues.put(EventsAndRegionsColumns.REGION_ID, mRegionId);
                 eventsAndRegionValues.put(EventsAndRegionsColumns.EVENT_ID, eventBriteId);
+                eventsAndRegionValues.put(EventsAndRegionsColumns.ADDED_DATE_TIME, mJulianDateAdded);
                 mEventsAndRegionCVVector.add(eventsAndRegionValues);
             }
 
@@ -170,15 +176,18 @@ public class EventsDataJsonParser {
         }
     }
 
-    public ContentValues[] getVenuesContentValues() {
-        return getContentValuesArray(mVenuesCVVector);
-    }
-    public ContentValues[] getEventsContentValues() {
-        return getContentValuesArray(mEventsCVVector);
-    }
-
-    public ContentValues[] getEventsAndRegionContentValues() {
-        return getContentValuesArray(mEventsAndRegionCVVector);
+    public ContentValues[] getContentValues(int dataType) {
+        switch (dataType) {
+            case MapHapService.VENUES:
+                return getContentValuesArray(mVenuesCVVector);
+            case MapHapService.EVENTS:
+                return getContentValuesArray(mEventsCVVector);
+            case MapHapService.EVENTS_REGIONS:
+                return getContentValuesArray(mEventsAndRegionCVVector);
+            default:
+                throw new IllegalArgumentException("dataType must correspond to one of the values " +
+                        "in MapHapService.REQUIRED_CONTENT_VALUES");
+        }
     }
 
     //Helper method to return a ContentValues array from a Vector.

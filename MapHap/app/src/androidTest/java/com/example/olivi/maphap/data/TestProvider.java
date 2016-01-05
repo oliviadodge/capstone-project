@@ -142,7 +142,7 @@ public class TestProvider extends AndroidTestCase {
         mContext.getContentResolver().registerContentObserver(
                 EventProvider.Events.CONTENT_URI, true, eventObserver);
 
-        String cutOffDateString = DateUtils.getCutOffDateTimeString();
+        String cutOffDateString = DateUtils.getCutOffDateTime();
 
         mContext.getContentResolver().delete(EventProvider.Regions.CONTENT_URI_DELETE,
                 "julianday(" + RegionsColumns.ADDED_DATE_TIME + ") <= ?",
@@ -213,8 +213,8 @@ public class TestProvider extends AndroidTestCase {
             eventValues.put(EventsColumns.DESCRIPTION, "event description");
             eventValues.put(EventsColumns.NAME, "event name");
             eventValues.put(EventsColumns.STATUS, "live");
-            eventValues.put(EventsColumns.LOGO_URL, "www.logo-url.com");
-            eventValues.put(EventsColumns.URL, "www.event-url.com");
+            eventValues.put(EventsColumns.LOGO_URL, "www.logo-authToken.com");
+            eventValues.put(EventsColumns.URL, "www.event-authToken.com");
             eventValues.put(EventsColumns.START_DATE_TIME, "2009-08-25T21:00:00");
             eventValues.put(EventsColumns.END_DATE_TIME, "2009-08-31T16:00:00");
             eventContentValues[i] = eventValues;

@@ -46,30 +46,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service
-            android:name=".sync.MapHapAuthenticatorService"
-            >
-            <intent-filter>
-                <action android:name="android.accounts.AccountAuthenticator" />
-            </intent-filter>
-            <meta-data
-                android:name="android.accounts.AccountAuthenticator"
-                android:resource="@xml/authenticator" />
-        </service>
-
-        <!-- The SyncAdapter service -->
-        <service
-            android:name=".sync.MapHapSyncService"
-            android:exported="true"
-            >
-            <intent-filter>
-                <action android:name="android.content.SyncAdapter" />
-            </intent-filter>
-            <meta-data
-                android:name="android.content.SyncAdapter"
-                android:resource="@xml/syncadapter" />
-        </service>
-
+        <service android:name=".service.MapHapService"/>
         <provider
             android:authorities="com.example.olivi.maphap.data.EventProvider"
             android:name="com.example.olivi.maphap.data.generated.EventProvider"

@@ -2,6 +2,7 @@ package com.example.olivi.maphap;
 
 import android.app.LoaderManager;
 import android.content.CursorLoader;
+import android.content.Intent;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
@@ -12,7 +13,7 @@ import android.view.MenuItem;
 
 import com.example.olivi.maphap.data.EventProvider;
 import com.example.olivi.maphap.data.RegionsColumns;
-import com.example.olivi.maphap.sync.MapHapSyncAdapter;
+import com.example.olivi.maphap.service.MapHapService;
 import com.example.olivi.maphap.utils.Constants;
 import com.example.olivi.maphap.utils.DateUtils;
 import com.example.olivi.maphap.utils.LocationUtils;
@@ -60,9 +61,6 @@ public class MainActivity extends LocationActivity
             Log.i(TAG, "in onCreate. Loader restarted to query for regions");
             getLoaderManager().restartLoader(REGIONS_LOADER, null, this);
         }
-
-        Log.i(TAG, "initialize SyncAdapter in onCreate");
-        MapHapSyncAdapter.initializeSyncAdapter(this);
     }
 
     @Override
@@ -221,7 +219,7 @@ public class MainActivity extends LocationActivity
             case REGIONS_LOADER:
                 if ((data != null) && (data.moveToFirst())) {
                     Log.i(TAG, "Regions load finished. data is not null and has a row!");
-                    long regionId = checkIfRegionIsInDB(data);
+                    long regionId = checkIfValidRegionExists(data);
                     if (regionId != -1) {
                         Log.i(TAG, "found region: " + regionId + " Starting events loader");
                         //TODO test this data to see if it is older than a day. If so, we should refetch from API
@@ -255,13 +253,14 @@ public class MainActivity extends LocationActivity
 
     private void fetchEventsData() {
 
-        Log.i(TAG, "FetchEventsData called. Attempting to sync immediately with full bundle");
-        Bundle bundle = new Bundle();
-        bundle.putDouble(MapHapSyncAdapter.LATITUDE_QUERY_EXTRA, mLastLocation.latitude);
-        bundle.putDouble(MapHapSyncAdapter.LONGITUDE_QUERY_EXTRA, mLastLocation.longitude);
-        bundle.putInt(MapHapSyncAdapter.WITHIN_QUERY_EXTRA,
+        Log.i(TAG, "FetchEventsData called. Attempting to start service with intent");
+        Intent intent = new Intent(this, MapHapService.class);
+
+        intent.putExtra(MapHapService.LATITUDE_QUERY_EXTRA, mLastLocation.latitude);
+        intent.putExtra(MapHapService.LONGITUDE_QUERY_EXTRA, mLastLocation.longitude);
+        intent.putExtra(MapHapService.WITHIN_QUERY_EXTRA,
                 LocationUtils.getPreferredRadius(this));
-        MapHapSyncAdapter.syncImmediately(getApplicationContext(), bundle);
+        startService(intent);
     }
 
     @Override
@@ -286,31 +285,29 @@ public class MainActivity extends LocationActivity
         return adapter;
     }
 
-    public long checkIfRegionIsInDB(Cursor cursor) {
+    public long checkIfValidRegionExists(Cursor cursor) {
         long regionId = -1;
 
         double userLat = mLastLocation.latitude;
         double userLon = mLastLocation.longitude;
 
-        for (int i = 0; i < cursor.getCount(); i++) {
+        for (int i = 0; i < cursor.getCount(); i++, cursor.moveToNext()) {
             double regionLat = cursor.getDouble(Projections.Regions.COL_LATITUDE);
             double regionLon = cursor.getDouble(Projections.Regions.COL_LONGITUDE);
 
             double distInMi = LocationUtils.milesBetweenTwoPoints(userLat, userLon,
                     regionLat, regionLon);
 
-            String addedDateString = cursor.getString(Projections.Regions.ADDED_DATE_TIME);
+            double addedDate = cursor.getDouble(Projections.Regions.ADDED_DATE_TIME);
 
             if ((distInMi <= Constants.TOLERANCE_DIST_IN_MILES) && (DateUtils
-                    .isDateTimeStringAfterCutOff(addedDateString))){
+                    .isDateTimeAfterCutOff(addedDate))){
+
                 regionId = cursor.getLong(Projections.Regions.COL_ID);
 
                 Log.d(TAG, "region is in DB. ID is " + regionId);
                 break;
             }
-
-            cursor.moveToNext();
-
         }
 
         return regionId;
