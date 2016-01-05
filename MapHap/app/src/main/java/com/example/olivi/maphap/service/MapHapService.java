@@ -10,6 +10,7 @@ import android.os.RemoteException;
 import android.util.Log;
 
 import com.example.olivi.maphap.R;
+import com.example.olivi.maphap.data.EventDatabase;
 import com.example.olivi.maphap.data.EventProvider;
 import com.example.olivi.maphap.data.EventsAndRegionsColumns;
 import com.example.olivi.maphap.data.EventsColumns;
@@ -34,10 +35,19 @@ public class MapHapService extends IntentService {
     public static final int VENUES = 0;
     public static final int EVENTS = 1;
     public static final int EVENTS_REGIONS = 2;
+    public static final int REGIONS = 3;
     //The order of this array is important for adding data to DB.
     //(ie. Can't add events until you add venues and events_regions until you add events)
     public static final int[] REQUIRED_CONTENT_VALUES = {
             VENUES, EVENTS, EVENTS_REGIONS
+    };
+
+    //The order of this array is important for deleting data from DB.
+    //(ie. Can't delete events_regions until you delete regions and events)
+    public static final Uri[] URIS_TO_DELETE_FROM = {
+            EventProvider.Regions.CONTENT_URI,
+            EventProvider.Events.CONTENT_URI,
+            EventProvider.EventsAndRegions.CONTENT_URI
     };
 
     private static final String LOG_TAG = MapHapService.class.getSimpleName();
@@ -152,18 +162,13 @@ public class MapHapService extends IntentService {
 
         Log.i(LOG_TAG, "cut off date is " + cutOffJulian);
 
-        rowsDeleted[0] = context.getContentResolver().delete(EventProvider.Regions.CONTENT_URI,
-                RegionsColumns.ADDED_DATE_TIME + " <= ?",
-                new String[]{Double.toString(cutOffJulian)});
+        for (int i = 0; i < URIS_TO_DELETE_FROM.length; i++) {
 
-        rowsDeleted[1] = context.getContentResolver().delete(EventProvider.Events.CONTENT_URI,
-                EventsColumns.ADDED_DATE_TIME + " <= ?",
-                new String[]{Double.toString(cutOffJulian)});
+            rowsDeleted[i] = context.getContentResolver().delete(URIS_TO_DELETE_FROM[i],
+                    RegionsColumns.ADDED_DATE_TIME + " <= ?",
+                    new String[]{Double.toString(cutOffJulian)});
 
-        rowsDeleted[2] = context.getContentResolver().delete(EventProvider
-                        .EventsAndRegions.CONTENT_URI,
-                EventsAndRegionsColumns.ADDED_DATE_TIME + " <= ?",
-                new String[]{Double.toString(cutOffJulian)});
+        }
 
         return rowsDeleted;
     }

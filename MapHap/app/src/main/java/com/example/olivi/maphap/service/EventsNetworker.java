@@ -111,7 +111,7 @@ public class EventsNetworker {
                 // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
                 // But it does make debugging a *lot* easier if you print out the completed
                 // buffer for debugging.
-                buffer.append(line + "\n");
+                buffer.append(line).append("\n");
             }
 
             if (buffer.length() == 0) {
@@ -218,7 +218,7 @@ public class EventsNetworker {
         }
     }
 
-    public static enum HttpMethod {
+    public enum HttpMethod {
         GET
     }
 
@@ -233,7 +233,7 @@ public class EventsNetworker {
     }
 
     public interface Callback {
-        public void onResponse(HttpResponse result);
-        public void onFailure(IOException e);
+        void onResponse(HttpResponse result);
+        void onFailure(IOException e);
     }
 }
