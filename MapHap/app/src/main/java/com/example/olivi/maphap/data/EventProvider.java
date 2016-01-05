@@ -72,12 +72,16 @@ public final class EventProvider {
                 name = "EVENT_ID",
                 path = Path.EVENTS + "/#",
                 type = "vnd.android.cursor.item/event",
-                whereColumn = EventsColumns._ID,
+                whereColumn = EventDatabase.EVENTS + "." + EventsColumns._ID,
                 pathSegment = 1,
-                join = EventDatabase.VENUES)
+                join =  "INNER JOIN " + EventDatabase.VENUES + " ON "
+                        + EventDatabase.EVENTS + "." + EventsColumns.EVENTBRITE_VENUE_ID
+                        + " = "
+                        + EventDatabase.VENUES + "." + VenuesColumns.EB_VENUE_ID
+        )
 
         public static Uri withId(long id){
-            return buildUri(Path.EVENTS, String.valueOf(id));
+            return Uri.parse("content://" + AUTHORITY + "/events/" + id);
         }
 //
 //        @NotifyDelete(paths = Path.EVENTS + "/#") public static Uri[] onDelete(Context context,

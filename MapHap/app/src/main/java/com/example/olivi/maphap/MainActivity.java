@@ -142,9 +142,9 @@ public class MainActivity extends LocationActivity
 
     @Override
     public void onItemSelected(Uri eventUri) {
-        //TODO open new detail fragment/activity showing the event.
-        //The detail activity will load the event info unless its a tablet
-        //in which case we will load it here.
+            Intent intent = new Intent(this, DetailActivity.class)
+                    .setData(eventUri);
+            startActivity(intent);
     }
 
     @Override
@@ -203,7 +203,7 @@ public class MainActivity extends LocationActivity
 
                 return new CursorLoader(this,
                         eventsUri,
-                        Projections.EVENT_COLUMNS,
+                        Projections.EVENT_COLUMNS_LIST_VIEW,
                         null,
                         null,
                         null);
@@ -237,7 +237,7 @@ public class MainActivity extends LocationActivity
                 break;
             case EVENTS_LOADER:
                 if ((data != null) && (data.moveToFirst())) {
-                    Log.i(TAG, "Events load finished!");
+                    Log.i(TAG, "EventsListView load finished!");
                     mDataSet = data;
                     addEventsToMap(data);
                     if (mListFragmentReady) {
@@ -318,9 +318,9 @@ public class MainActivity extends LocationActivity
         Log.i(TAG, "adding events to map");
         data.moveToFirst();
         for (int i = 0; i < data.getCount(); i++) {
-            double lat = data.getDouble(Projections.Events.COL_VENUE_LAT);
-            double lon = data.getDouble(Projections.Events.COL_VENUE_LON);
-            String eventName = data.getString(Projections.Events.COL_NAME);
+            double lat = data.getDouble(Projections.EventsListView.COL_VENUE_LAT);
+            double lon = data.getDouble(Projections.EventsListView.COL_VENUE_LON);
+            String eventName = data.getString(Projections.EventsListView.COL_NAME);
 
             Log.i(TAG, "adding event: " + eventName + " at " + lat + " " + lon);
             addMarker(eventName, lat, lon);

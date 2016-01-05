@@ -22,24 +22,8 @@ public class Projections {
 
     };
 
-    public static final String[] EVENT_COLUMNS = {
-            EventsColumns.NAME,
-            EventsColumns.DESCRIPTION,
-            EventsColumns.CAPACITY,
-            EventsColumns.CATEGORY,
-            EventsColumns.STATUS,
-            EventsColumns.URL,
-            EventsColumns.LOGO_URL,
-            EventsColumns.START_DATE_TIME,
-            EventsColumns.END_DATE_TIME,
-            VenuesColumns.NAME,
-            VenuesColumns.LATITUDE,
-            VenuesColumns.LONGITUDE,
-            EventDatabase.EVENTS + "." + EventsColumns._ID
-    };
-
-
-    // These indices are tied to REGION_COLUMNS.  If REGION_COLUMNS changes, these
+    // These indices are tied to REGION_COLUMNS.
+    // If REGION_COLUMNS changes, these
     // must change.
 
     public static class Regions {
@@ -50,10 +34,55 @@ public class Projections {
         public static final int ADDED_DATE_TIME = 4;
     }
 
-    // These indices are tied to EVENT_COLUMNS.  If EVENT_COLUMNS changes, these
+
+    public static final String[] EVENT_COLUMNS_LIST_VIEW = {
+            EventsColumns.NAME,
+            EventsColumns.CATEGORY,
+            EventsColumns.LOGO_URL,
+            EventsColumns.START_DATE_TIME,
+            EventsColumns.END_DATE_TIME,
+            VenuesColumns.NAME,
+            VenuesColumns.LATITUDE,
+            VenuesColumns.LONGITUDE,
+            EventDatabase.EVENTS + "." + EventsColumns._ID
+    };
+
+    // These indices are tied to EVENT_COLUMNS_LIST_VIEW.
+    // If EVENT_COLUMNS_LIST_VIEW changes, these
     // must change.
 
-    public static class Events {
+    public static class EventsListView {
+        static final int COL_NAME = 0;
+        static final int COL_CATEGORY = 1;
+        static final int COL_LOGO_URL = 2;
+        static final int COL_START_DATE_TIME = 3;
+        static final int COL_END_DATE_TIME = 4;
+        static final int COL_VENUE_NAME = 5;
+        static final int COL_VENUE_LAT = 6;
+        static final int COL_VENUE_LON = 7;
+        static final int COL_EVENT_ID = 8;
+    }
+
+
+    public static final String[] EVENT_COLUMNS_DETAIL_VIEW = {
+            EventsColumns.NAME,
+            EventsColumns.DESCRIPTION,
+            EventsColumns.CAPACITY,
+            EventsColumns.CATEGORY,
+            EventsColumns.STATUS,
+            EventsColumns.URL,
+            EventsColumns.LOGO_URL,
+            EventsColumns.START_DATE_TIME,
+            EventsColumns.END_DATE_TIME,
+            VenuesColumns.NAME,
+            EventDatabase.EVENTS + "." + EventsColumns._ID
+    };
+
+    // These indices are tied to EVENT_COLUMNS_DETAIL_VIEW.
+    // If EVENT_COLUMNS_DETAIL_VIEW
+    // changes, these must change.
+
+    public static class EventsDetailView {
         static final int COL_NAME = 0;
         static final int COL_DESCRIPTION = 1;
         static final int COL_CAPACITY = 2;
@@ -64,8 +93,7 @@ public class Projections {
         static final int COL_START_DATE_TIME = 7;
         static final int COL_END_DATE_TIME = 8;
         static final int COL_VENUE_NAME = 9;
-        static final int COL_VENUE_LAT = 10;
-        static final int COL_VENUE_LON = 11;
-        static final int COL_EVENT_ID = 12;
+        static final int COL_EVENT_ID = 10;
     }
+
 }

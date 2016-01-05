@@ -46,6 +46,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".DetailActivity"
+            android:label="@string/activity_detail_name"
+            android:theme="@style/AppTheme.NoActionBar" >
+        </activity>
         <service android:name=".service.MapHapService"/>
         <provider
             android:authorities="com.example.olivi.maphap.data.EventProvider"

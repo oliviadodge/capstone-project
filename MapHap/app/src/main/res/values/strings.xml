@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">MapHap</string>
+    <string name="activity_detail_name">Event\'s Details</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -24,6 +25,8 @@
     <!-- List View Strings-->
     <string name="list_item_to">to</string>
 
+    <!--Share-->
+    <string name="action_share">Share</string>
 
 
     <!-- Account type (for sync-adapter authenticator) -->

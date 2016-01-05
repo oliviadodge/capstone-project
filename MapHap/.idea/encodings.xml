@@ -2,6 +2,14 @@
 <project version="4">
   <component name="Encoding">
     <file url="file://$PROJECT_DIR$/app/src/androidTest/java/com/example/olivi/maphap/data" charset="windows-1252" />
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/example/olivi/maphap/DetailActivity.java" charset="windows-1252" />
+    <file url="file://$PROJECT_DIR$/app/src/main/java/com/example/olivi/maphap/DetailFragment.java" charset="windows-1252" />
+    <file url="file://$PROJECT_DIR$/app/src/main/res/layout-sw600dp" charset="windows-1252" />
+    <file url="file://$PROJECT_DIR$/app/src/main/res/layout/activity_detail.xml" charset="windows-1252" />
+    <file url="file://$PROJECT_DIR$/app/src/main/res/layout/fragment_detail.xml" charset="windows-1252" />
+    <file url="file://$PROJECT_DIR$/app/src/main/res/layout/fragment_detail_wide.xml" charset="windows-1252" />
+    <file url="file://$PROJECT_DIR$/app/src/main/res/menu/detail.xml" charset="windows-1252" />
+    <file url="file://$PROJECT_DIR$/app/src/main/res/menu/detailfragment.xml" charset="windows-1252" />
     <file url="file://$PROJECT_DIR$/app/src/main/res/xml" charset="windows-1252" />
     <file url="PROJECT" charset="UTF-8" />
   </component>
