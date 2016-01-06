@@ -1,5 +1,6 @@
 package com.example.olivi.maphap;
 
+import android.app.FragmentManager;
 import android.app.LoaderManager;
 import android.content.CursorLoader;
 import android.content.Intent;
@@ -44,6 +45,7 @@ public class MainActivity extends LocationActivity
     private boolean mListFragmentReady;
     private GoogleMap mMap;
     private Cursor mDataSet;
+    private EventRecyclerViewAdapter mAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,6 +63,14 @@ public class MainActivity extends LocationActivity
             Log.i(TAG, "in onCreate. Loader restarted to query for regions");
             getLoaderManager().restartLoader(REGIONS_LOADER, null, this);
         }
+
+        getFragmentManager().addOnBackStackChangedListener(new FragmentManager
+                .OnBackStackChangedListener() {
+            @Override
+            public void onBackStackChanged() {
+                Log.i(TAG, "onBackStackChanged() called");
+            }
+        });
     }
 
     @Override
@@ -148,7 +158,7 @@ public class MainActivity extends LocationActivity
     }
 
     @Override
-    public void onListFragmentReady(MyEventRecyclerViewAdapter adapter) {
+    public void onListFragmentReady(EventRecyclerViewAdapter adapter) {
         //TODO The list fragment is ready to receive the cursor of data. Send it to the adapter
         //and keep a handle on the adapter in case the cursor changes or the loader is reset.
         //if the loader has not finished loading data, set a boolean to true so we can add the cursor
@@ -157,7 +167,7 @@ public class MainActivity extends LocationActivity
         EventListFragment eventListFragment =
                 (EventListFragment) getFragmentManager()
                         .findFragmentById(R.id.eventListFragment);
-        eventListFragment.setUpAdapter(mDataSet);
+        mAdapter = eventListFragment.setUpAdapter(mDataSet);
     }
 
     private boolean checkIfLocationChanged(LatLng newLatLng) {
@@ -241,7 +251,7 @@ public class MainActivity extends LocationActivity
                     mDataSet = data;
                     addEventsToMap(data);
                     if (mListFragmentReady) {
-                        getAdapterFromListFragment().changeCursor(mDataSet);
+                        mAdapter.changeCursor(mDataSet);
                     }
                 }
                 break;
@@ -267,7 +277,7 @@ public class MainActivity extends LocationActivity
     public void onLoaderReset(Loader<Cursor> loader) {
         switch (loader.getId()) {
             case EVENTS_LOADER:
-                getAdapterFromListFragment().changeCursor(null);
+                mAdapter.changeCursor(null);
                 mDataSet.close();
                 mDataSet = null;
                 break;
@@ -277,11 +287,11 @@ public class MainActivity extends LocationActivity
 
     }
 
-    private MyEventRecyclerViewAdapter getAdapterFromListFragment() {
+    private EventRecyclerViewAdapter getAdapterFromListFragment() {
         EventListFragment eventListFragment =
                 (EventListFragment) getFragmentManager()
                         .findFragmentById(R.id.eventListFragment);
-        MyEventRecyclerViewAdapter adapter = eventListFragment.getAdapter();
+        EventRecyclerViewAdapter adapter = eventListFragment.getAdapter();
         return adapter;
     }
 

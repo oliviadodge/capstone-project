@@ -15,18 +15,21 @@
  */
 package com.example.olivi.maphap;
 
+import android.app.Fragment;
+import android.app.LoaderManager;
 import android.content.Context;
+import android.content.CursorLoader;
 import android.content.Intent;
+import android.content.Loader;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
-import android.support.v4.view.MenuItemCompat;
+import android.support.design.widget.FloatingActionButton;
+
+
+import android.support.v4.app.ShareCompat;
 import android.support.v7.widget.ShareActionProvider;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -48,7 +51,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     private static final String LOG_TAG = DetailFragment.class.getSimpleName();
     static final String DETAIL_URI = "URI";
 
-    private static final String EVENT_SHARE_HASHTAG = " #SunshineApp";
+    private static final String EVENT_SHARE_HASHTAG = " #MapHap";
 
     private ShareActionProvider mShareActionProvider;
     private String mEvent;
@@ -81,7 +84,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         }
 
         View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
-        mImageView = (ImageView) rootView.findViewById(R.id.detail_image);
+
         mNameTextView = (TextView) rootView.findViewById(R.id.detail_name_textview);
         mDateView = (TextView) rootView.findViewById(R.id.detail_date_textview);
         mFriendlyDateView = (TextView) rootView.findViewById(R.id.detail_day_textview);
@@ -94,22 +97,24 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         return rootView;
     }
 
-    @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        inflater.inflate(R.menu.detailfragment, menu);
 
-        // Retrieve the share menu item
-        MenuItem menuItem = menu.findItem(R.id.action_share);
-
-        // Get the provider and hold onto it to set/change the share intent.
-        mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
-
-        // If onLoadFinished happens before this, we can go ahead and set the share intent now.
-        if (mEvent != null) {
-            mShareActionProvider.setShareIntent(createShareEventIntent());
-        }
-    }
+//
+//    @Override
+//    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+//        // Inflate the menu; this adds items to the action bar if it is present.
+//        inflater.inflate(R.menu.detailfragment, menu);
+//
+//        // Retrieve the share menu item
+//        MenuItem menuItem = menu.findItem(R.id.action_share);
+//
+//        // Get the provider and hold onto it to set/change the share intent.
+//        mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
+//
+//        // If onLoadFinished happens before this, we can go ahead and set the share intent now.
+//        if (mEvent != null) {
+//            mShareActionProvider.setShareIntent(createShareEventIntent());
+//        }
+//    }
 
     private Intent createShareEventIntent() {
         Intent shareIntent = new Intent(Intent.ACTION_SEND);
@@ -122,6 +127,20 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         getLoaderManager().initLoader(DETAIL_LOADER, null, this);
+
+
+        getActivity().findViewById(R.id.fab).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(Intent.createChooser(ShareCompat.IntentBuilder.from(getActivity())
+                        .setType("text/plain")
+                        .setText("Some sample text") //TODO add info about event here and maybe the url
+                        .getIntent(), getString(R.string.action_share)));
+            }
+        });
+
+        mImageView = (ImageView) getActivity().findViewById(R.id.detail_image);
+
         super.onActivityCreated(savedInstanceState);
     }
 //
@@ -158,17 +177,15 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
             String imageUrl = data.getString(Projections.EventsDetailView.COL_LOGO_URL);
             ConnectivityManager connMgr = (ConnectivityManager)
-                    getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+                    getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
 
-            if ((imageUrl.length() > 0) && (networkInfo != null && networkInfo.isConnected())) {
-                Picasso.with(getActivity()).load(imageUrl)
-                        .placeholder(R.drawable.default_placeholder)
-                        .error(R.drawable.default_placeholder)
-                        .resize(128, 128).centerCrop().into(mImageView);
+            if (imageUrl.length() > 0) {
+                Picasso.with(getActivity()).load(imageUrl).placeholder(R.drawable.default_placeholder).error(R.drawable.default_placeholder)
+                        .resize(600, 600).centerCrop().into(mImageView);
             } else {
                 Picasso.with(getActivity()).load(R.drawable.default_placeholder)
-                        .resize(128, 128).centerCrop().into(mImageView);
+                        .resize(600, 600).centerCrop().into(mImageView);
             }
 
             // Read date from cursor and update views for day of week and date
