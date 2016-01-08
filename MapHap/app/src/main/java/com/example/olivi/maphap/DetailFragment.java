@@ -31,17 +31,23 @@ import android.support.design.widget.FloatingActionButton;
 
 import android.support.v4.app.ShareCompat;
 import android.support.v7.widget.ShareActionProvider;
+import android.util.Log;
 import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-
+import android.support.v7.widget.Toolbar;
 import com.example.olivi.maphap.utils.DateUtils;
 import com.squareup.picasso.Picasso;
+
+import org.w3c.dom.Text;
+
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * A placeholder fragment containing a simple view.
@@ -53,11 +59,10 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     private static final String EVENT_SHARE_HASHTAG = " #MapHap";
 
-    private ShareActionProvider mShareActionProvider;
-    private String mEvent;
-    private Uri mUri;
 
     private static final int DETAIL_LOADER = 0;
+
+    private Uri mUri;
 
     private ImageView mImageView;
     private TextView mNameTextView;
@@ -70,20 +75,46 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     private TextView mStatusView;
     private TextView mCapacityView;
 
+    private HashMap<Integer, TextView> mDataColToViewMap;
+
+    private String mEvent;
+
+
     public DetailFragment() {
-        setHasOptionsMenu(true);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
+        Log.i(LOG_TAG, "onCreateView called");
         Bundle arguments = getArguments();
+
         if (arguments != null) {
             mUri = arguments.getParcelable(DetailFragment.DETAIL_URI);
         }
 
         View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
+        Log.i(LOG_TAG, "adding data columns and views to HasMap");
+        mDataColToViewMap = new HashMap<>(Projections.EVENT_COLUMNS_DETAIL_VIEW.length);
+
+//        mDataColToViewMap.put(Projections.EventsDetailView.COL_NAME,
+//                (TextView) rootView.findViewById(R.id.detail_name_textview));
+//        mDataColToViewMap.put(Projections.EventsDetailView.COL_CAPACITY,
+//                (TextView) rootView.findViewById(R.id.detail_capacity_textview));
+//        mDataColToViewMap.put(Projections.EventsDetailView.COL_CATEGORY,
+//                (TextView) rootView.findViewById(R.id.detail_category_textview));
+//        mDataColToViewMap.put(Projections.EventsDetailView.COL_DESCRIPTION,
+//                (TextView) rootView.findViewById(R.id.detail_description_textview));
+//        mDataColToViewMap.put(Projections.EventsDetailView.COL_START_DATE_TIME,
+//                (TextView) rootView.findViewById(R.id.detail_date_textview));
+//        mDataColToViewMap.put(Projections.EventsDetailView.COL_END_DATE_TIME,
+//                (TextView) rootView.findViewById(R.id.detail_day_textview));
+//        mDataColToViewMap.put(Projections.EventsDetailView.COL_VENUE_NAME,
+//                (TextView) rootView.findViewById(R.id.detail_venue_textview));
+//        mDataColToViewMap.put(Projections.EventsDetailView.COL_STATUS,
+//                (TextView) rootView.findViewById(R.id.detail_status_textview));
+//        mDataColToViewMap.put(Projections.EventsDetailView.COL_URL,
+//                (TextView) rootView.findViewById(R.id.detail_url_textview));
 
         mNameTextView = (TextView) rootView.findViewById(R.id.detail_name_textview);
         mDateView = (TextView) rootView.findViewById(R.id.detail_date_textview);
@@ -96,8 +127,6 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
         mCapacityView = (TextView) rootView.findViewById(R.id.detail_capacity_textview);
         return rootView;
     }
-
-
 //
 //    @Override
 //    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
@@ -116,19 +145,14 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 //        }
 //    }
 
-    private Intent createShareEventIntent() {
-        Intent shareIntent = new Intent(Intent.ACTION_SEND);
-        shareIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT);
-        shareIntent.setType("text/plain");
-        shareIntent.putExtra(Intent.EXTRA_TEXT, mEvent + EVENT_SHARE_HASHTAG);
-        return shareIntent;
-    }
-
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
+        Log.i(LOG_TAG, "onActivityCreated called");
         getLoaderManager().initLoader(DETAIL_LOADER, null, this);
-
-
+        //TODO add an interface for detail fragment's callbacks so we can
+        //let the activity know when we have some text for the user to share.
+        //Then the activity can decide what to do (get a reference to the fab button
+        //and change it's onClick listener method to share the info.
         getActivity().findViewById(R.id.fab).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -138,9 +162,7 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                         .getIntent(), getString(R.string.action_share)));
             }
         });
-
         mImageView = (ImageView) getActivity().findViewById(R.id.detail_image);
-
         super.onActivityCreated(savedInstanceState);
     }
 //
@@ -156,7 +178,8 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-        if ( null != mUri ) {
+        Log.i(LOG_TAG, "onCreateLoader called");
+        if (null != mUri) {
             return new CursorLoader(
                     getActivity(),
                     mUri,
@@ -171,39 +194,44 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
+        Log.i(LOG_TAG, "onLoadFinished called");
         if (data != null && data.moveToFirst()) {
-            int eventId = data.getInt(Projections.EventsDetailView.COL_EVENT_ID);
-
-
             String imageUrl = data.getString(Projections.EventsDetailView.COL_LOGO_URL);
             ConnectivityManager connMgr = (ConnectivityManager)
                     getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-
-            if (imageUrl.length() > 0) {
+            if ((imageUrl.length() > 0) && (networkInfo != null && networkInfo.isConnected())) {
                 Picasso.with(getActivity()).load(imageUrl).placeholder(R.drawable.default_placeholder).error(R.drawable.default_placeholder)
-                        .resize(600, 600).centerCrop().into(mImageView);
+                        .resize(390, 260).centerInside().into(mImageView);
             } else {
                 Picasso.with(getActivity()).load(R.drawable.default_placeholder)
-                        .resize(600, 600).centerCrop().into(mImageView);
+                        .resize(390, 260).centerInside().into(mImageView);
             }
-
             // Read date from cursor and update views for day of week and date
             String eventStart = data.getString(Projections.EventsListView.COL_START_DATE_TIME);
             String eventEnd = data.getString(Projections.EventsListView.COL_END_DATE_TIME);
-
 //            if ((eventStart != null) && (eventEnd != null)) {
 //                String[] formattedDateTimes = DateUtils.formatStartAndEndDateTimes(eventStart, eventEnd);
 //
 //                mFriendlyDateView.setText(formattedDateTimes[0]);
 //                mDateView.setText(formattedDateTimes[1]);
 //            }
+            mImageView.setContentDescription(data.getString(Projections.EventsDetailView.COL_NAME));
+
+//            Set set = mDataColToViewMap.entrySet();
+//            Iterator iterator = set.iterator();
+//            while (iterator.hasNext()) {
+//                Map.Entry mentry = (Map.Entry) iterator.next();
+//                int columnIdx = (Integer) mentry.getKey();
+//                ((TextView) mentry.getValue()).setText(data.getString(columnIdx));
+//                Log.i(LOG_TAG, "for " + data.getColumnName(columnIdx) + " data is "
+//                        + data.getString(columnIdx) + ".");
+//            }
 
 
             String eventName = data.getString(Projections.EventsDetailView.COL_NAME);
             mNameTextView.setText(eventName);
 
-            mImageView.setContentDescription(eventName);
 
             String description = data.getString(Projections.EventsDetailView.COL_DESCRIPTION);
             mDescriptionView.setText(description);
@@ -225,15 +253,12 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
             mCapacityView.setText(Integer.toString(capacity));
 
             // We still need this for the share intent
-            mEvent = String.format("%s - %s - %s/%s", eventName, description, category, eventUrl);
-
-            // If onCreateOptionsMenu has already happened, we need to update the share intent now.
-            if (mShareActionProvider != null) {
-                mShareActionProvider.setShareIntent(createShareEventIntent());
-            }
+            mEvent = String.format("%s - %s - %s/%s", "eventName", "description", "category", "eventUrl");
         }
     }
 
     @Override
-    public void onLoaderReset(Loader<Cursor> loader) { }
+    public void onLoaderReset(Loader<Cursor> loader) {
+        Log.i(LOG_TAG, "onLoadReset called");
+    }
 }

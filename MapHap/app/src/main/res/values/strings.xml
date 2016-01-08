@@ -27,7 +27,7 @@
 
     <!--Share-->
     <string name="action_share">Share</string>
-    <string name="title_activity_test_detail">TestDetailActivity</string>
+    <string name="title_activity_detail">Event Details</string>
     <string name="large_text">
         "Material is the metaphor.\n\n"
 

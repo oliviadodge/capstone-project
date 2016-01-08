@@ -54,7 +54,7 @@
 
         <activity
             android:name=".DetailActivity"
-            android:label="@string/title_activity_test_detail"
+            android:label="@string/title_activity_detail"
             android:parentActivityName=".MainActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <meta-data

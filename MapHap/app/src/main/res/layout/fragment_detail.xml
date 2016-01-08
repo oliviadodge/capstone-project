@@ -2,123 +2,105 @@
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:gravity="center_vertical"
-    android:layout_gravity="left"
-    android:layout_height="wrap_content"
+    android:gravity="left"
+    android:layout_gravity="top"
+    android:layout_height="match_parent"
     android:layout_width="match_parent"
     android:orientation="vertical"
-    android:padding="16dp">
+>
 
-    <!-- Header: Day, Date -->
-    <TextView
-        android:fontFamily="sans-serif-condensed"
-        android:id="@+id/detail_name_textview"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:textSize="48sp"
-        tools:text="Event Name"
-        />
-
-    <TextView
-        android:fontFamily="sans-serif-condensed"
-        android:id="@+id/detail_day_textview"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:textSize="24sp"
-        tools:text="Monday, January 4, 2016"
-
-        />
-
-    <TextView
-        android:fontFamily="sans-serif-condensed"
-        android:id="@+id/detail_date_textview"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:textSize="16sp"
-        tools:text="Wednesday, January 6, 2016"
-        />
-
-    <!-- Main content: high, low, art, weather state -->
     <LinearLayout
-        android:gravity="center_horizontal"
-        android:layout_height="match_parent"
-        android:layout_marginTop="16dp"
+        android:gravity="left"
         android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
         android:orientation="vertical">
 
-        <LinearLayout
-            android:gravity="left"
+
+        <TextView
+            android:fontFamily="sans-serif-condensed"
+            android:id="@+id/detail_name_textview"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
-            android:orientation="vertical">
+            android:textSize="48sp"
+            tools:text="Event Name"
+            />
 
-            <TextView
-                android:fontFamily="sans-serif-light"
-                android:id="@+id/detail_category_textview"
-                android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
-                android:textSize="24sp"
-                tools:text="Beauty and Fashion"
-                />
+        <TextView
+            android:fontFamily="sans-serif-condensed"
+            android:id="@+id/detail_day_textview"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:textSize="24sp"
+            tools:text="Monday, January 4, 2016"
 
-            <TextView
-                android:id="@+id/detail_url_textview"
-                android:layout_gravity="center_horizontal"
-                android:layout_height="wrap_content"
-                android:layout_width="wrap_content"
-                android:textSize="24sp"
-                tools:text="www.event-url.com/this-may-be-a-very-long-url"
-                />
-        </LinearLayout>
-        <!-- Humidity, wind, pressure -->
-        <LinearLayout
-            android:layout_height="match_parent"
-            android:layout_marginRight="0dp"
-            android:layout_marginTop="16dp"
+            />
+
+        <TextView
+            android:fontFamily="sans-serif-condensed"
+            android:id="@+id/detail_date_textview"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:textSize="16sp"
+            tools:text="Wednesday, January 6, 2016"
+            />
+
+
+        <TextView
+            android:fontFamily="sans-serif-light"
+            android:id="@+id/detail_category_textview"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:textSize="24sp"
+            tools:text="Beauty and Fashion"
+            />
+
+        <TextView
+            android:id="@+id/detail_url_textview"
+            android:layout_gravity="center_horizontal"
+            android:layout_height="wrap_content"
+            android:layout_width="wrap_content"
+            android:textSize="24sp"
+            tools:text="www.event-url.com/this-may-be-a-very-long-url"
+            />
+
+
+        <TextView
+            android:id="@+id/detail_venue_textview"
+            android:layout_height="wrap_content"
             android:layout_width="match_parent"
-            android:orientation="vertical">
+            android:textAppearance="?android:textAppearanceLarge"
+            tools:text="California Academy of Sciences"
+            />
 
-            <TextView
-                android:id="@+id/detail_venue_textview"
-                android:layout_height="wrap_content"
-                android:layout_width="match_parent"
-                android:textAppearance="?android:textAppearanceLarge"
-                tools:text="California Academy of Sciences"
-                />
-
-            <TextView
-                android:id="@+id/detail_capacity_textview"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:layout_width="match_parent"
-                android:textAppearance="?android:textAppearanceLarge"
-                tools:text="Capacity: 600"
-                />
-
-            <TextView
-                android:id="@+id/detail_status_textview"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:layout_width="match_parent"
-                android:textAppearance="?android:textAppearanceLarge"
-                tools:text="Status: live"
-                />
-        </LinearLayout>
-        <LinearLayout
-            android:gravity="center_horizontal"
-            android:layout_gravity="center"
+        <TextView
+            android:id="@+id/detail_capacity_textview"
             android:layout_height="wrap_content"
-            android:layout_width="wrap_content"
-            android:orientation="vertical">
+            android:layout_marginTop="4dp"
+            android:layout_width="match_parent"
+            android:textAppearance="?android:textAppearanceLarge"
+            tools:text="Capacity: 600"
+            />
 
-            <TextView
-                android:id="@+id/detail_description_textview"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:textAppearanceSmall"
-                tools:text="Description: This is the event description and this can be very long too. Sometimes they will list all the artists playing at a festival or something like that"
-                />
-        </LinearLayout>
+        <TextView
+            android:id="@+id/detail_status_textview"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_width="match_parent"
+            android:textAppearance="?android:textAppearanceLarge"
+            tools:text="Status: live"
+            />
+
+
+        <TextView
+            android:id="@+id/detail_description_textview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:textAppearanceSmall"
+            tools:text="Description: This is the event description and this can be very long too. Sometimes they will list all the artists playing at a festival or something like that"
+            />
     </LinearLayout>
 </LinearLayout>
 
+
+    <!--android:padding="16dp"-->

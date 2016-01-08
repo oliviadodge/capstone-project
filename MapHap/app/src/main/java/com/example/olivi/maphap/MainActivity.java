@@ -8,9 +8,12 @@ import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.ListView;
 
 import com.example.olivi.maphap.data.EventProvider;
 import com.example.olivi.maphap.data.RegionsColumns;
@@ -40,6 +43,7 @@ public class MainActivity extends LocationActivity
     private static final String LATITUDE_KEY = "latitude_key";
     private static final String LONGITUDE_KEY = "longitude_key";
 
+
     private LatLng mLastLocation;
     private boolean mMapReady;
     private boolean mListFragmentReady;
@@ -47,9 +51,11 @@ public class MainActivity extends LocationActivity
     private Cursor mDataSet;
     private EventRecyclerViewAdapter mAdapter;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.i(TAG, "onCreate called and savedInstanceState is " + savedInstanceState);
         MapFragment mapFragment = (MapFragment) getFragmentManager()
                 .findFragmentById(R.id.mapFragment);
         mapFragment.getMapAsync(this);
@@ -71,6 +77,11 @@ public class MainActivity extends LocationActivity
                 Log.i(TAG, "onBackStackChanged() called");
             }
         });
+    }
+
+    @Override
+    public void onAttachFragment(Fragment fragment) {
+        super.onAttachFragment(fragment);
     }
 
     @Override
@@ -151,7 +162,7 @@ public class MainActivity extends LocationActivity
     }
 
     @Override
-    public void onItemSelected(Uri eventUri) {
+    public void onItemSelected(Uri eventUri, int position) {
             Intent intent = new Intent(this, DetailActivity.class)
                     .setData(eventUri);
             startActivity(intent);
@@ -251,7 +262,18 @@ public class MainActivity extends LocationActivity
                     mDataSet = data;
                     addEventsToMap(data);
                     if (mListFragmentReady) {
+                        Log.i(TAG, "onLoadFinished called and mListFragmentReady is true." +
+                                        "get event list fragment so we can scroll to previous position");
                         mAdapter.changeCursor(mDataSet);
+                        // If we don't need to restart the loader, and there's a desired position to restore
+                        // to, do so now.
+                        EventListFragment fragment = (EventListFragment)getFragmentManager()
+                                .findFragmentById(R.id.eventListFragment);
+                        if (fragment != null) {
+                            fragment.scrollToPreviousPosition();
+                        } else {
+                            Log.i(TAG, "onLoadFinished and event list fragment is nulll!");
+                        }
                     }
                 }
                 break;
@@ -339,15 +361,32 @@ public class MainActivity extends LocationActivity
         }
     }
 
+    @Override
+    protected void onStart() {
+        Log.i(TAG, "onStart called");
+        super.onStart();
+    }
 
+    @Override
+    protected void onStop() {
+        Log.i(TAG, "onStop called");
+        super.onStop();
+    }
+
+    @Override
+    protected void onDestroy() {
+        Log.i(TAG, "onDestroy called");
+        super.onDestroy();
+    }
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
+        Log.i(TAG, "onSaveInstanceState called");
+        super.onSaveInstanceState(outState);
         if (mLastLocation != null) {
             outState.putDouble(LATITUDE_KEY, mLastLocation.latitude);
             outState.putDouble(LONGITUDE_KEY, mLastLocation.longitude);
         }
-        super.onSaveInstanceState(outState);
     }
     //TODO add a task to periodically check database for old data and delete it, so we don't rack up endless history
     //TODO cont. data should be deleted from the regions table based on how old it is. Then cascade to the region_events
