@@ -9,11 +9,9 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ListView;
 
 import com.example.olivi.maphap.data.EventProvider;
 import com.example.olivi.maphap.data.RegionsColumns;
@@ -37,12 +35,15 @@ public class MainActivity extends LocationActivity
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int REGIONS_LOADER = 0;
     private static final int EVENTS_LOADER = 1;
+    private static final int EVENT_LOADER = 2;
 
     public static final String REGION_ID_EXTRA = "region_id";
+    public static final String EVENT_URI_EXTRA = "event_uri";
 
     private static final String LATITUDE_KEY = "latitude_key";
     private static final String LONGITUDE_KEY = "longitude_key";
 
+    private static final String DETAILFRAGMENT_TAG = "DFTAG";
 
     private LatLng mLastLocation;
     private boolean mMapReady;
@@ -50,11 +51,28 @@ public class MainActivity extends LocationActivity
     private GoogleMap mMap;
     private Cursor mDataSet;
     private EventRecyclerViewAdapter mAdapter;
+    private boolean mThreePane;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (findViewById(R.id.event_detail_container) != null) {
+            // The detail container view will be present only in the large-screen layouts
+            // (res/layout-sw600dp).
+            mThreePane = true;
+            // In two-pane mode, show the detail view in this activity by
+            // adding or replacing the detail fragment using a
+            // fragment transaction.
+            if (savedInstanceState == null) {
+                getFragmentManager().beginTransaction()
+                        .replace(R.id.event_detail_container, new DetailFragment(), DETAILFRAGMENT_TAG)
+                        .commit();
+            }
+        } else {
+            mThreePane = false;
+        }
+
         Log.i(TAG, "onCreate called and savedInstanceState is " + savedInstanceState);
         MapFragment mapFragment = (MapFragment) getFragmentManager()
                 .findFragmentById(R.id.mapFragment);
@@ -89,7 +107,7 @@ public class MainActivity extends LocationActivity
         if (checkIfLocationChanged(latLng)) {
             double latitude = latLng.latitude;
             double longitude = latLng.longitude;
-            zoomToPosition(latitude, longitude);
+            zoomToPosition(latitude, longitude, Constants.MAP_ZOOM_LEVEL);
             addMarker("you're here", latitude, longitude);
             mLastLocation = latLng;
             Log.i(TAG, "onUserLocationFound called and location changed. Initializing loader");
@@ -110,17 +128,17 @@ public class MainActivity extends LocationActivity
         mMap = googleMap;
 
         if (mLastLocation != null) {
-            zoomToPosition(mLastLocation.latitude, mLastLocation.longitude);
+            zoomToPosition(mLastLocation.latitude, mLastLocation.longitude, Constants.MAP_ZOOM_LEVEL);
             addMarker("you're here", mLastLocation.latitude, mLastLocation.longitude);
         }
     }
 
-    private void zoomToPosition(double latitude, double longitude) {
+    private void zoomToPosition(double latitude, double longitude, float zoomLevel) {
         LatLng position = new LatLng(latitude,
                 longitude);
         CameraPosition target = CameraPosition.builder()
                 .target(position)
-                .zoom(Constants.MAP_ZOOM_LEVEL).build();
+                .zoom(zoomLevel).build();
         mMap.moveCamera(CameraUpdateFactory
                 .newCameraPosition(target));
     }
@@ -133,6 +151,7 @@ public class MainActivity extends LocationActivity
                     .icon(BitmapDescriptorFactory
                             .fromResource(R.mipmap.ic_launcher));
             mMap.addMarker(place);
+
         } else {
             Log.i(TAG, "addMarker called but map is not ready!");
         }
@@ -163,9 +182,24 @@ public class MainActivity extends LocationActivity
 
     @Override
     public void onItemSelected(Uri eventUri, int position) {
+        if (mThreePane) {
+            // In two-pane mode, show the detail view in this activity by
+            // adding or replacing the detail fragment using a
+            // fragment transaction.
+            Bundle args = new Bundle();
+            args.putParcelable(DetailFragment.DETAIL_URI, eventUri);
+
+            DetailFragment fragment = new DetailFragment();
+            fragment.setArguments(args);
+
+            getFragmentManager().beginTransaction()
+                    .replace(R.id.event_detail_container, fragment, DETAILFRAGMENT_TAG)
+                    .commit();
+        } else {
             Intent intent = new Intent(this, DetailActivity.class)
                     .setData(eventUri);
             startActivity(intent);
+        }
     }
 
     @Override
@@ -228,6 +262,15 @@ public class MainActivity extends LocationActivity
                         null,
                         null,
                         null);
+            case EVENT_LOADER:
+                Uri eventUri = args.getParcelable(EVENT_URI_EXTRA);
+
+                return new CursorLoader(this,
+                        eventUri,
+                        Projections.EVENT_COLUMNS_LIST_VIEW,
+                        null,
+                        null,
+                        null);
             default:
                 return null;
         }
@@ -275,6 +318,16 @@ public class MainActivity extends LocationActivity
                             Log.i(TAG, "onLoadFinished and event list fragment is nulll!");
                         }
                     }
+                }
+                break;
+            case EVENT_LOADER:
+                if ((data != null) && (data.moveToFirst())) {
+                    double latitude = data.getDouble(Projections.EventsListView
+                            .COL_VENUE_LAT);
+                    double longitude = data.getDouble(Projections.EventsListView
+                            .COL_VENUE_LON);
+                    Log.i(TAG, "zooming to position " + latitude + ", " + longitude);
+                    zoomToPosition(latitude, longitude, Constants.MAP_ZOOM_LEVEL_CLOSE);
                 }
                 break;
             default:
@@ -359,6 +412,14 @@ public class MainActivity extends LocationActivity
 
             data.moveToNext();
         }
+    }
+
+    @Override
+    public void onItemLongClicked(Uri eventUri, int position) {
+        Bundle args = new Bundle();
+        args.putParcelable(EVENT_URI_EXTRA, eventUri);
+        Log.i(TAG, "restarting loader with eventUri " + eventUri);
+        getLoaderManager().restartLoader(EVENT_LOADER, args, this);
     }
 
     @Override

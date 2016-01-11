@@ -29,9 +29,9 @@
     <string name="detail_item_to">to</string>
     <string name="header_event_description">About</string>
     <string name="header_other_details">Other Details</string>
-    <string name="detail_capacity">Capacity: </string>
-    <string name="detail_status">Status: </string>
-    <string name="detail_category">Event categorized as: </string>
+    <string name="detail_capacity">Capacity:&#160;</string>
+    <string name="detail_status">Status:&#160;</string>
+    <string name="detail_category">Event categorized as:&#160;</string>
     <string name="detail_go_to_event_page">Go to event web page </string>
 
 

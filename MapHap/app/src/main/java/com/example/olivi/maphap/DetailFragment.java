@@ -38,6 +38,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.olivi.maphap.utils.DateUtils;
 import com.squareup.picasso.Picasso;
 
 import java.util.HashMap;
@@ -175,7 +176,12 @@ public class DetailFragment extends Fragment implements LoaderManager
     }
 
     public void setUpCards(Cursor data) {
+        setUpFirstCard(data);
+        setUpSecondCard(data);
+        setUpThirdCard(data);
+    }
 
+    private void setUpFirstCard(Cursor data) {
         //Create first card containing event title, date, and place.
         Card detailCard = new Card(getActivity(),R.layout.card_event_layout1);
 
@@ -189,12 +195,26 @@ public class DetailFragment extends Fragment implements LoaderManager
         cardView.setCard(detailCard);
 
         View v = cardView.getInternalContentLayout();
+        String startString = data.getString(Projections.EventsDetailView
+                .COL_START_DATE_TIME);
+        String endString = data.getString(Projections.EventsDetailView
+                .COL_END_DATE_TIME);
 
-        setTextView(v, R.id.detail_start_textview, data,
-                Projections.EventsDetailView.COL_START_DATE_TIME);
+        if (DateUtils.isIntervalInOneDay(startString, endString)) {
+            String text = getSingleDayStartTime(startString, endString);
+            ((TextView) v.findViewById(R.id.detail_start_textview))
+                    .setText(text);
+            v.findViewById(R.id.detail_end_textview)
+                    .setVisibility(View.GONE);
+        } else {
+            String text1 = getStartDateTimeString(startString);
+            String text2 = getEndDateTimeString(endString);
+            ((TextView) v.findViewById(R.id.detail_start_textview))
+                    .setText(text1);
+            ((TextView) v.findViewById(R.id.detail_end_textview))
+                    .setText(text2);
 
-        setTextView(v, R.id.detail_end_textview, data,
-                Projections.EventsDetailView.COL_END_DATE_TIME);
+        }
 
         setTextView(v, R.id.detail_venue_textview, data,
                 Projections.EventsDetailView.COL_VENUE_NAME);
@@ -204,63 +224,75 @@ public class DetailFragment extends Fragment implements LoaderManager
 
         urlTextView.setText(
                 data.getString(Projections.EventsDetailView.COL_URL));
+    }
 
+    public void setUpSecondCard(Cursor data) {
         //Create the second card with the event description and category
-        Card descriptionCard = new Card(getActivity(),R.layout
+        Card descriptionCard = new Card(getActivity(), R.layout
                 .card_event_layout2);
-
         addCardHeader(descriptionCard, getString(R.string
                 .header_event_description));
-
         CardViewNative descriptionCardView = (CardViewNative) getActivity()
                 .findViewById(R.id.card_event_2);
         descriptionCardView.setCard(descriptionCard);
-
         View v2 = descriptionCardView.getInternalContentLayout();
         String descHtml = data.getString(Projections.EventsDetailView
                 .COL_DESCRIPTION);
         ((TextView) v2.findViewById(R.id.detail_description_textview))
                 .setText(descHtml);
-
         setTextView(v2, R.id.detail_category_textview, data,
                 Projections.EventsDetailView.COL_CATEGORY);
+    }
 
-
-
+    public void setUpThirdCard(Cursor data) {
         //Create the third card with the status, and capactiy (maybe
         // ticket prices and where to find)
-        Card otherDetailsCard = new Card(getActivity(),R.layout
+        Card otherDetailsCard = new Card(getActivity(), R.layout
                 .card_event_layout3);
-
         addCardHeader(otherDetailsCard, getString(R.string
                 .header_other_details));
-
-        CardViewNative otherDetailsCardView = (CardViewNative) getActivity()
-                .findViewById(R.id.card_event_3);
+        CardViewNative otherDetailsCardView = (CardViewNative)
+                getActivity()
+                        .findViewById(R.id.card_event_3);
         otherDetailsCardView.setCard(otherDetailsCard);
-
         View v3 = otherDetailsCardView.getInternalContentLayout();
         setTextView(v3, R.id.detail_status_textview, data,
                 Projections.EventsDetailView.COL_STATUS);
-
         setTextView(v3, R.id.detail_capacity_textview, data,
                 Projections.EventsDetailView.COL_CAPACITY);
-
-
-
     }
 
-    public void setTextView(View parent, int resId, Cursor data, int
+    private void setTextView(View parent, int resId, Cursor data, int
             columnIdx) {
         ((TextView) parent.findViewById(resId)).setText(
                 data.getString(columnIdx)
         );
     }
 
-    public void addCardHeader(Card card, String title) {
+    private void addCardHeader(Card card, String title) {
         //Create a CardHeader
         CardHeader header = new CardHeader(getActivity());
         header.setTitle(title);
         card.addCardHeader(header);
     }
+
+    private String getSingleDayStartTime(String startDateTime, String endDateTime) {
+        String formattedStartDateTime = DateUtils.formatStartDateTime(startDateTime);
+        String formattedEndTime = DateUtils.formatEndTime(endDateTime);
+
+        return formattedStartDateTime + " - " + formattedEndTime;
+    }
+
+    private String getStartDateTimeString(String startDateTime) {
+        String formattedStartDateTime = DateUtils.formatStartDateTime(startDateTime);
+
+        return formattedStartDateTime;
+    }
+
+    private String getEndDateTimeString(String endDateTime) {
+        String formattedEndTime = DateUtils.formatStartDateTime(endDateTime);
+
+        return "to " + formattedEndTime;
+    }
+
 }
