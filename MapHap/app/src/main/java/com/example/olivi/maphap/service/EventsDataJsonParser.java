@@ -31,6 +31,7 @@ public class EventsDataJsonParser {
     final String EB_NAME = "name";
     final String EB_ID = "id";
     final String EB_EVENT_TEXT = "text";
+    final String EB_EVENT_HTML = "html";
     final String EB_EVENT_DESCRIPTION = "description";
     final String EB_URL = "url";
     final String EB_EVENT_START = "start";
@@ -114,7 +115,8 @@ public class EventsDataJsonParser {
                 //are not null, otherwise a JSONException will be thrown.
 
                 if (!event.isNull(EB_EVENT_DESCRIPTION)) {
-                    description = event.getJSONObject(EB_EVENT_DESCRIPTION).getString(EB_EVENT_TEXT);
+                    description = event.getJSONObject
+                            (EB_EVENT_DESCRIPTION).getString(EB_EVENT_HTML);
                 }
 
                 if (!event.isNull(EB_LOGO)) {

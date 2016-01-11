@@ -37,23 +37,37 @@ buildscript {
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
+
+    //For testing
+    androidTestCompile 'junit:junit:4.12'
     testCompile 'junit:junit:4.12'
 
-    apt 'net.simonvt.schematic:schematic-compiler:0.6.4'
-
-    androidTestCompile 'junit:junit:4.12'
+    //For Mat design
     compile 'com.android.support:appcompat-v7:23.1.1'
     compile 'com.android.support:design:23.1.1'
 
+    //For using Google Maps and Location Services
     compile 'com.google.android.gms:play-services:8.3.0'
 
+    //Database and ContentProvider generator lib
     compile 'net.simonvt.schematic:schematic:0.6.4'
+    apt 'net.simonvt.schematic:schematic-compiler:0.6.4'
 
+    //For Android debugging via chrome
     compile 'com.facebook.stetho:stetho:1.2.0'
     compile 'com.facebook.stetho:stetho-urlconnection:1.2.0'
 
+    //for RecyclerView and app compatibility
     compile 'com.android.support:support-v4:23.1.1'
     compile 'com.android.support:recyclerview-v7:23.1.1'
 
+    //Image processing lib
     compile 'com.squareup.picasso:picasso:2.5.2'
+
+    //Cards library
+    //Core
+    compile 'com.github.gabrielemariotti.cards:cardslib-core:2.1.0'
+
+    //Optional for built-in cards
+    compile 'com.github.gabrielemariotti.cards:cardslib-cards:2.1.0'
 }

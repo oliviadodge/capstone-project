@@ -26,59 +26,49 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-
 
 import android.support.v4.app.ShareCompat;
-import android.support.v7.widget.ShareActionProvider;
+import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.support.v7.widget.Toolbar;
-import com.example.olivi.maphap.utils.DateUtils;
+import android.widget.Toast;
+
 import com.squareup.picasso.Picasso;
 
-import org.w3c.dom.Text;
-
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
+import it.gmariotti.cardslib.library.internal.Card;
+import it.gmariotti.cardslib.library.internal.CardHeader;
+import it.gmariotti.cardslib.library.view.CardViewNative;
+
 /**
  * A placeholder fragment containing a simple view.
  */
-public class DetailFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class DetailFragment extends Fragment implements LoaderManager
+        .LoaderCallbacks<Cursor> {
 
-    private static final String LOG_TAG = DetailFragment.class.getSimpleName();
+    private static final String LOG_TAG = DetailFragment.class
+            .getSimpleName();
     static final String DETAIL_URI = "URI";
 
     private static final String EVENT_SHARE_HASHTAG = " #MapHap";
-
 
     private static final int DETAIL_LOADER = 0;
 
     private Uri mUri;
 
     private ImageView mImageView;
-    private TextView mNameTextView;
-    private TextView mFriendlyDateView;
-    private TextView mDateView;
-    private TextView mDescriptionView;
-    private TextView mCategoryView;
-    private TextView mUrlView;
-    private TextView mVenueView;
-    private TextView mStatusView;
     private TextView mCapacityView;
 
-    private HashMap<Integer, TextView> mDataColToViewMap;
-
     private String mEvent;
-
 
     public DetailFragment() {
     }
@@ -88,93 +78,45 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
                              Bundle savedInstanceState) {
         Log.i(LOG_TAG, "onCreateView called");
         Bundle arguments = getArguments();
-
         if (arguments != null) {
             mUri = arguments.getParcelable(DetailFragment.DETAIL_URI);
         }
+        View rootView = inflater.inflate(R.layout.fragment_detail,
+                container, false);
 
-        View rootView = inflater.inflate(R.layout.fragment_detail, container, false);
-        Log.i(LOG_TAG, "adding data columns and views to HasMap");
-        mDataColToViewMap = new HashMap<>(Projections.EVENT_COLUMNS_DETAIL_VIEW.length);
+        mCapacityView = (TextView) rootView.findViewById(R.id
+                .detail_capacity_textview);
 
-//        mDataColToViewMap.put(Projections.EventsDetailView.COL_NAME,
-//                (TextView) rootView.findViewById(R.id.detail_name_textview));
-//        mDataColToViewMap.put(Projections.EventsDetailView.COL_CAPACITY,
-//                (TextView) rootView.findViewById(R.id.detail_capacity_textview));
-//        mDataColToViewMap.put(Projections.EventsDetailView.COL_CATEGORY,
-//                (TextView) rootView.findViewById(R.id.detail_category_textview));
-//        mDataColToViewMap.put(Projections.EventsDetailView.COL_DESCRIPTION,
-//                (TextView) rootView.findViewById(R.id.detail_description_textview));
-//        mDataColToViewMap.put(Projections.EventsDetailView.COL_START_DATE_TIME,
-//                (TextView) rootView.findViewById(R.id.detail_date_textview));
-//        mDataColToViewMap.put(Projections.EventsDetailView.COL_END_DATE_TIME,
-//                (TextView) rootView.findViewById(R.id.detail_day_textview));
-//        mDataColToViewMap.put(Projections.EventsDetailView.COL_VENUE_NAME,
-//                (TextView) rootView.findViewById(R.id.detail_venue_textview));
-//        mDataColToViewMap.put(Projections.EventsDetailView.COL_STATUS,
-//                (TextView) rootView.findViewById(R.id.detail_status_textview));
-//        mDataColToViewMap.put(Projections.EventsDetailView.COL_URL,
-//                (TextView) rootView.findViewById(R.id.detail_url_textview));
-
-        mNameTextView = (TextView) rootView.findViewById(R.id.detail_name_textview);
-        mDateView = (TextView) rootView.findViewById(R.id.detail_date_textview);
-        mFriendlyDateView = (TextView) rootView.findViewById(R.id.detail_day_textview);
-        mDescriptionView = (TextView) rootView.findViewById(R.id.detail_description_textview);
-        mCategoryView = (TextView) rootView.findViewById(R.id.detail_category_textview);
-        mUrlView = (TextView) rootView.findViewById(R.id.detail_url_textview);
-        mVenueView = (TextView) rootView.findViewById(R.id.detail_venue_textview);
-        mStatusView = (TextView) rootView.findViewById(R.id.detail_status_textview);
-        mCapacityView = (TextView) rootView.findViewById(R.id.detail_capacity_textview);
         return rootView;
     }
-//
-//    @Override
-//    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-//        // Inflate the menu; this adds items to the action bar if it is present.
-//        inflater.inflate(R.menu.detailfragment, menu);
-//
-//        // Retrieve the share menu item
-//        MenuItem menuItem = menu.findItem(R.id.action_share);
-//
-//        // Get the provider and hold onto it to set/change the share intent.
-//        mShareActionProvider = (ShareActionProvider) MenuItemCompat.getActionProvider(menuItem);
-//
-//        // If onLoadFinished happens before this, we can go ahead and set the share intent now.
-//        if (mEvent != null) {
-//            mShareActionProvider.setShareIntent(createShareEventIntent());
-//        }
-//    }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         Log.i(LOG_TAG, "onActivityCreated called");
         getLoaderManager().initLoader(DETAIL_LOADER, null, this);
         //TODO add an interface for detail fragment's callbacks so we can
-        //let the activity know when we have some text for the user to share.
-        //Then the activity can decide what to do (get a reference to the fab button
+        //let the activity know when we have some text for the user to
+        // share.
+        //Then the activity can decide what to do (get a reference to
+        // the fab button
         //and change it's onClick listener method to share the info.
-        getActivity().findViewById(R.id.fab).setOnClickListener(new View.OnClickListener() {
+        getActivity().findViewById(R.id.fab).setOnClickListener(new View
+                .OnClickListener() {
             @Override
             public void onClick(View v) {
-                startActivity(Intent.createChooser(ShareCompat.IntentBuilder.from(getActivity())
+                startActivity(Intent.createChooser(ShareCompat
+                        .IntentBuilder.from(getActivity())
                         .setType("text/plain")
-                        .setText("Some sample text") //TODO add info about event here and maybe the url
+                        .setText("Some sample text") //TODO add info
+                                // about event here and maybe
+                                // the url
                         .getIntent(), getString(R.string.action_share)));
             }
         });
-        mImageView = (ImageView) getActivity().findViewById(R.id.detail_image);
+        mImageView = (ImageView) getActivity().findViewById(R.id
+                .detail_image);
         super.onActivityCreated(savedInstanceState);
     }
-//
-//    void onLocationChanged( String newLocation ) {
-//        Uri uri = mUri;
-//        if (null != uri) {
-//            long date = WeatherContract.WeatherEntry.getDateFromUri(uri);
-//            Uri updatedUri = WeatherContract.WeatherEntry.buildWeatherLocationWithDate(newLocation, date);
-//            mUri = updatedUri;
-//            getLoaderManager().restartLoader(DETAIL_LOADER, null, this);
-//        }
-//    }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
@@ -196,69 +138,129 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         Log.i(LOG_TAG, "onLoadFinished called");
         if (data != null && data.moveToFirst()) {
-            String imageUrl = data.getString(Projections.EventsDetailView.COL_LOGO_URL);
-            ConnectivityManager connMgr = (ConnectivityManager)
-                    getActivity().getSystemService(Context.CONNECTIVITY_SERVICE);
-            NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
-            if ((imageUrl.length() > 0) && (networkInfo != null && networkInfo.isConnected())) {
-                Picasso.with(getActivity()).load(imageUrl).placeholder(R.drawable.default_placeholder).error(R.drawable.default_placeholder)
-                        .resize(390, 260).centerInside().into(mImageView);
-            } else {
-                Picasso.with(getActivity()).load(R.drawable.default_placeholder)
-                        .resize(390, 260).centerInside().into(mImageView);
-            }
-            // Read date from cursor and update views for day of week and date
-            String eventStart = data.getString(Projections.EventsListView.COL_START_DATE_TIME);
-            String eventEnd = data.getString(Projections.EventsListView.COL_END_DATE_TIME);
-//            if ((eventStart != null) && (eventEnd != null)) {
-//                String[] formattedDateTimes = DateUtils.formatStartAndEndDateTimes(eventStart, eventEnd);
-//
-//                mFriendlyDateView.setText(formattedDateTimes[0]);
-//                mDateView.setText(formattedDateTimes[1]);
-//            }
-            mImageView.setContentDescription(data.getString(Projections.EventsDetailView.COL_NAME));
-
-//            Set set = mDataColToViewMap.entrySet();
-//            Iterator iterator = set.iterator();
-//            while (iterator.hasNext()) {
-//                Map.Entry mentry = (Map.Entry) iterator.next();
-//                int columnIdx = (Integer) mentry.getKey();
-//                ((TextView) mentry.getValue()).setText(data.getString(columnIdx));
-//                Log.i(LOG_TAG, "for " + data.getColumnName(columnIdx) + " data is "
-//                        + data.getString(columnIdx) + ".");
-//            }
-
-
-            String eventName = data.getString(Projections.EventsDetailView.COL_NAME);
-            mNameTextView.setText(eventName);
-
-
-            String description = data.getString(Projections.EventsDetailView.COL_DESCRIPTION);
-            mDescriptionView.setText(description);
-
-
-            String category = data.getString(Projections.EventsDetailView.COL_CATEGORY);
-            mCategoryView.setText(category);
-
-            String eventUrl = data.getString(Projections.EventsDetailView.COL_URL);
-            mUrlView.setText(eventUrl);
-
-            String venue = data.getString(Projections.EventsDetailView.COL_VENUE_NAME);
-            mVenueView.setText(venue);
-
-            String status = data.getString(Projections.EventsDetailView.COL_STATUS);
-            mStatusView.setText(status);
-
-            int capacity = data.getInt(Projections.EventsDetailView.COL_CAPACITY);
-            mCapacityView.setText(Integer.toString(capacity));
-
-            // We still need this for the share intent
-            mEvent = String.format("%s - %s - %s/%s", "eventName", "description", "category", "eventUrl");
+            setUpCards(data);
+            setUpAppBarImage(data);
         }
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
         Log.i(LOG_TAG, "onLoadReset called");
+    }
+
+    public void setUpAppBarImage(Cursor data) {
+        String imageUrl = data.getString(Projections
+                .EventsDetailView.COL_LOGO_URL);
+        ConnectivityManager connMgr = (ConnectivityManager)
+                getActivity().getSystemService(Context
+                        .CONNECTIVITY_SERVICE);
+
+        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        if ((imageUrl.length() > 0) && (networkInfo != null &&
+                networkInfo.isConnected())) {
+            Picasso.with(getActivity()).load(imageUrl).placeholder(R
+                    .drawable
+                    .default_placeholder).error(R.drawable
+                    .default_placeholder)
+                    .resize(390, 260).centerInside().into(mImageView);
+        } else {
+            Picasso.with(getActivity()).load(R.drawable
+                    .default_placeholder)
+                    .resize(390, 260).centerInside().into(mImageView);
+        }
+
+        mImageView.setContentDescription(data.getString(Projections
+                .EventsDetailView.COL_NAME));
+
+    }
+
+    public void setUpCards(Cursor data) {
+
+        //Create first card containing event title, date, and place.
+        Card detailCard = new Card(getActivity(),R.layout.card_event_layout1);
+
+        String name = data.getString(Projections.EventsDetailView
+                .COL_NAME);
+
+        addCardHeader(detailCard, name);
+
+        CardViewNative cardView = (CardViewNative) getActivity()
+                .findViewById(R.id.card_event_1);
+        cardView.setCard(detailCard);
+
+        View v = cardView.getInternalContentLayout();
+
+        setTextView(v, R.id.detail_start_textview, data,
+                Projections.EventsDetailView.COL_START_DATE_TIME);
+
+        setTextView(v, R.id.detail_end_textview, data,
+                Projections.EventsDetailView.COL_END_DATE_TIME);
+
+        setTextView(v, R.id.detail_venue_textview, data,
+                Projections.EventsDetailView.COL_VENUE_NAME);
+
+        TextView urlTextView = (TextView) v.findViewById(R.id
+                .detail_url_textview);
+
+        urlTextView.setText(
+                data.getString(Projections.EventsDetailView.COL_URL));
+
+        //Create the second card with the event description and category
+        Card descriptionCard = new Card(getActivity(),R.layout
+                .card_event_layout2);
+
+        addCardHeader(descriptionCard, getString(R.string
+                .header_event_description));
+
+        CardViewNative descriptionCardView = (CardViewNative) getActivity()
+                .findViewById(R.id.card_event_2);
+        descriptionCardView.setCard(descriptionCard);
+
+        View v2 = descriptionCardView.getInternalContentLayout();
+        String descHtml = data.getString(Projections.EventsDetailView
+                .COL_DESCRIPTION);
+        ((TextView) v2.findViewById(R.id.detail_description_textview))
+                .setText(descHtml);
+
+        setTextView(v2, R.id.detail_category_textview, data,
+                Projections.EventsDetailView.COL_CATEGORY);
+
+
+
+        //Create the third card with the status, and capactiy (maybe
+        // ticket prices and where to find)
+        Card otherDetailsCard = new Card(getActivity(),R.layout
+                .card_event_layout3);
+
+        addCardHeader(otherDetailsCard, getString(R.string
+                .header_other_details));
+
+        CardViewNative otherDetailsCardView = (CardViewNative) getActivity()
+                .findViewById(R.id.card_event_3);
+        otherDetailsCardView.setCard(otherDetailsCard);
+
+        View v3 = otherDetailsCardView.getInternalContentLayout();
+        setTextView(v3, R.id.detail_status_textview, data,
+                Projections.EventsDetailView.COL_STATUS);
+
+        setTextView(v3, R.id.detail_capacity_textview, data,
+                Projections.EventsDetailView.COL_CAPACITY);
+
+
+
+    }
+
+    public void setTextView(View parent, int resId, Cursor data, int
+            columnIdx) {
+        ((TextView) parent.findViewById(resId)).setText(
+                data.getString(columnIdx)
+        );
+    }
+
+    public void addCardHeader(Card card, String title) {
+        //Create a CardHeader
+        CardHeader header = new CardHeader(getActivity());
+        header.setTitle(title);
+        card.addCardHeader(header);
     }
 }

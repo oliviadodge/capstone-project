@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:tools="http://schemas.android.com/tools"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+    <TextView
+        android:id="@+id/detail_start_textview"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:textSize="16sp"
+        tools:text="Monday, January 4, 2016"
+        />
+    <TextView
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:textSize="16sp"
+        android:text="@string/detail_item_to"
+        tools:text="to"
+        />
+    <TextView
+        android:id="@+id/detail_end_textview"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:textSize="16sp"
+        tools:text="Wednesday, January 6, 2016"
+        />
+    <TextView
+        android:id="@+id/detail_venue_textview"
+        android:layout_height="wrap_content"
+        android:layout_width="match_parent"
+        android:textSize="16sp"
+        tools:text="California Academy of Sciences"
+        />
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/detail_url_textview"
+        android:textSize="16sp"
+        android:text="@string/detail_go_to_event_page"
+        android:autoLink="web"
+        android:linksClickable="true"
+        tools:text="www.event-url.com/this-may-be-a-very-long-url"
+        />
+
+</LinearLayout>
