@@ -49,7 +49,7 @@
         <provider
             android:name=".data.generated.EventProvider"
             android:authorities="com.example.olivi.maphap.data.EventProvider"
-            android:exported="false"
+            android:exported="true"
             android:syncable="true" />
 
         <activity
@@ -61,6 +61,34 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="com.example.olivi.maphap.MainActivity" />
         </activity>
+
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/title_activity_settings"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.olivi.maphap.MainActivity" />
+        </activity>
+
+        <receiver
+            android:name="com.example.olivi.maphap.widget.DetailWidgetProvider"
+            android:label="@string/title_widget_detail"
+            android:enabled="@bool/widget_detail_enabled" >
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.example.olivi.maphap.ACTION_DATA_UPDATED" />
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider"
+                       android:resource="@xml/widget_info_detail" />
+        </receiver>
+
+        <service
+            android:name=".widget.DetailWidgetRemoteViewsService"
+            android:enabled="@bool/widget_detail_enabled"
+            android:exported="false"
+            android:permission="android.permission.BIND_REMOTEVIEWS" />
     </application>
 
 </manifest>

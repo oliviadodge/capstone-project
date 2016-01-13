@@ -239,7 +239,7 @@ public class DetailFragment extends Fragment implements LoaderManager
         String descHtml = data.getString(Projections.EventsDetailView
                 .COL_DESCRIPTION);
         ((TextView) v2.findViewById(R.id.detail_description_textview))
-                .setText(descHtml);
+                .setText(Html.fromHtml(descHtml));
         setTextView(v2, R.id.detail_category_textview, data,
                 Projections.EventsDetailView.COL_CATEGORY);
     }

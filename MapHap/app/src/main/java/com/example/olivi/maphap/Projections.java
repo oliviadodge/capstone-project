@@ -52,15 +52,15 @@ public class Projections {
     // must change.
 
     public static class EventsListView {
-        static final int COL_NAME = 0;
-        static final int COL_CATEGORY = 1;
-        static final int COL_LOGO_URL = 2;
-        static final int COL_START_DATE_TIME = 3;
-        static final int COL_END_DATE_TIME = 4;
-        static final int COL_VENUE_NAME = 5;
-        static final int COL_VENUE_LAT = 6;
-        static final int COL_VENUE_LON = 7;
-        static final int COL_EVENT_ID = 8;
+        public static final int COL_NAME = 0;
+        public static final int COL_CATEGORY = 1;
+        public static final int COL_LOGO_URL = 2;
+        public static final int COL_START_DATE_TIME = 3;
+        public static final int COL_END_DATE_TIME = 4;
+        public static final int COL_VENUE_NAME = 5;
+        public static final int COL_VENUE_LAT = 6;
+        public static final int COL_VENUE_LON = 7;
+        public static final int COL_EVENT_ID = 8;
     }
 
 
@@ -83,17 +83,17 @@ public class Projections {
     // changes, these must change.
 
     public static class EventsDetailView {
-        static final int COL_NAME = 0;
-        static final int COL_DESCRIPTION = 1;
-        static final int COL_CAPACITY = 2;
-        static final int COL_CATEGORY = 3;
-        static final int COL_STATUS = 4;
-        static final int COL_URL = 5;
-        static final int COL_LOGO_URL = 6;
-        static final int COL_START_DATE_TIME = 7;
-        static final int COL_END_DATE_TIME = 8;
-        static final int COL_VENUE_NAME = 9;
-        static final int COL_EVENT_ID = 10;
+        public static final int COL_NAME = 0;
+        public static final int COL_DESCRIPTION = 1;
+        public static final int COL_CAPACITY = 2;
+        public static final int COL_CATEGORY = 3;
+        public static final int COL_STATUS = 4;
+        public static final int COL_URL = 5;
+        public static final int COL_LOGO_URL = 6;
+        public static final int COL_START_DATE_TIME = 7;
+        public static final int COL_END_DATE_TIME = 8;
+        public static final int COL_VENUE_NAME = 9;
+        public static final int COL_EVENT_ID = 10;
     }
 
 }

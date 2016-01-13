@@ -4,21 +4,16 @@ import android.app.IntentService;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.content.OperationApplicationException;
 import android.net.Uri;
-import android.os.RemoteException;
 import android.util.Log;
 
 import com.example.olivi.maphap.R;
-import com.example.olivi.maphap.data.EventDatabase;
 import com.example.olivi.maphap.data.EventProvider;
-import com.example.olivi.maphap.data.EventsAndRegionsColumns;
-import com.example.olivi.maphap.data.EventsColumns;
 import com.example.olivi.maphap.data.RegionsColumns;
 import com.example.olivi.maphap.utils.DateUtils;
+import com.example.olivi.maphap.utils.LocationUtils;
 
 import org.json.JSONException;
-import org.xmlpull.v1.XmlPullParserException;
 
 import java.io.IOException;
 
@@ -28,6 +23,9 @@ import java.io.IOException;
  */
 
 public class MapHapService extends IntentService {
+    public static final String ACTION_DATA_UPDATED =
+            "com.example.olivi.maphap.ACTION_DATA_UPDATED";
+
     public static final String LATITUDE_QUERY_EXTRA = "latqe";
     public static final String LONGITUDE_QUERY_EXTRA = "longqe";
     public static final String WITHIN_QUERY_EXTRA = "wqe";
@@ -62,10 +60,9 @@ public class MapHapService extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        mLatitude = intent.getDoubleExtra(LATITUDE_QUERY_EXTRA, 0.00);
-        mLongitude = intent.getDoubleExtra(LONGITUDE_QUERY_EXTRA, 0.00);
-        mRadius = intent.getIntExtra(WITHIN_QUERY_EXTRA, 50);
-
+        mLatitude = LocationUtils.getPreferredLatitude(this);
+        mLongitude = LocationUtils.getPreferredLongitude(this);
+        mRadius = LocationUtils.getPreferredRadius(this);
 
         EventsNetworker.HttpRequest request = EventsNetworker.HttpRequest.newBuilder()
                 .friendlyName("events_request")
@@ -78,6 +75,9 @@ public class MapHapService extends IntentService {
         EventsNetworker.getsInstance(request, getEventsCallbackHandler())
                 .execute();
 
+        Intent dataUpdatedIntent = new Intent(ACTION_DATA_UPDATED);
+        getApplicationContext().sendBroadcast(dataUpdatedIntent);
+
     }
 
     public EventsNetworker.Callback getEventsCallbackHandler() {
@@ -87,6 +87,9 @@ public class MapHapService extends IntentService {
                 if (result.statusCode == 200) {
                     try {
                         long regionId = addRegionToDB(mLatitude, mLongitude, mRadius); //TODO this method should throw an exception if it can't write the region to the db
+
+                        //Update shared preferences with the new region ID.
+                        LocationUtils.saveRegionIdToSharedPref(getApplicationContext(), regionId);
 
                         EventsDataJsonParser parser =
                                 new EventsDataJsonParser(result.body, regionId, mJulianDateAdded);

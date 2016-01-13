@@ -112,6 +112,8 @@ public class MainActivity extends LocationActivity
             mLastLocation = latLng;
             Log.i(TAG, "onUserLocationFound called and location changed. Initializing loader");
             getLoaderManager().initLoader(REGIONS_LOADER, null, this);
+
+            LocationUtils.saveLocationToSharedPref(this, latitude, longitude);
         }
     }
 
@@ -128,7 +130,8 @@ public class MainActivity extends LocationActivity
         mMap = googleMap;
 
         if (mLastLocation != null) {
-            zoomToPosition(mLastLocation.latitude, mLastLocation.longitude, Constants.MAP_ZOOM_LEVEL);
+            zoomToPosition(mLastLocation.latitude, mLastLocation.longitude, Constants
+                    .MAP_ZOOM_LEVEL);
             addMarker("you're here", mLastLocation.latitude, mLastLocation.longitude);
         }
     }
@@ -174,6 +177,8 @@ public class MainActivity extends LocationActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            Intent i = new Intent(this, SettingsActivity.class);
+            startActivity(i);
             return true;
         }
 
@@ -284,12 +289,13 @@ public class MainActivity extends LocationActivity
                 if ((data != null) && (data.moveToFirst())) {
                     Log.i(TAG, "Regions load finished. data is not null and has a row!");
                     long regionId = checkIfValidRegionExists(data);
-                    if (regionId != -1) {
+                    if ((regionId != -1) && (isDataCurrent(data))) {
                         Log.i(TAG, "found region: " + regionId + " Starting events loader");
-                        //TODO test this data to see if it is older than a day. If so, we should refetch from API
+                        LocationUtils.saveRegionIdToSharedPref(this, regionId);
                         Bundle args = new Bundle();
                         args.putLong(REGION_ID_EXTRA, regionId);
                         getLoaderManager().initLoader(EVENTS_LOADER, args, this);
+
                     } else {
                         Log.i(TAG, "could not find current region in database. fetching data now");
                         fetchEventsData();
@@ -336,15 +342,16 @@ public class MainActivity extends LocationActivity
 
     }
 
+    private boolean isDataCurrent(Cursor data) {
+        double dateAdded = data.getDouble(Projections.Regions.ADDED_DATE_TIME);
+        return DateUtils.isDateTimeAfterCutOff(dateAdded);
+    }
+
     private void fetchEventsData() {
 
         Log.i(TAG, "FetchEventsData called. Attempting to start service with intent");
         Intent intent = new Intent(this, MapHapService.class);
 
-        intent.putExtra(MapHapService.LATITUDE_QUERY_EXTRA, mLastLocation.latitude);
-        intent.putExtra(MapHapService.LONGITUDE_QUERY_EXTRA, mLastLocation.longitude);
-        intent.putExtra(MapHapService.WITHIN_QUERY_EXTRA,
-                LocationUtils.getPreferredRadius(this));
         startService(intent);
     }
 

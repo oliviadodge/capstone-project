@@ -13,4 +13,18 @@
 
     <dimen name="fab_elevation">6dp</dimen>
     <dimen name="fab_press_translation_z">12dp</dimen>
+
+    <!--Widget-->
+    <dimen name="widget_detail_default_width">180dp</dimen>
+    <dimen name="widget_detail_default_height">180dp</dimen>
+    <dimen name="widget_detail_min_resize_width">110dp</dimen>
+    <dimen name="widget_detail_min_resize_height">110dp</dimen>
+
+
+    <!-- This is an odd width, but we're trying to match the font closely to keep things working
+         on devices that don't yet have Roboto -->
+    <dimen name="events_widget_text_width">38dp</dimen>
+
+    <dimen name="widget_margin">8dp</dimen>
+
 </resources>

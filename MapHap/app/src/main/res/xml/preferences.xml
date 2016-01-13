@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+        <PreferenceCategory
+            android:title="@string/location_preferences">
+
+            <EditTextPreference
+                android:key="@string/pref_radius_key"
+                android:title="@string/title_radius_preference"
+                android:summary="@string/summary_radius_preference"
+                android:dialogTitle="@string/title_radius_preference" />
+
+        </PreferenceCategory>
+
+        <PreferenceCategory
+            android:title="@string/category_format_preferences">
+
+            <MultiSelectListPreference
+                android:title="@string/title_category_preference"
+                android:key="@string/pref_category_key"
+                android:summary="@string/summary_category_preference"
+                android:entries="@array/entries_category_preference"
+                android:entryValues="@array/entryvalues_category_preference"
+                />
+
+        </PreferenceCategory>
+
+        <PreferenceCategory
+            android:title="@string/date_preferences">
+
+            <!-- This PreferenceScreen tag serves as a screen break (similar to page break
+                 in word processing). Like for other preference types, we assign a key
+                 here so it is able to save and restore its instance state. -->
+            <PreferenceScreen
+                android:key="screen_preference"
+                android:title="@string/title_screen_preference"
+                android:summary="@string/summary_screen_preference">
+
+                <!-- You can place more preferences here that will be shown on the next screen. -->
+
+                <CheckBoxPreference
+                    android:key="next_screen_checkbox_preference"
+                    android:title="@string/title_date_preference"
+                    android:summary="@string/summary_date_preference" />
+
+            </PreferenceScreen>
+        </PreferenceCategory>
+
+
+</PreferenceScreen>
