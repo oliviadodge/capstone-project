@@ -1,36 +1,44 @@
 package com.example.olivi.maphap;
 
-import android.app.FragmentManager;
 import android.app.LoaderManager;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.example.olivi.maphap.data.EventProvider;
+import com.example.olivi.maphap.data.EventsColumns;
 import com.example.olivi.maphap.data.RegionsColumns;
+import com.example.olivi.maphap.preferences.NumberPickerPreference;
+import com.example.olivi.maphap.preferences.SettingsActivity;
 import com.example.olivi.maphap.service.MapHapService;
 import com.example.olivi.maphap.utils.Constants;
 import com.example.olivi.maphap.utils.DateUtils;
 import com.example.olivi.maphap.utils.LocationUtils;
+import com.example.olivi.maphap.utils.Utility;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.Set;
+
 public class MainActivity extends LocationActivity
         implements LoaderManager.LoaderCallbacks<Cursor>,
-        OnMapReadyCallback, EventListFragment.OnListFragmentInteractionListener {
+        OnMapReadyCallback, EventListFragment.OnListFragmentInteractionListener,
+        SharedPreferences.OnSharedPreferenceChangeListener{
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int REGIONS_LOADER = 0;
@@ -88,13 +96,10 @@ public class MainActivity extends LocationActivity
             getLoaderManager().restartLoader(REGIONS_LOADER, null, this);
         }
 
-        getFragmentManager().addOnBackStackChangedListener(new FragmentManager
-                .OnBackStackChangedListener() {
-            @Override
-            public void onBackStackChanged() {
-                Log.i(TAG, "onBackStackChanged() called");
-            }
-        });
+
+        Log.i(TAG, "in onCreate. Registering the onSharedPreferenceChangeListener");
+        PreferenceManager.getDefaultSharedPreferences(this)
+                .registerOnSharedPreferenceChangeListener(this);
     }
 
     @Override
@@ -107,7 +112,7 @@ public class MainActivity extends LocationActivity
         if (checkIfLocationChanged(latLng)) {
             double latitude = latLng.latitude;
             double longitude = latLng.longitude;
-            zoomToPosition(latitude, longitude, Constants.MAP_ZOOM_LEVEL);
+            zoomToPosition(latitude, longitude, LocationUtils.getMapZoomLevel(this));
             addMarker("you're here", latitude, longitude);
             mLastLocation = latLng;
             Log.i(TAG, "onUserLocationFound called and location changed. Initializing loader");
@@ -129,14 +134,16 @@ public class MainActivity extends LocationActivity
         mMapReady = true;
         mMap = googleMap;
 
+        Log.i(TAG, "map ready!!");
         if (mLastLocation != null) {
-            zoomToPosition(mLastLocation.latitude, mLastLocation.longitude, Constants
-                    .MAP_ZOOM_LEVEL);
+            zoomToPosition(mLastLocation.latitude, mLastLocation.longitude,
+                    LocationUtils.getMapZoomLevel(this));
             addMarker("you're here", mLastLocation.latitude, mLastLocation.longitude);
         }
     }
 
     private void zoomToPosition(double latitude, double longitude, float zoomLevel) {
+        Log.i(TAG, "zoomToPosition called. Zoom level is " + zoomLevel);
         LatLng position = new LatLng(latitude,
                 longitude);
         CameraPosition target = CameraPosition.builder()
@@ -146,20 +153,69 @@ public class MainActivity extends LocationActivity
                 .newCameraPosition(target));
     }
 
+    public void onSearchRegionChanged(LatLng newLocation) {
+        mLastLocation = newLocation;
+        getLoaderManager().restartLoader(REGIONS_LOADER, null, this);
+
+    }
+
     private void addMarker(String name, double latitude, double longitude) {
         if (mMapReady) {
+
+            Log.i(TAG, "adding new place to map " + latitude + " " + longitude);
             MarkerOptions place = new MarkerOptions()
                     .position(new LatLng(latitude, longitude))
-                    .title(name)
-                    .icon(BitmapDescriptorFactory
-                            .fromResource(R.mipmap.ic_launcher));
+                    .title(name);
             mMap.addMarker(place);
 
         } else {
             Log.i(TAG, "addMarker called but map is not ready!");
         }
     }
+//
+//    @Override
+//    protected void onResume() {
+//        super.onResume();
+//        int radius = LocationUtils.getPreferredRadius(this);
+//        LatLng location = new LatLng(LocationUtils.getPreferredLatitude(this),
+//                LocationUtils.getPreferredLongitude(this));
+//
+//        boolean radiusChanged = !radius.equals(mRadius);
+//        boolean locationChanged = !radius.equals(mRadius);
+//
+//                if (radius != null && !radius.equals(mRadius)) {
+//                ForecastFragment ff = (ForecastFragment)getSupportFragmentManager().findFragmentByTag(FORECASTFRAGMENT_TAG);
+//                if ( null != ff ) {
+//                        ff.onLocationChanged();
+//                    }
+//                mLocation = location;
+//            }
+//        }
 
+    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
+                                          String key) {
+        Log.i(TAG, "onSharedPreferenceChanged and the key is " + key);
+        switch (key) {
+            case "radius_key":
+                Log.i(TAG, "onSharedPreferenceChanged and the key is radius_key. Restarting " +
+                        "REGIONS_LOADER");
+                int radius = sharedPreferences.getInt(key, NumberPickerPreference.DEFAULT_VALUE);
+                String dist = (radius > 1 ? radius + " miles." : radius + " mile.");
+                Toast toast = Toast.makeText(this, getString(R.string.toast_search_radius, dist),
+                        Toast.LENGTH_LONG);
+                toast.show();
+
+                zoomToPosition(mLastLocation.latitude, mLastLocation.longitude, LocationUtils
+                        .getMapZoomLevel(this));
+                getLoaderManager().restartLoader(REGIONS_LOADER, null, this);
+                break;
+            case "category_key":
+                Log.i(TAG, "onSharedPreferenceChanged and the key is category_key");
+                getLoaderManager().restartLoader(EVENTS_LOADER, null, this);
+
+                break;
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -248,6 +304,7 @@ public class MainActivity extends LocationActivity
         switch (id) {
             case REGIONS_LOADER:
                 String[] radius = {Integer.toString(LocationUtils.getPreferredRadius(this))};
+                Log.i(TAG, "creating regions loader. Radius found from utils is " + radius[0]);
                 String selection = RegionsColumns.RADIUS + " = ?";
                 Uri regionsUri = EventProvider.Regions.CONTENT_URI;
 
@@ -258,13 +315,29 @@ public class MainActivity extends LocationActivity
                         radius,
                         null);
             case EVENTS_LOADER:
-                long regionId = args.getLong(REGION_ID_EXTRA);
+                long regionId = PreferenceManager.getDefaultSharedPreferences(this)
+                        .getLong(getString(R.string.pref_region_id_key), -1);
+                Log.i(TAG, "onCreateLoader called for EVENTS_LOADER. Found regiond ID: " +
+                        regionId);
                 Uri eventsUri = EventProvider.Events.withRegionId(regionId);
+
+                String catSelection = EventsColumns.CATEGORY + " in ";
+
+                Set<String> categories = Utility.getPreferredCategories(this);
+
+                StringBuilder sb = new StringBuilder();
+                sb.append("(");
+                for (String category : categories) {
+                    sb.append(category).append(",");
+                }
+                //Delete the last comma
+                sb.deleteCharAt(sb.length() - 1);
+                sb.append(")");
 
                 return new CursorLoader(this,
                         eventsUri,
                         Projections.EVENT_COLUMNS_LIST_VIEW,
-                        null,
+                        catSelection + sb.toString(),
                         null,
                         null);
             case EVENT_LOADER:
@@ -286,6 +359,8 @@ public class MainActivity extends LocationActivity
         int id = loader.getId();
         switch (id) {
             case REGIONS_LOADER:
+                Log.i(TAG, "Regions load finished. Data is null " + (data == null));
+
                 if ((data != null) && (data.moveToFirst())) {
                     Log.i(TAG, "Regions load finished. data is not null and has a row!");
                     long regionId = checkIfValidRegionExists(data);
@@ -294,7 +369,7 @@ public class MainActivity extends LocationActivity
                         LocationUtils.saveRegionIdToSharedPref(this, regionId);
                         Bundle args = new Bundle();
                         args.putLong(REGION_ID_EXTRA, regionId);
-                        getLoaderManager().initLoader(EVENTS_LOADER, args, this);
+                        getLoaderManager().restartLoader(EVENTS_LOADER, args, this);
 
                     } else {
                         Log.i(TAG, "could not find current region in database. fetching data now");
@@ -308,12 +383,16 @@ public class MainActivity extends LocationActivity
             case EVENTS_LOADER:
                 if ((data != null) && (data.moveToFirst())) {
                     Log.i(TAG, "EventsListView load finished!");
-                    mDataSet = data;
                     addEventsToMap(data);
+
+                    mDataSet = data;
+
+                    Log.i(TAG, "EVENTS_LOADER finished. Swapping out data set.");
+                    mAdapter.changeCursor(mDataSet);
+
                     if (mListFragmentReady) {
                         Log.i(TAG, "onLoadFinished called and mListFragmentReady is true." +
-                                        "get event list fragment so we can scroll to previous position");
-                        mAdapter.changeCursor(mDataSet);
+                                "get event list fragment so we can scroll to previous position");
                         // If we don't need to restart the loader, and there's a desired position to restore
                         // to, do so now.
                         EventListFragment fragment = (EventListFragment)getFragmentManager()
@@ -369,14 +448,6 @@ public class MainActivity extends LocationActivity
 
     }
 
-    private EventRecyclerViewAdapter getAdapterFromListFragment() {
-        EventListFragment eventListFragment =
-                (EventListFragment) getFragmentManager()
-                        .findFragmentById(R.id.eventListFragment);
-        EventRecyclerViewAdapter adapter = eventListFragment.getAdapter();
-        return adapter;
-    }
-
     public long checkIfValidRegionExists(Cursor cursor) {
         long regionId = -1;
 
@@ -406,15 +477,21 @@ public class MainActivity extends LocationActivity
     }
 
     private void addEventsToMap(Cursor data) {
+        Log.i(TAG, "in addEventsToMap. Clearing map");
+        Log.i(TAG, "in addEventsToMap. mMapReady is " + mMapReady);
+
+        clearMap();
 
         Log.i(TAG, "adding events to map");
         data.moveToFirst();
         for (int i = 0; i < data.getCount(); i++) {
             double lat = data.getDouble(Projections.EventsListView.COL_VENUE_LAT);
             double lon = data.getDouble(Projections.EventsListView.COL_VENUE_LON);
+            Log.i(TAG, "adding venue to map "
+                    + data.getString(Projections.EventsListView.COL_VENUE_NAME));
             String eventName = data.getString(Projections.EventsListView.COL_NAME);
 
-            Log.i(TAG, "adding event: " + eventName + " at " + lat + " " + lon);
+
             addMarker(eventName, lat, lon);
 
             data.moveToNext();
@@ -444,6 +521,8 @@ public class MainActivity extends LocationActivity
     @Override
     protected void onDestroy() {
         Log.i(TAG, "onDestroy called");
+        PreferenceManager.getDefaultSharedPreferences(this)
+                .unregisterOnSharedPreferenceChangeListener(this);
         super.onDestroy();
     }
 

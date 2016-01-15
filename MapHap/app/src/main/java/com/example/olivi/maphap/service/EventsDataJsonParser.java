@@ -1,21 +1,17 @@
 package com.example.olivi.maphap.service;
 
 import android.content.ContentValues;
-import android.net.Uri;
 import android.util.Log;
 
-import com.example.olivi.maphap.data.EventProvider;
 import com.example.olivi.maphap.data.EventsAndRegionsColumns;
 import com.example.olivi.maphap.data.EventsColumns;
 import com.example.olivi.maphap.data.VenuesColumns;
 import com.example.olivi.maphap.utils.Constants;
-import com.example.olivi.maphap.utils.DateUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Date;
 import java.util.Vector;
 
 /**
@@ -45,7 +41,7 @@ public class EventsDataJsonParser {
     final String EB_VENUE = "venue";
     final String EB_LATITUDE = "latitude";
     final String EB_LONGITUDE = "longitude";
-    final String EB_CATEGORY = "category";
+    final String EB_CATEGORY_ID = "category_id";
 
     String mEventsJson;
     long mRegionId;
@@ -123,8 +119,8 @@ public class EventsDataJsonParser {
                     logoUrl = event.getJSONObject(EB_LOGO).getString(EB_URL);
                 }
 
-                if (!event.isNull(EB_CATEGORY)) {
-                    category = event.getJSONObject(EB_CATEGORY).getString(EB_NAME);
+                if (!event.isNull(EB_CATEGORY_ID)) {
+                    category = event.getString(EB_CATEGORY_ID);
                 }
 
                 if (!event.isNull(EB_VENUE)) {

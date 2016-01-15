@@ -1,4 +1,4 @@
-package com.example.olivi.maphap;
+package com.example.olivi.maphap.preferences;
 
 import android.app.Activity;
 import android.os.Bundle;

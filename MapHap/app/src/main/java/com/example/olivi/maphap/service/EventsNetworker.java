@@ -3,11 +3,7 @@ package com.example.olivi.maphap.service;
 import android.net.Uri;
 import android.util.Log;
 
-import com.example.olivi.maphap.R;
 import com.example.olivi.maphap.utils.Constants;
-import com.facebook.stetho.urlconnection.StethoURLConnectionManager;
-
-import org.json.JSONException;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -15,6 +11,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Set;
 
 /**
  * Created by olivi on 1/4/2016.
@@ -30,14 +27,17 @@ public class EventsNetworker {
 
     private static EventsNetworker sInstance;
 
-    private final HttpRequest mRequest;
-    private final Callback mCallback;
-    private final StethoURLConnectionManager stethoManager;
+    private HttpRequest mRequest;
+    private Callback mCallback;
+//    private final StethoURLConnectionManager stethoManager;
 
 
     public static synchronized EventsNetworker getsInstance(HttpRequest request, Callback callback) {
         if (sInstance == null) {
             sInstance = new EventsNetworker(request, callback);
+        } else {
+            sInstance.setRequest(request);
+            sInstance.setCallback(callback);
         }
         return sInstance;
     }
@@ -45,7 +45,17 @@ public class EventsNetworker {
     private EventsNetworker(HttpRequest request, Callback callback) {
         mRequest = request;
         mCallback = callback;
-        stethoManager = new StethoURLConnectionManager(request.friendlyName);
+//        stethoManager = new StethoURLConnectionManager(request.friendlyName);
+    }
+
+    private void setRequest(HttpRequest request) {
+        Log.i(LOG_TAG, "setting up new request");
+        mRequest = request;
+    }
+
+    private void setCallback(Callback callback) {
+        Log.i(LOG_TAG, "setting up new callback");
+        mCallback = callback;
     }
 
     public void execute() {
@@ -56,6 +66,14 @@ public class EventsNetworker {
 
         // Will contain the raw JSON response as a string.
         String eventsJsonStr = null;
+
+        StringBuilder sb = new StringBuilder();
+
+        for (String category : mRequest.categories) {
+            sb.append(category).append(",");
+        }
+        //Delete the last comma
+        sb.deleteCharAt(sb.length() - 1);
 
 
         try {
@@ -68,6 +86,7 @@ public class EventsNetworker {
             final String LATITUDE_PARAM = "location.latitude";
             final String LONGITUDE_PARAM = "location.longitude";
             final String WITHIN_PARAM = "location.within";
+            final String CATEGORIES_PARAM = "categories";
             final String POPULAR_PARAM = "popular";
             final String EXPAND_PARAM = "expand";
             final String OAUTH_TOKEN = "token";
@@ -76,6 +95,7 @@ public class EventsNetworker {
                     .appendQueryParameter(LATITUDE_PARAM, Double.toString(mRequest.latitude))
                     .appendQueryParameter(LONGITUDE_PARAM, Double.toString(mRequest.longitude))
                     .appendQueryParameter(WITHIN_PARAM, Integer.toString(mRequest.radius) + "mi")
+                    .appendQueryParameter(CATEGORIES_PARAM, sb.toString())
                     .appendQueryParameter(POPULAR_PARAM, Boolean.toString(Constants.RETURN_POPULAR))
                     .appendQueryParameter(EXPAND_PARAM, EXPANSIONS)
                     .appendQueryParameter(OAUTH_TOKEN, mRequest.authToken)
@@ -88,16 +108,16 @@ public class EventsNetworker {
             // Create the request to Eventbrite, and open the connection
             urlConnection = (HttpURLConnection) url.openConnection();
             urlConnection.setRequestMethod(mRequest.method.toString());
-            stethoManager.preConnect(urlConnection, null);
+//            stethoManager.preConnect(urlConnection, null);
 
             urlConnection.connect();
-            stethoManager.postConnect();
+//            stethoManager.postConnect();
 
             // Read the input stream into a String
             InputStream inputStream = urlConnection.getInputStream();
 
             //Let stetho see this stream
-            inputStream = stethoManager.interpretResponseStream(inputStream);
+//            inputStream = stethoManager.interpretResponseStream(inputStream);
 
             StringBuffer buffer = new StringBuffer();
             if (inputStream == null) {
@@ -128,7 +148,7 @@ public class EventsNetworker {
             Log.e(LOG_TAG, "Error ", e);
             // If the code didn't successfully get the data, there's no point in attempting
             // to parse it.
-            stethoManager.httpExchangeFailed(e);
+//            stethoManager.httpExchangeFailed(e);
 
             mCallback.onFailure(e);
 
@@ -152,6 +172,7 @@ public class EventsNetworker {
         public final String friendlyName;
         public final double latitude;
         public final double longitude;
+        private Set<String> categories;
         public final int radius;
         public final HttpMethod method;
         public final String authToken;
@@ -171,6 +192,7 @@ public class EventsNetworker {
             this.friendlyName = b.friendlyName;
             this.latitude = b.latitude;
             this.longitude = b.longitude;
+            this.categories = b.categories;
             this.radius = b.radius;
             this.method = b.method;
             this.authToken = b.authToken;
@@ -181,6 +203,7 @@ public class EventsNetworker {
             private String friendlyName;
             private double latitude;
             private double longitude;
+            private Set<String> categories;
             private int radius;
             private EventsNetworker.HttpMethod method;
             private String authToken;
@@ -198,6 +221,10 @@ public class EventsNetworker {
             }
             public Builder longitude(double longitude) {
                 this.longitude = longitude;
+                return this;
+            }
+            public Builder categories(Set<String> categories) {
+                this.categories = categories;
                 return this;
             }
             public Builder radius(int radius) {

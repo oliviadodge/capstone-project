@@ -50,10 +50,11 @@
     <string name="pref_latitude_default">37.809125</string>
     <string name="pref_longitude_key">longitude_key</string>
     <string name="pref_longitude_default">-122.286307</string>
-    <string name="pref_region_id_key">longitude_key</string>
+
+    <string name="pref_region_id_key">region_id_key</string>
 
     <string name="location_preferences">Location Preferences</string>
-    <string name="title_radius_preference">Search Radius</string>
+    <string name="pref_title_search_radius">Search Radius</string>
     <string name="summary_radius_preference">Choose a search radius (in miles)
     for the events you\'re interested around your location</string>
 
@@ -71,6 +72,10 @@
 
     <string name="title_screen_preference">title_screen_preference</string>
     <string name="summary_screen_preference">summary_screen_preference</string>
+
+    <!--Toasts-->
+    <string name="toast_search_radius">Searching for events within %1$s</string>
+
 
 
 </resources>

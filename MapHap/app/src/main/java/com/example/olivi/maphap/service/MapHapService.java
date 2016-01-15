@@ -5,6 +5,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.example.olivi.maphap.R;
@@ -16,7 +17,9 @@ import com.example.olivi.maphap.utils.LocationUtils;
 import org.json.JSONException;
 
 import java.io.IOException;
-
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * Created by olivi on 11/18/2015.
@@ -64,10 +67,20 @@ public class MapHapService extends IntentService {
         mLongitude = LocationUtils.getPreferredLongitude(this);
         mRadius = LocationUtils.getPreferredRadius(this);
 
+        String[] defaultArray = getResources()
+                .getStringArray(R.array.defaultValues_category_preference);
+        Set<String> categories = PreferenceManager.getDefaultSharedPreferences(this)
+                .getStringSet(getString(R.string.pref_category_key),
+                        new HashSet<String>(Arrays.asList(defaultArray)));
+
+        Log.i(LOG_TAG, "calling API with a radius of " + mRadius + " and location " + mLatitude +
+                " " + mLongitude);
+
         EventsNetworker.HttpRequest request = EventsNetworker.HttpRequest.newBuilder()
                 .friendlyName("events_request")
                 .latitude(mLatitude)
                 .longitude(mLongitude)
+                .categories(categories)
                 .radius(mRadius)
                 .method(EventsNetworker.HttpMethod.GET)
                 .authToken(getString(R.string.my_personal_oauth_token))
@@ -88,6 +101,8 @@ public class MapHapService extends IntentService {
                     try {
                         long regionId = addRegionToDB(mLatitude, mLongitude, mRadius); //TODO this method should throw an exception if it can't write the region to the db
 
+                        Log.i(LOG_TAG, "Region added to database " + regionId + ". Saving to " +
+                                "shared prefs");
                         //Update shared preferences with the new region ID.
                         LocationUtils.saveRegionIdToSharedPref(getApplicationContext(), regionId);
 

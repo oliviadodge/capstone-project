@@ -23,7 +23,8 @@
             <item>Other</item>
         </string-array>
 
-        <string-array name="entryvalues_category_preference">
+        <string-array name="entryvalues_category_preference"
+                       id="defaultValues_category_preference">
              <item>103</item>
              <item>101</item>
              <item>110</item>
@@ -46,7 +47,7 @@
              <item>199</item>
         </string-array>
 
-    <integer-array name="defaultValues_category_preference">
+    <string-array name="defaultValues_category_preference">
              <item>103</item>
              <item>101</item>
              <item>110</item>
@@ -67,5 +68,5 @@
              <item>118</item>
              <item>119</item>
              <item>199</item>
-        </integer-array>
+        </string-array>
 </resources>
