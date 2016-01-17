@@ -52,6 +52,8 @@
     <string name="pref_longitude_default">-122.286307</string>
 
     <string name="pref_region_id_key">region_id_key</string>
+    <string name="pref_start_date_key">start_date_key</string>
+    <string name="pref_end_date_key">end_date_key</string>
 
     <string name="location_preferences">Location Preferences</string>
     <string name="pref_title_search_radius">Search Radius</string>
@@ -77,5 +79,10 @@
     <string name="toast_search_radius">Searching for events within %1$s</string>
 
 
+    <!--Filter Activity and Fragment-->
+    <string name="activity_filter_title_action_bar">Event Filters</string>
+    <string name="text_date_picker_button">Select a Date Range</string>
+    <string name="fragment_filter_date_title">Date</string>
+    <string name="fragment_filter_seekbar_title">Search Radius</string>
 
 </resources>

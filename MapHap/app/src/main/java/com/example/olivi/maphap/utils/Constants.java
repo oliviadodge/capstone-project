@@ -1,12 +1,5 @@
 package com.example.olivi.maphap.utils;
 
-import android.support.annotation.NonNull;
-
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
 /**
  * Created by olivi on 12/8/2015.
  */
@@ -20,8 +13,14 @@ public class Constants {
     public static final int MAP_ZOOM_LEVEL = 10;
     public static final int MAP_ZOOM_LEVEL_CLOSE = 14;
 
-    public static final boolean RETURN_POPULAR = true;
-    public static final int MAX_EVENTS_PER_REQUEST = 100;
+
+    //Networking constants
+    public static final boolean RETURN_POPULAR_ARG = true;
+    public static final String SORT_BY_ARG = "best";
+    public static final int MAX_EVENTS_PER_REQUEST = 200;
+
+
+    public static final long MILLIS_IN_A_DAY = 86400000;
 
 
 }

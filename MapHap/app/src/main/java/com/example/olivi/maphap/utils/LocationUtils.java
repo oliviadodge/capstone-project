@@ -44,6 +44,14 @@ public class LocationUtils {
                 50);
     }
 
+    public static void savePreferredRadius(Context context, int radius) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = prefs.edit();
+
+        editor.putInt(context.getString(R.string.pref_radius_key), radius);
+        editor.commit();
+    }
+
     public static double getPreferredLatitude(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 

@@ -70,4 +70,7 @@ dependencies {
 
     //Optional for built-in cards
     compile 'com.github.gabrielemariotti.cards:cardslib-cards:2.1.0'
+
+    compile 'com.borax12.materialdaterangepicker:library:1.2'
+
 }

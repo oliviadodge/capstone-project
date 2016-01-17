@@ -7,6 +7,7 @@ import com.example.olivi.maphap.data.EventsAndRegionsColumns;
 import com.example.olivi.maphap.data.EventsColumns;
 import com.example.olivi.maphap.data.VenuesColumns;
 import com.example.olivi.maphap.utils.Constants;
+import com.example.olivi.maphap.utils.DateUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -76,8 +77,8 @@ public class EventsDataJsonParser {
                 String eventBriteId;
                 String description = ""; //This is optional so it may not get set during parsing
                 String url;
-                String startLocal;
-                String endLocal;
+                long startLocal;
+                long endLocal;
                 int capacity;
                 String status;
                 String logoUrl = ""; //This is optional so it may not get set during parsing
@@ -100,8 +101,15 @@ public class EventsDataJsonParser {
                 url = event.getString(EB_URL);
 
                 //Json objects representing start and end time date and timezones.
-                startLocal = event.getJSONObject(EB_EVENT_START).getString(EB_EVENT_DATE_TIME_LOCAL);
-                endLocal = event.getJSONObject(EB_EVENT_END).getString(EB_EVENT_DATE_TIME_LOCAL);
+                startLocal = DateUtils.convertDateTimeStringToLong(event.getJSONObject
+                        (EB_EVENT_START)
+                        .getString(EB_EVENT_DATE_TIME_LOCAL));
+
+                Log.i(LOG_TAG, "putting start time into database: " + startLocal);
+                endLocal = DateUtils.convertDateTimeStringToLong(event.getJSONObject
+                        (EB_EVENT_END).getString
+                        (EB_EVENT_DATE_TIME_LOCAL));
+                Log.i(LOG_TAG, "putting end time into database: " + endLocal);
 
                 capacity = event.getInt(EB_EVENT_CAPACITY);
                 status = event.getString(EB_EVENT_STATUS);

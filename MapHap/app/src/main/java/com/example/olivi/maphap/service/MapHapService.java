@@ -186,6 +186,8 @@ public class MapHapService extends IntentService {
                     RegionsColumns.ADDED_DATE_TIME + " <= ?",
                     new String[]{Double.toString(cutOffJulian)});
 
+            Log.i(LOG_TAG, "Rows deleted from database " + rowsDeleted[i]);
+
         }
 
         return rowsDeleted;

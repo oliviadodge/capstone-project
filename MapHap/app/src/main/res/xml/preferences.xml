@@ -31,26 +31,4 @@
     </PreferenceCategory>
 
 
-    <PreferenceCategory
-            android:title="@string/date_preferences">
-
-            <!-- This PreferenceScreen tag serves as a screen break (similar to page break
-                 in word processing). Like for other preference types, we assign a key
-                 here so it is able to save and restore its instance state. -->
-            <PreferenceScreen
-                android:key="screen_preference"
-                android:title="@string/title_screen_preference"
-                android:summary="@string/summary_screen_preference">
-
-                <!-- You can place more preferences here that will be shown on the next screen. -->
-
-                <CheckBoxPreference
-                    android:key="next_screen_checkbox_preference"
-                    android:title="@string/title_date_preference"
-                    android:summary="@string/summary_date_preference" />
-
-            </PreferenceScreen>
-        </PreferenceCategory>
-
-
 </PreferenceScreen>

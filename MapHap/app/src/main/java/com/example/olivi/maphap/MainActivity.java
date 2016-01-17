@@ -9,10 +9,12 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import com.example.olivi.maphap.data.EventProvider;
@@ -44,6 +46,9 @@ public class MainActivity extends LocationActivity
     private static final int REGIONS_LOADER = 0;
     private static final int EVENTS_LOADER = 1;
     private static final int EVENT_LOADER = 2;
+
+
+    private static final int REQUEST_FILTER = 0;
 
     public static final String REGION_ID_EXTRA = "region_id";
     public static final String EVENT_URI_EXTRA = "event_uri";
@@ -81,6 +86,14 @@ public class MainActivity extends LocationActivity
             mThreePane = false;
         }
 
+        ((FloatingActionButton)findViewById(R.id.fab)).setOnClickListener(new View.OnClickListener() {
+
+
+            @Override
+            public void onClick(View v) {
+                startFilterActivity();
+            }
+        });
         Log.i(TAG, "onCreate called and savedInstanceState is " + savedInstanceState);
         MapFragment mapFragment = (MapFragment) getFragmentManager()
                 .findFragmentById(R.id.mapFragment);
@@ -172,29 +185,9 @@ public class MainActivity extends LocationActivity
             Log.i(TAG, "addMarker called but map is not ready!");
         }
     }
-//
-//    @Override
-//    protected void onResume() {
-//        super.onResume();
-//        int radius = LocationUtils.getPreferredRadius(this);
-//        LatLng location = new LatLng(LocationUtils.getPreferredLatitude(this),
-//                LocationUtils.getPreferredLongitude(this));
-//
-//        boolean radiusChanged = !radius.equals(mRadius);
-//        boolean locationChanged = !radius.equals(mRadius);
-//
-//                if (radius != null && !radius.equals(mRadius)) {
-//                ForecastFragment ff = (ForecastFragment)getSupportFragmentManager().findFragmentByTag(FORECASTFRAGMENT_TAG);
-//                if ( null != ff ) {
-//                        ff.onLocationChanged();
-//                    }
-//                mLocation = location;
-//            }
-//        }
 
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
                                           String key) {
-        Log.i(TAG, "onSharedPreferenceChanged and the key is " + key);
         switch (key) {
             case "radius_key":
                 Log.i(TAG, "onSharedPreferenceChanged and the key is radius_key. Restarting " +
@@ -213,6 +206,15 @@ public class MainActivity extends LocationActivity
                 Log.i(TAG, "onSharedPreferenceChanged and the key is category_key");
                 getLoaderManager().restartLoader(EVENTS_LOADER, null, this);
 
+                break;
+            case "start_date_key":
+                Log.i(TAG, "onSharedPreferenceChanged and the key is start_date_key. Restarting " +
+                        "events loader");
+                getLoaderManager().restartLoader(EVENTS_LOADER, null, this);
+            case "end_date_key":
+                Log.i(TAG, "onSharedPreferenceChanged and the key is end_date_key. Restarting " +
+                        "events loader");
+                getLoaderManager().restartLoader(EVENTS_LOADER, null, this);
                 break;
         }
     }
@@ -239,6 +241,11 @@ public class MainActivity extends LocationActivity
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void startFilterActivity() {
+        Intent i = new Intent(this, FilterActivity.class);
+        startActivityForResult(i, REQUEST_FILTER);
     }
 
     @Override
@@ -321,8 +328,6 @@ public class MainActivity extends LocationActivity
                         regionId);
                 Uri eventsUri = EventProvider.Events.withRegionId(regionId);
 
-                String catSelection = EventsColumns.CATEGORY + " in ";
-
                 Set<String> categories = Utility.getPreferredCategories(this);
 
                 StringBuilder sb = new StringBuilder();
@@ -334,10 +339,34 @@ public class MainActivity extends LocationActivity
                 sb.deleteCharAt(sb.length() - 1);
                 sb.append(")");
 
+                long startMillis = Utility.getPreferredMillis(this, getString(R.string
+                        .pref_start_date_key), -1);
+
+                long endMillis = Utility.getPreferredMillis(this, getString(R.string
+                        .pref_end_date_key), -1);
+
+                String dateSelection ="";
+
+                if (startMillis != -1) {
+                    dateSelection = "(" + EventsColumns.START_DATE_TIME + " >= "+ Long.toString
+                            (startMillis) + ") AND (" +
+                            EventsColumns.START_DATE_TIME + " <= " + Long.toString(endMillis) + ")";
+                }
+
+                String eventSelection = EventsColumns.CATEGORY + " in ";
+
+                if (dateSelection.length() > 0) {
+                    eventSelection = dateSelection + " AND (" + eventSelection + sb + ")";
+                } else {
+                    eventSelection = eventSelection + sb;
+                }
+
+                Log.i(TAG, "creating events loader. Selection is " +eventSelection + sb.toString());
+
                 return new CursorLoader(this,
                         eventsUri,
                         Projections.EVENT_COLUMNS_LIST_VIEW,
-                        catSelection + sb.toString(),
+                        eventSelection,
                         null,
                         null);
             case EVENT_LOADER:

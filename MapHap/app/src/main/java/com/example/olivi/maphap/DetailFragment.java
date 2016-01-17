@@ -26,25 +26,18 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
-
 import android.support.v4.app.ShareCompat;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import com.example.olivi.maphap.utils.Constants;
 import com.example.olivi.maphap.utils.DateUtils;
 import com.squareup.picasso.Picasso;
-
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
 
 import it.gmariotti.cardslib.library.internal.Card;
 import it.gmariotti.cardslib.library.internal.CardHeader;
@@ -195,20 +188,20 @@ public class DetailFragment extends Fragment implements LoaderManager
         cardView.setCard(detailCard);
 
         View v = cardView.getInternalContentLayout();
-        String startString = data.getString(Projections.EventsDetailView
+        long startMillis = data.getLong(Projections.EventsDetailView
                 .COL_START_DATE_TIME);
-        String endString = data.getString(Projections.EventsDetailView
+        long endMillis = data.getLong(Projections.EventsDetailView
                 .COL_END_DATE_TIME);
 
-        if (DateUtils.isIntervalInOneDay(startString, endString)) {
-            String text = getSingleDayStartTime(startString, endString);
+        if ((endMillis - startMillis) <= Constants.MILLIS_IN_A_DAY) {
+            String text = DateUtils.getSingleDayStartTime(startMillis, endMillis);
             ((TextView) v.findViewById(R.id.detail_start_textview))
                     .setText(text);
             v.findViewById(R.id.detail_end_textview)
                     .setVisibility(View.GONE);
         } else {
-            String text1 = getStartDateTimeString(startString);
-            String text2 = getEndDateTimeString(endString);
+            String text1 = DateUtils.getStartDateTimeString(startMillis);
+            String text2 = DateUtils.getEndDateTimeString(endMillis);
             ((TextView) v.findViewById(R.id.detail_start_textview))
                     .setText(text1);
             ((TextView) v.findViewById(R.id.detail_end_textview))
@@ -240,6 +233,8 @@ public class DetailFragment extends Fragment implements LoaderManager
                 .COL_DESCRIPTION);
         ((TextView) v2.findViewById(R.id.detail_description_textview))
                 .setText(Html.fromHtml(descHtml));
+
+
         setTextView(v2, R.id.detail_category_textview, data,
                 Projections.EventsDetailView.COL_CATEGORY);
     }
@@ -275,24 +270,4 @@ public class DetailFragment extends Fragment implements LoaderManager
         header.setTitle(title);
         card.addCardHeader(header);
     }
-
-    private String getSingleDayStartTime(String startDateTime, String endDateTime) {
-        String formattedStartDateTime = DateUtils.formatStartDateTime(startDateTime);
-        String formattedEndTime = DateUtils.formatEndTime(endDateTime);
-
-        return formattedStartDateTime + " - " + formattedEndTime;
-    }
-
-    private String getStartDateTimeString(String startDateTime) {
-        String formattedStartDateTime = DateUtils.formatStartDateTime(startDateTime);
-
-        return formattedStartDateTime;
-    }
-
-    private String getEndDateTimeString(String endDateTime) {
-        String formattedEndTime = DateUtils.formatStartDateTime(endDateTime);
-
-        return "to " + formattedEndTime;
-    }
-
 }

@@ -4,7 +4,6 @@ import net.simonvt.schematic.annotation.AutoIncrement;
 import net.simonvt.schematic.annotation.ConflictResolutionType;
 import net.simonvt.schematic.annotation.DataType;
 import net.simonvt.schematic.annotation.NotNull;
-import net.simonvt.schematic.annotation.NotifyDelete;
 import net.simonvt.schematic.annotation.PrimaryKey;
 import net.simonvt.schematic.annotation.References;
 import net.simonvt.schematic.annotation.Unique;
@@ -39,11 +38,11 @@ public interface EventsColumns {
     String URL =
             "event_url";
 
-    @DataType(DataType.Type.TEXT) @NotNull
+    @DataType(DataType.Type.INTEGER) @NotNull
     String START_DATE_TIME =
             "start_date_time";
 
-    @DataType(DataType.Type.TEXT) @NotNull
+    @DataType(DataType.Type.INTEGER) @NotNull
     String END_DATE_TIME =
             "end_date_time";
 

@@ -88,6 +88,7 @@ public class EventsNetworker {
             final String WITHIN_PARAM = "location.within";
             final String CATEGORIES_PARAM = "categories";
             final String POPULAR_PARAM = "popular";
+            final String SORT_BY_PARAM = "sort_by";
             final String EXPAND_PARAM = "expand";
             final String OAUTH_TOKEN = "token";
 
@@ -96,7 +97,8 @@ public class EventsNetworker {
                     .appendQueryParameter(LONGITUDE_PARAM, Double.toString(mRequest.longitude))
                     .appendQueryParameter(WITHIN_PARAM, Integer.toString(mRequest.radius) + "mi")
                     .appendQueryParameter(CATEGORIES_PARAM, sb.toString())
-                    .appendQueryParameter(POPULAR_PARAM, Boolean.toString(Constants.RETURN_POPULAR))
+                    .appendQueryParameter(POPULAR_PARAM, Boolean.toString(Constants.RETURN_POPULAR_ARG))
+                    .appendQueryParameter(SORT_BY_PARAM, Constants.SORT_BY_ARG)
                     .appendQueryParameter(EXPAND_PARAM, EXPANSIONS)
                     .appendQueryParameter(OAUTH_TOKEN, mRequest.authToken)
                     .build();
