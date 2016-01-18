@@ -25,4 +25,8 @@ public final class EventDatabase {
     @Table(EventsAndRegionsColumns.class)
     public static final String EVENTS_REGIONS =
             "events_regions";
+
+    @Table(CategoriesAndRegionsColumns.class)
+    public static final String CATEGORIES_REGIONS =
+            "categories_regions";
 }

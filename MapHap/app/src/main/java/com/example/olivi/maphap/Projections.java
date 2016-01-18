@@ -1,10 +1,10 @@
 package com.example.olivi.maphap;
 
+import com.example.olivi.maphap.data.CategoriesAndRegionsColumns;
 import com.example.olivi.maphap.data.EventDatabase;
 import com.example.olivi.maphap.data.EventsColumns;
 import com.example.olivi.maphap.data.RegionsColumns;
 import com.example.olivi.maphap.data.VenuesColumns;
-import com.example.olivi.maphap.service.EventsDataJsonParser;
 
 /**
  * Created by olivia on 12/8/2015.
@@ -21,6 +21,12 @@ public class Projections {
 
 
     };
+    public static final String[] CATEGORIES_COLUMNS = {
+            EventDatabase.CATEGORIES_REGIONS + "." + CategoriesAndRegionsColumns.CATEGORY_ID,
+            EventDatabase.CATEGORIES_REGIONS + "." + CategoriesAndRegionsColumns.ADDED_DATE_TIME,
+
+
+    };
 
     // These indices are tied to REGION_COLUMNS.
     // If REGION_COLUMNS changes, these
@@ -32,6 +38,11 @@ public class Projections {
         public static final int COL_LONGITUDE = 2;
         public static final int COL_RADIUS = 3;
         public static final int ADDED_DATE_TIME = 4;
+    }
+
+    public static class Categoires {
+        public static final int COL_CATEGORY_ID = 0;
+        public static final int COL_DATE_ADDED = 1;
     }
 
 

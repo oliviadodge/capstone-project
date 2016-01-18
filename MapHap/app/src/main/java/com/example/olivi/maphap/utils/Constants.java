@@ -22,5 +22,15 @@ public class Constants {
 
     public static final long MILLIS_IN_A_DAY = 86400000;
 
+    //Preference Keys
+    public static final String PREF_RADIUS_KEY = "radius_key";
+    public static final String PREF_LATITUDE_KEY = "latitude_key";
+    public static final String PREF_LONGITUDE_KEY = "longitude_key";
+    public static final String PREF_REGION_ID_KEY = "region_id_key";
+    public static final String PREF_START_DATE_KEY = "start_date_key";
+    public static final String PREF_END_DATE_KEY = "end_date_key";
+    public static final String PREF_CATEGORY_KEY = "category_key";
+
+
 
 }

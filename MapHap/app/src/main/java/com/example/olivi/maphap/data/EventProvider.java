@@ -1,14 +1,10 @@
 package com.example.olivi.maphap.data;
 
-import android.content.Context;
-import android.database.Cursor;
 import android.net.Uri;
 
 import net.simonvt.schematic.annotation.ContentProvider;
 import net.simonvt.schematic.annotation.ContentUri;
 import net.simonvt.schematic.annotation.InexactContentUri;
-import net.simonvt.schematic.annotation.NotifyBulkInsert;
-import net.simonvt.schematic.annotation.NotifyDelete;
 import net.simonvt.schematic.annotation.TableEndpoint;
 
 
@@ -25,6 +21,7 @@ public final class EventProvider {
         String REGIONS_DELETE = "regions_delete";
         String VENUES = "venues";
         String EVENTS_REGIONS = "events_regions";
+        String CATEGORIES_REGIONS = "categories_regions";
     }
 
     private static Uri buildUri(String ... paths){
@@ -93,7 +90,7 @@ public final class EventProvider {
 //            c.close();
 //
 //            return new Uri[] {
-//                    withId(noteId), fromList(listId), Lists.withId(listId),
+//                    withRegionId(noteId), fromList(listId), Lists.withRegionId(listId),
 //            };
 //        }
     }
@@ -113,7 +110,7 @@ public final class EventProvider {
 //                whereColumn = VenuesColumns._ID,
 //                pathSegment = 1
 //        )
-//        public static Uri withId(long id){
+//        public static Uri withRegionId(long id){
 //            return buildUri(Path.ARCHIVED_PLANETS, String.valueOf(id));
 //        }
     }
@@ -170,9 +167,30 @@ public final class EventProvider {
 //                whereColumn = RegionColumns._ID,
 //                pathSegment = 1
 //        )
-//        public static Uri withId(long id){
+//        public static Uri withRegionId(long id){
 //            return buildUri(Path.REGIONES, String.valueOf(id));
 //        }
+    }
+
+    @TableEndpoint(table = EventDatabase.CATEGORIES_REGIONS)
+    public static class CategoriesAndRegions{
+        @ContentUri(
+                path = Path.CATEGORIES_REGIONS,
+                type = "vnd.android.cursor.dir/category_region",
+                defaultSort = CategoriesAndRegionsColumns.CATEGORY_ID + " ASC"
+        )
+        public static final Uri CONTENT_URI = buildUri(Path.CATEGORIES_REGIONS);
+
+        @InexactContentUri(
+                name = "CATEGORIES_WITH_REGION",
+                path = Path.CATEGORIES_REGIONS + "/#",
+                type = "vnd.android.cursor.item/region",
+                whereColumn = CategoriesAndRegionsColumns.REGION_ID,
+                pathSegment = 1
+        )
+        public static Uri withRegionId(long id){
+            return buildUri(Path.CATEGORIES_REGIONS, String.valueOf(id));
+        }
     }
 }
 

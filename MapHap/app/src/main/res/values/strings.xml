@@ -44,36 +44,41 @@
 
 
     <!--Preferences-->
-    <string name="pref_radius_key">radius_key</string>
-    <string name="pref_radius_default">30</string>
-    <string name="pref_latitude_key">latitude_key</string>
-    <string name="pref_latitude_default">37.809125</string>
-    <string name="pref_longitude_key">longitude_key</string>
-    <string name="pref_longitude_default">-122.286307</string>
 
+    <!--Keys-->
+    <string name="pref_radius_key">radius_key</string>
+    <string name="pref_latitude_key">latitude_key</string>
+    <string name="pref_longitude_key">longitude_key</string>
     <string name="pref_region_id_key">region_id_key</string>
     <string name="pref_start_date_key">start_date_key</string>
     <string name="pref_end_date_key">end_date_key</string>
-
-    <string name="location_preferences">Location Preferences</string>
-    <string name="pref_title_search_radius">Search Radius</string>
-    <string name="summary_radius_preference">Choose a search radius (in miles)
-    for the events you\'re interested around your location</string>
-
-    <string name="category_format_preferences">Category and Formats</string>
     <string name="pref_category_key">category_key</string>
-    <string name="title_category_preference">Categories</string>
+
+
+    <!--Pref Default Values-->
+    <string name="pref_radius_default">30</string>
+    <string name="pref_latitude_default">37.809125</string>
+    <string name="pref_longitude_default">-122.286307</string>
+
+    <!--Pref Summaries-->
     <string name="summary_category_preference">Select the categories of the
     events you\'re interested in.</string>
-
-    <string name="date_preferences">Date Preferences</string>
-    <string name="pref_date_key">date_key</string>
-    <string name="title_date_preference">Categories</string>
-    <string name="summary_date_preference">Select the days for events you\'re
+        <string name="summary_radius_preference">Choose a search radius (in miles)
+    for the events you\'re interested around your location</string>
+        <string name="summary_date_preference">Select the days for events you\'re
     interested in</string>
-
-    <string name="title_screen_preference">title_screen_preference</string>
     <string name="summary_screen_preference">summary_screen_preference</string>
+
+
+
+    <!--Pref Titles-->
+    <string name="title_category_preference">Categories</string>
+    <string name="pref_title_search_radius">Search Radius</string>
+    <string name="date_preferences">Date Preferences</string>
+    <string name="title_date_preference">Categories</string>
+    <string name="pref_title_category_location_preferences">Location Preferences</string>
+    <string name="category_format_preferences">Category and Formats</string>
+    <string name="title_screen_preference">title_screen_preference</string>
 
     <!--Toasts-->
     <string name="toast_search_radius">Searching for events within %1$s</string>

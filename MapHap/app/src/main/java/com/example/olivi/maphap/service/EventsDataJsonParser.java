@@ -51,7 +51,8 @@ public class EventsDataJsonParser {
     Vector<ContentValues>  mVenuesCVVector;
     Vector<ContentValues>  mEventsAndRegionCVVector;
 
-    public EventsDataJsonParser(String jsonStr, long regionId, double julianDateAdded) {
+    public EventsDataJsonParser(String jsonStr, long regionId, double
+            julianDateAdded) {
         mEventsJson = jsonStr;
         mRegionId = regionId;
         mJulianDateAdded = julianDateAdded;

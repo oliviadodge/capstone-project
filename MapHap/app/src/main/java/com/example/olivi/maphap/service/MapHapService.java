@@ -8,7 +8,9 @@ import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
+import com.example.olivi.maphap.MainActivity;
 import com.example.olivi.maphap.R;
+import com.example.olivi.maphap.data.CategoriesAndRegionsColumns;
 import com.example.olivi.maphap.data.EventProvider;
 import com.example.olivi.maphap.data.RegionsColumns;
 import com.example.olivi.maphap.utils.DateUtils;
@@ -60,18 +62,29 @@ public class MapHapService extends IntentService {
     private double mLatitude;
     private double mLongitude;
     private int mRadius;
+    private long mRegionId;
+    private Set<String> mCategories;
 
     @Override
     protected void onHandleIntent(Intent intent) {
         mLatitude = LocationUtils.getPreferredLatitude(this);
         mLongitude = LocationUtils.getPreferredLongitude(this);
         mRadius = LocationUtils.getPreferredRadius(this);
+        mRegionId = intent.getLongExtra(MainActivity.REGION_ID_EXTRA, -1);
+
+        if (intent.hasExtra(MainActivity.CATEGORY_IDS_EXTRA)) {
+            mCategories = new HashSet<String>(Arrays.asList(intent.getStringArrayExtra(MainActivity.CATEGORY_IDS_EXTRA)));
+        }
 
         String[] defaultArray = getResources()
                 .getStringArray(R.array.defaultValues_category_preference);
-        Set<String> categories = PreferenceManager.getDefaultSharedPreferences(this)
-                .getStringSet(getString(R.string.pref_category_key),
-                        new HashSet<String>(Arrays.asList(defaultArray)));
+
+        if (mCategories == null) {
+            mCategories = PreferenceManager.getDefaultSharedPreferences(this)
+                    .getStringSet(getString(R.string.pref_category_key),
+                            new HashSet<String>(Arrays.asList(defaultArray)));
+        }
+
 
         Log.i(LOG_TAG, "calling API with a radius of " + mRadius + " and location " + mLatitude +
                 " " + mLongitude);
@@ -80,7 +93,7 @@ public class MapHapService extends IntentService {
                 .friendlyName("events_request")
                 .latitude(mLatitude)
                 .longitude(mLongitude)
-                .categories(categories)
+                .categories(mCategories)
                 .radius(mRadius)
                 .method(EventsNetworker.HttpMethod.GET)
                 .authToken(getString(R.string.my_personal_oauth_token))
@@ -99,19 +112,27 @@ public class MapHapService extends IntentService {
             public void onResponse(EventsNetworker.HttpResponse result) {
                 if (result.statusCode == 200) {
                     try {
-                        long regionId = addRegionToDB(mLatitude, mLongitude, mRadius); //TODO this method should throw an exception if it can't write the region to the db
+                        if (mRegionId == -1) {
+                            mRegionId = addRegionToDB(mLatitude, mLongitude, mRadius);
+                            //TODO this method should throw an exception if it can't write the
+                            // region to
+                            // the db
+                        }
 
-                        Log.i(LOG_TAG, "Region added to database " + regionId + ". Saving to " +
-                                "shared prefs");
+                        int added = addCategoriesToDB(mRegionId, mCategories);
+                        Log.i(LOG_TAG, "Region added to database " + mRegionId + ". Saving to " +
+                                "shared prefs. Categories added " + added);
                         //Update shared preferences with the new region ID.
-                        LocationUtils.saveRegionIdToSharedPref(getApplicationContext(), regionId);
+                        LocationUtils.saveRegionIdToSharedPref(getApplicationContext(), mRegionId);
 
                         EventsDataJsonParser parser =
-                                new EventsDataJsonParser(result.body, regionId, mJulianDateAdded);
+                                new EventsDataJsonParser(result.body, mRegionId,
+                                        mJulianDateAdded);
                         parser.parse();
 
                         for (int i = 0; i < REQUIRED_CONTENT_VALUES.length; i++) {
-                            ContentValues[] cv = parser.getContentValues(REQUIRED_CONTENT_VALUES[i]);
+                            ContentValues[] cv = parser.getContentValues
+                                    (REQUIRED_CONTENT_VALUES[i]);
                             addContentValuesToDB(REQUIRED_CONTENT_VALUES[i], cv);
                         }
                         deleteOldData(getApplicationContext());
@@ -167,6 +188,30 @@ public class MapHapService extends IntentService {
         }
 
         return getIdFromUri(regionUri);
+    }
+
+    public int addCategoriesToDB(long  regionId, Set<String> categories) {
+        double dateAdded = DateUtils.getCurrentJulianDateTime();
+
+        String[] categoriesArray = new String[categories.size()];
+        categories.toArray(categoriesArray);
+
+        Log.i(LOG_TAG, "Date region added: " + dateAdded);
+
+        ContentValues[] categoriesRegionCV = new ContentValues[categoriesArray.length];
+
+        for (int i = 0; i < categoriesArray.length; i++) {
+            ContentValues cv = new ContentValues();
+            cv.put(CategoriesAndRegionsColumns.REGION_ID, regionId);
+            cv.put(CategoriesAndRegionsColumns.CATEGORY_ID, categoriesArray[i]);
+            cv.put(CategoriesAndRegionsColumns.ADDED_DATE_TIME, mJulianDateAdded);
+
+            categoriesRegionCV[i] = cv;
+        }
+
+        return this.getContentResolver().bulkInsert(EventProvider.CategoriesAndRegions
+                        .CONTENT_URI,
+                categoriesRegionCV);
     }
 
     public static long getIdFromUri(Uri uri) {

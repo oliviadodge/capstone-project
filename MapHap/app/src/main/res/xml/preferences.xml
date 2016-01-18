@@ -11,14 +11,14 @@
                 android:summary="@string/summary_category_preference"
                 android:entries="@array/entries_category_preference"
                 android:entryValues="@array/entryvalues_category_preference"
-                android:defaultValue="@array/entryvalues_category_preference"
+                android:defaultValue="@array/defaultValues_category_preference"
                 />
 
         </PreferenceCategory>
 
 
     <PreferenceCategory
-        android:title="@string/location_preferences">
+        android:title="@string/pref_title_category_location_preferences">
 
 
         <com.example.olivi.maphap.preferences.NumberPickerPreference

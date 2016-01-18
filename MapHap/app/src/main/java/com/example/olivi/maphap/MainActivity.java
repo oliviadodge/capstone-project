@@ -35,6 +35,7 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.HashSet;
 import java.util.Set;
 
 public class MainActivity extends LocationActivity
@@ -44,14 +45,16 @@ public class MainActivity extends LocationActivity
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int REGIONS_LOADER = 0;
-    private static final int EVENTS_LOADER = 1;
-    private static final int EVENT_LOADER = 2;
+    private static final int CATEGORIES_LOADER = 1;
+    private static final int EVENTS_LOADER = 2;
+    private static final int EVENT_LOADER = 3;
 
 
     private static final int REQUEST_FILTER = 0;
 
     public static final String REGION_ID_EXTRA = "region_id";
     public static final String EVENT_URI_EXTRA = "event_uri";
+    public static final String CATEGORY_IDS_EXTRA = "category_ids";
 
     private static final String LATITUDE_KEY = "latitude_key";
     private static final String LONGITUDE_KEY = "longitude_key";
@@ -189,35 +192,73 @@ public class MainActivity extends LocationActivity
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
                                           String key) {
         switch (key) {
-            case "radius_key":
-                Log.i(TAG, "onSharedPreferenceChanged and the key is radius_key. Restarting " +
-                        "REGIONS_LOADER");
-                int radius = sharedPreferences.getInt(key, NumberPickerPreference.DEFAULT_VALUE);
-                String dist = (radius > 1 ? radius + " miles." : radius + " mile.");
-                Toast toast = Toast.makeText(this, getString(R.string.toast_search_radius, dist),
-                        Toast.LENGTH_LONG);
-                toast.show();
-
-                zoomToPosition(mLastLocation.latitude, mLastLocation.longitude, LocationUtils
-                        .getMapZoomLevel(this));
-                getLoaderManager().restartLoader(REGIONS_LOADER, null, this);
-                break;
+//            case "radius_key":
+//                int radius = sharedPreferences.getInt(key, NumberPickerPreference.DEFAULT_VALUE);
+//                String dist = (radius > 1 ? radius + " miles." : radius + " mile.");
+//                Toast toast = Toast.makeText(this, getString(R.string.toast_search_radius, dist),
+//                        Toast.LENGTH_LONG);
+//                toast.show();
+//
+//                zoomToPosition(mLastLocation.latitude, mLastLocation.longitude, LocationUtils
+//                        .getMapZoomLevel(this));
+//                getLoaderManager().restartLoader(REGIONS_LOADER, null, this);
+//                break;
+//
             case "category_key":
-                Log.i(TAG, "onSharedPreferenceChanged and the key is category_key");
-                getLoaderManager().restartLoader(EVENTS_LOADER, null, this);
-
+                getLoaderManager().restartLoader(CATEGORIES_LOADER, null, this);
+                Log.i(TAG, "onSharedPreferenchChanged called and key is category_key. Restarting " +
+                        "CATEGORIES_LOADER");
                 break;
-            case "start_date_key":
-                Log.i(TAG, "onSharedPreferenceChanged and the key is start_date_key. Restarting " +
-                        "events loader");
-                getLoaderManager().restartLoader(EVENTS_LOADER, null, this);
-            case "end_date_key":
-                Log.i(TAG, "onSharedPreferenceChanged and the key is end_date_key. Restarting " +
-                        "events loader");
-                getLoaderManager().restartLoader(EVENTS_LOADER, null, this);
+//
+//            case "start_date_key":
+//                getLoaderManager().restartLoader(EVENTS_LOADER, null, this);
+//                break;
+//
+//            case "end_date_key":
+//                getLoaderManager().restartLoader(EVENTS_LOADER, null, this);
+//                break;
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case REQUEST_FILTER:
+                if (resultCode == RESULT_OK) {
+                    boolean radiusChanged = data.getBooleanExtra(FilterActivity
+                            .PREF_RADIUS_CHANGED_EXTRA, false);
+                    boolean categoryChanged = data.getBooleanExtra(FilterActivity
+                            .PREF_CATEGORY_CHANGED_EXTRA, false);
+                    boolean startDateChanged = data.getBooleanExtra(FilterActivity
+                            .PREF_START_DATE_CHANGED_EXTRA, false);
+                    boolean endDateChanged = data.getBooleanExtra(FilterActivity
+                            .PREF_END_DATE_CHANGED_EXTRA, false);
+
+                    if (radiusChanged) {
+                        int radius = PreferenceManager.getDefaultSharedPreferences(this).getInt
+                                (Constants.PREF_RADIUS_KEY, NumberPickerPreference.DEFAULT_VALUE);
+
+                        String dist = (radius > 1 ? radius + " miles." : radius + " mile.");
+                        Toast toast = Toast.makeText(this, getString(R.string.toast_search_radius, dist),
+                                Toast.LENGTH_LONG);
+                        toast.show();
+
+                        zoomToPosition(mLastLocation.latitude, mLastLocation.longitude,
+                                LocationUtils
+                                .getMapZoomLevel(this));
+                        getLoaderManager().restartLoader(REGIONS_LOADER, null, this);
+                    } else if (categoryChanged) {
+                        getLoaderManager().restartLoader(CATEGORIES_LOADER, null, this);
+                    } else if ((startDateChanged) || (endDateChanged)) {
+                        getLoaderManager().restartLoader(EVENTS_LOADER, null, this);
+                    }
+
+                }
                 break;
         }
     }
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -321,14 +362,29 @@ public class MainActivity extends LocationActivity
                         selection,
                         radius,
                         null);
-            case EVENTS_LOADER:
+
+            case CATEGORIES_LOADER:
                 long regionId = PreferenceManager.getDefaultSharedPreferences(this)
                         .getLong(getString(R.string.pref_region_id_key), -1);
-                Log.i(TAG, "onCreateLoader called for EVENTS_LOADER. Found regiond ID: " +
+                Log.i(TAG, "onCreateLoader called for CATEGORIES_LOADER. Found regiond ID: " +
                         regionId);
-                Uri eventsUri = EventProvider.Events.withRegionId(regionId);
+                Uri categoriesUri = EventProvider.CategoriesAndRegions.withRegionId(regionId);
+
+                return new CursorLoader(this,
+                        categoriesUri,
+                        Projections.CATEGORIES_COLUMNS,
+                        null,
+                        null,
+                        null);
+            case EVENTS_LOADER:
+                long regionIdForEvents = PreferenceManager.getDefaultSharedPreferences(this)
+                        .getLong(getString(R.string.pref_region_id_key), -1);
+                Log.i(TAG, "onCreateLoader called for EVENTS_LOADER. Found regiond ID: " +
+                        regionIdForEvents);
+                Uri eventsUri = EventProvider.Events.withRegionId(regionIdForEvents);
 
                 Set<String> categories = Utility.getPreferredCategories(this);
+                Log.i(TAG, "creating events loader. Size of preferred categories is " + categories);
 
                 StringBuilder sb = new StringBuilder();
                 sb.append("(");
@@ -357,11 +413,11 @@ public class MainActivity extends LocationActivity
 
                 if (dateSelection.length() > 0) {
                     eventSelection = dateSelection + " AND (" + eventSelection + sb + ")";
+                    Log.i(TAG, "creating events loader. Selection is " + eventSelection);
                 } else {
                     eventSelection = eventSelection + sb;
+                    Log.i(TAG, "creating events loader. Selection is " + eventSelection);
                 }
-
-                Log.i(TAG, "creating events loader. Selection is " +eventSelection + sb.toString());
 
                 return new CursorLoader(this,
                         eventsUri,
@@ -396,17 +452,41 @@ public class MainActivity extends LocationActivity
                     if ((regionId != -1) && (isDataCurrent(data))) {
                         Log.i(TAG, "found region: " + regionId + " Starting events loader");
                         LocationUtils.saveRegionIdToSharedPref(this, regionId);
+//                        Bundle args = new Bundle();
+//                        args.putLong(REGION_ID_EXTRA, regionId);
+//                        getLoaderManager().restartLoader(EVENTS_LOADER, args, this);
                         Bundle args = new Bundle();
                         args.putLong(REGION_ID_EXTRA, regionId);
-                        getLoaderManager().restartLoader(EVENTS_LOADER, args, this);
-
+                        getLoaderManager().restartLoader(CATEGORIES_LOADER, args, this);
                     } else {
                         Log.i(TAG, "could not find current region in database. fetching data now");
-                        fetchEventsData();
+                        fetchEventsData(null, -1);
                     }
                 } else {
                     Log.i(TAG, "database is empty. fetching data now");
-                    fetchEventsData();
+                    fetchEventsData(null, -1);
+                }
+                break;
+            case CATEGORIES_LOADER:
+                Log.i(TAG, "categories load finished. Data is null " + (data == null));
+
+                long regionId = LocationUtils.getPreferredRegionId(this);
+
+                if ((data != null) && (data.moveToFirst())) {
+                    Log.i(TAG, "categories load finished. data is not null and has a row!");
+                    String[] categoryIds = checkCategories(data);
+                    if (categoryIds.length == 0) {
+                        Log.i(TAG, "All categories found in DB: " + categoryIds + " Starting " +
+                                "events loader");
+
+                        getLoaderManager().restartLoader(EVENTS_LOADER, null, this);
+                    } else {
+                        Log.i(TAG, "could not find some categories in db. fetching data now");
+                        fetchEventsData(categoryIds, regionId);
+                    }
+                } else {
+                    Log.i(TAG, "database is empty. fetching data now");
+                    fetchEventsData(null, regionId);
                 }
                 break;
             case EVENTS_LOADER:
@@ -455,12 +535,41 @@ public class MainActivity extends LocationActivity
         return DateUtils.isDateTimeAfterCutOff(dateAdded);
     }
 
-    private void fetchEventsData() {
+    private void fetchEventsData(String[] categoryIds, long regionId) {
 
         Log.i(TAG, "FetchEventsData called. Attempting to start service with intent");
         Intent intent = new Intent(this, MapHapService.class);
+        if (categoryIds != null) {
+            intent.putExtra(CATEGORY_IDS_EXTRA, categoryIds);
+        }
+
+        if (regionId != -1) {
+            intent.putExtra(REGION_ID_EXTRA, regionId);
+        }
 
         startService(intent);
+    }
+
+    private String[] checkCategories(Cursor data) {
+        data.moveToFirst();
+        HashSet<String> set = Utility.getPreferredCategories(this);
+        HashSet<String> cloneSet = (HashSet<String>)set.clone();
+
+        for (int i = 0; i < data.getCount(); i++, data.moveToNext()) {
+            String catID = data.getString(Projections.Categoires.COL_CATEGORY_ID);
+            double julianDateAdded = data.getDouble(Projections.Categoires.COL_DATE_ADDED);
+
+            if (julianDateAdded >= DateUtils.getCutOffJulianDateTime()) {
+                Log.i(TAG, "in checkCategories. Removing category ID " + catID);
+                cloneSet.remove(catID);
+            }
+        }
+        String[] categories = new String[cloneSet.size()];
+
+        cloneSet.toArray(categories);
+        Log.i(TAG, "in checkCategories. Catgories we need to fetch = " + categories);
+
+        return categories;
     }
 
     @Override
