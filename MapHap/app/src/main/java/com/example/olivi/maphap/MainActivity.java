@@ -68,6 +68,7 @@ public class MainActivity extends LocationActivity
     private Cursor mDataSet;
     private EventRecyclerViewAdapter mAdapter;
     private boolean mThreePane;
+    private boolean mCategoriesChanged;
 
 
     @Override
@@ -108,7 +109,7 @@ public class MainActivity extends LocationActivity
         }
 
         if (mLastLocation != null) {
-            Log.i(TAG, "in onCreate. Loader restarted to query for regions");
+            Log.i(TAG, "in onCreate. Regions loader restarted to query for regions");
             getLoaderManager().restartLoader(REGIONS_LOADER, null, this);
         }
 
@@ -131,7 +132,8 @@ public class MainActivity extends LocationActivity
             zoomToPosition(latitude, longitude, LocationUtils.getMapZoomLevel(this));
             addMarker("you're here", latitude, longitude);
             mLastLocation = latLng;
-            Log.i(TAG, "onUserLocationFound called and location changed. Initializing loader");
+            Log.i(TAG, "onUserLocationFound called and location changed. Initializing " +
+                    "REGIONS loader");
             getLoaderManager().initLoader(REGIONS_LOADER, null, this);
 
             LocationUtils.saveLocationToSharedPref(this, latitude, longitude);
@@ -169,16 +171,10 @@ public class MainActivity extends LocationActivity
                 .newCameraPosition(target));
     }
 
-    public void onSearchRegionChanged(LatLng newLocation) {
-        mLastLocation = newLocation;
-        getLoaderManager().restartLoader(REGIONS_LOADER, null, this);
-
-    }
 
     private void addMarker(String name, double latitude, double longitude) {
         if (mMapReady) {
 
-            Log.i(TAG, "adding new place to map " + latitude + " " + longitude);
             MarkerOptions place = new MarkerOptions()
                     .position(new LatLng(latitude, longitude))
                     .title(name);
@@ -192,36 +188,18 @@ public class MainActivity extends LocationActivity
     public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
                                           String key) {
         switch (key) {
-//            case "radius_key":
-//                int radius = sharedPreferences.getInt(key, NumberPickerPreference.DEFAULT_VALUE);
-//                String dist = (radius > 1 ? radius + " miles." : radius + " mile.");
-//                Toast toast = Toast.makeText(this, getString(R.string.toast_search_radius, dist),
-//                        Toast.LENGTH_LONG);
-//                toast.show();
-//
-//                zoomToPosition(mLastLocation.latitude, mLastLocation.longitude, LocationUtils
-//                        .getMapZoomLevel(this));
-//                getLoaderManager().restartLoader(REGIONS_LOADER, null, this);
-//                break;
-//
+
             case "category_key":
+                Log.i(TAG, "onSharedPreferenchChanged called and key is category_key. Setting " +
+                        "mCategoriesChanged to true");
                 getLoaderManager().restartLoader(CATEGORIES_LOADER, null, this);
-                Log.i(TAG, "onSharedPreferenchChanged called and key is category_key. Restarting " +
-                        "CATEGORIES_LOADER");
                 break;
-//
-//            case "start_date_key":
-//                getLoaderManager().restartLoader(EVENTS_LOADER, null, this);
-//                break;
-//
-//            case "end_date_key":
-//                getLoaderManager().restartLoader(EVENTS_LOADER, null, this);
-//                break;
         }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Log.i(TAG, "onActivityResult called");
         switch (requestCode) {
             case REQUEST_FILTER:
                 if (resultCode == RESULT_OK) {
@@ -239,17 +217,24 @@ public class MainActivity extends LocationActivity
                                 (Constants.PREF_RADIUS_KEY, NumberPickerPreference.DEFAULT_VALUE);
 
                         String dist = (radius > 1 ? radius + " miles." : radius + " mile.");
-                        Toast toast = Toast.makeText(this, getString(R.string.toast_search_radius, dist),
+                        Toast toast = Toast.makeText(this, getString(R.string
+                                        .toast_search_radius, dist),
                                 Toast.LENGTH_LONG);
                         toast.show();
 
                         zoomToPosition(mLastLocation.latitude, mLastLocation.longitude,
                                 LocationUtils
-                                .getMapZoomLevel(this));
+                                        .getMapZoomLevel(this));
                         getLoaderManager().restartLoader(REGIONS_LOADER, null, this);
                     } else if (categoryChanged) {
+                        Log.i(TAG, "onActivityResult called. Category changed. Restarting " +
+                                "categories loader");
+
                         getLoaderManager().restartLoader(CATEGORIES_LOADER, null, this);
                     } else if ((startDateChanged) || (endDateChanged)) {
+                        Log.i(TAG, "onActivityResult called. Start/end date changed. Restarting " +
+                                "events loader");
+
                         getLoaderManager().restartLoader(EVENTS_LOADER, null, this);
                     }
 
@@ -330,11 +315,9 @@ public class MainActivity extends LocationActivity
                     newLatLng.longitude, mLastLocation.latitude,
                     mLastLocation.longitude);
             if (dist > Constants.TOLERANCE_DIST_IN_MILES) {
-                Log.d(TAG, "Dist is greater than tolerance. Returning true");
                 mLastLocation = newLatLng;
                 return true;
             } else {
-                Log.i(TAG, "Dist is less than tolerance. No need to reload data Return false");
                 return false;
             }
         } else if (newLatLng != null) {
@@ -376,6 +359,7 @@ public class MainActivity extends LocationActivity
                         null,
                         null,
                         null);
+
             case EVENTS_LOADER:
                 long regionIdForEvents = PreferenceManager.getDefaultSharedPreferences(this)
                         .getLong(getString(R.string.pref_region_id_key), -1);
@@ -452,9 +436,6 @@ public class MainActivity extends LocationActivity
                     if ((regionId != -1) && (isDataCurrent(data))) {
                         Log.i(TAG, "found region: " + regionId + " Starting events loader");
                         LocationUtils.saveRegionIdToSharedPref(this, regionId);
-//                        Bundle args = new Bundle();
-//                        args.putLong(REGION_ID_EXTRA, regionId);
-//                        getLoaderManager().restartLoader(EVENTS_LOADER, args, this);
                         Bundle args = new Bundle();
                         args.putLong(REGION_ID_EXTRA, regionId);
                         getLoaderManager().restartLoader(CATEGORIES_LOADER, args, this);
@@ -491,10 +472,17 @@ public class MainActivity extends LocationActivity
                 break;
             case EVENTS_LOADER:
                 if ((data != null) && (data.moveToFirst())) {
-                    Log.i(TAG, "EventsListView load finished!");
-                    addEventsToMap(data);
+                    Log.i(TAG, "Events load finished and cursor contains " + data.getCount() + " " +
+                            "rows");
+                    if (mDataSet != null) {
+                        Cursor old = mDataSet;
+                        old.close();
+                    }
 
                     mDataSet = data;
+
+                    addEventsToMap(data);
+
 
                     Log.i(TAG, "EVENTS_LOADER finished. Swapping out data set.");
                     mAdapter.changeCursor(mDataSet);
@@ -555,14 +543,19 @@ public class MainActivity extends LocationActivity
         HashSet<String> set = Utility.getPreferredCategories(this);
         HashSet<String> cloneSet = (HashSet<String>)set.clone();
 
-        for (int i = 0; i < data.getCount(); i++, data.moveToNext()) {
-            String catID = data.getString(Projections.Categoires.COL_CATEGORY_ID);
-            double julianDateAdded = data.getDouble(Projections.Categoires.COL_DATE_ADDED);
+        for (String cat : cloneSet) {
+            Log.i(TAG, "in checkCategories. Preferred category: " + cat);
+        }
 
-            if (julianDateAdded >= DateUtils.getCutOffJulianDateTime()) {
-                Log.i(TAG, "in checkCategories. Removing category ID " + catID);
-                cloneSet.remove(catID);
-            }
+        for (int i = 0; i < data.getCount(); i++) {
+            String catID = data.getString(Projections.Categoires.COL_CATEGORY_ID);
+            Log.i(TAG, "from cursor, category id is " + catID);
+            double julianDateAdded = data.getDouble(Projections.Categoires.COL_DATE_ADDED);
+            //TODO figure the julianDateAdded out.
+
+            Log.i(TAG, "in checkCategories. Removing category ID " + catID);
+            cloneSet.remove(catID);
+            data.moveToNext();
         }
         String[] categories = new String[cloneSet.size()];
 
@@ -576,6 +569,7 @@ public class MainActivity extends LocationActivity
     public void onLoaderReset(Loader<Cursor> loader) {
         switch (loader.getId()) {
             case EVENTS_LOADER:
+                Log.i(TAG, "events loader reset");
                 mAdapter.changeCursor(null);
                 mDataSet.close();
                 mDataSet = null;
@@ -606,7 +600,7 @@ public class MainActivity extends LocationActivity
 
                 regionId = cursor.getLong(Projections.Regions.COL_ID);
 
-                Log.d(TAG, "region is in DB. ID is " + regionId);
+                Log.i(TAG, "region is in DB. ID is " + regionId);
                 break;
             }
         }
@@ -625,8 +619,7 @@ public class MainActivity extends LocationActivity
         for (int i = 0; i < data.getCount(); i++) {
             double lat = data.getDouble(Projections.EventsListView.COL_VENUE_LAT);
             double lon = data.getDouble(Projections.EventsListView.COL_VENUE_LON);
-            Log.i(TAG, "adding venue to map "
-                    + data.getString(Projections.EventsListView.COL_VENUE_NAME));
+
             String eventName = data.getString(Projections.EventsListView.COL_NAME);
 
 

@@ -64,6 +64,7 @@ public class EventsDataJsonParser {
             JSONObject eventsJson = new JSONObject(mEventsJson);
             JSONArray eventsArray = eventsJson.getJSONArray(EB_EVENTS);
 
+
             mVenuesCVVector = new Vector<ContentValues>(eventsArray.length());
             mEventsCVVector = new Vector<ContentValues>(eventsArray.length());
             mEventsAndRegionCVVector = new Vector<ContentValues>(eventsArray.length());
@@ -106,11 +107,9 @@ public class EventsDataJsonParser {
                         (EB_EVENT_START)
                         .getString(EB_EVENT_DATE_TIME_LOCAL));
 
-                Log.i(LOG_TAG, "putting start time into database: " + startLocal);
                 endLocal = DateUtils.convertDateTimeStringToLong(event.getJSONObject
                         (EB_EVENT_END).getString
                         (EB_EVENT_DATE_TIME_LOCAL));
-                Log.i(LOG_TAG, "putting end time into database: " + endLocal);
 
                 capacity = event.getInt(EB_EVENT_CAPACITY);
                 status = event.getString(EB_EVENT_STATUS);
@@ -175,7 +174,6 @@ public class EventsDataJsonParser {
                 mEventsAndRegionCVVector.add(eventsAndRegionValues);
             }
 
-            Log.d(LOG_TAG, "MapHap Service Complete. " + mEventsCVVector.size() + " Inserted");
 
         } catch (JSONException e) {
             Log.e(LOG_TAG, e.getMessage(), e);

@@ -4,7 +4,6 @@ import android.Manifest;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
-import android.os.Debug;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -20,8 +19,6 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 
-import com.example.olivi.maphap.utils.Constants;
-import com.example.olivi.maphap.utils.LocationUtils;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -108,7 +105,6 @@ public abstract class LocationActivity extends AppCompatActivity
 
     @Override
     public void onLocationChanged(Location location) {
-        Log.i(TAG, "onLocationChanged called.");
         if (location != null) {
             mLastLocation = new LatLng(location.getLatitude(), location.getLongitude());
             onUserLocationFound(mLastLocation);

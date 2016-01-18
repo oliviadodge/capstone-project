@@ -73,13 +73,16 @@ public class MapHapService extends IntentService {
         mRegionId = intent.getLongExtra(MainActivity.REGION_ID_EXTRA, -1);
 
         if (intent.hasExtra(MainActivity.CATEGORY_IDS_EXTRA)) {
-            mCategories = new HashSet<String>(Arrays.asList(intent.getStringArrayExtra(MainActivity.CATEGORY_IDS_EXTRA)));
+            mCategories = new HashSet<String>(Arrays.asList(intent.getStringArrayExtra
+                    (MainActivity.CATEGORY_IDS_EXTRA)));
+            Log.i(LOG_TAG, "intent has extra: CATEGORY_ID_EXTRA. Getting HashSet now");
         }
 
         String[] defaultArray = getResources()
                 .getStringArray(R.array.defaultValues_category_preference);
 
         if (mCategories == null) {
+            Log.i(LOG_TAG, "No categories were given. Getting categories from defaultSharedPrefs");
             mCategories = PreferenceManager.getDefaultSharedPreferences(this)
                     .getStringSet(getString(R.string.pref_category_key),
                             new HashSet<String>(Arrays.asList(defaultArray)));
@@ -113,17 +116,20 @@ public class MapHapService extends IntentService {
                 if (result.statusCode == 200) {
                     try {
                         if (mRegionId == -1) {
+                            Log.i(LOG_TAG, "mRegionID == -1 which means it has not been added to " +
+                                    "DB yet. Adding now");
                             mRegionId = addRegionToDB(mLatitude, mLongitude, mRadius);
                             //TODO this method should throw an exception if it can't write the
                             // region to
                             // the db
+                        } else {
+                            Log.i(LOG_TAG, "Region had already been added to DB. Add categories " +
+                                    "next");
                         }
 
                         int added = addCategoriesToDB(mRegionId, mCategories);
-                        Log.i(LOG_TAG, "Region added to database " + mRegionId + ". Saving to " +
-                                "shared prefs. Categories added " + added);
+                        Log.i(LOG_TAG, "Categories added " + added);
                         //Update shared preferences with the new region ID.
-                        LocationUtils.saveRegionIdToSharedPref(getApplicationContext(), mRegionId);
 
                         EventsDataJsonParser parser =
                                 new EventsDataJsonParser(result.body, mRegionId,
@@ -166,7 +172,9 @@ public class MapHapService extends IntentService {
             throw new IllegalArgumentException("Data type must be one of the three listed in " +
                     "MapHapService.REQUIRED_CONTENT_VALUES");
         } else {
-            this.getContentResolver().bulkInsert(contentUri, contentValues);
+            int added = this.getContentResolver().bulkInsert(contentUri, contentValues);
+
+            Log.i(LOG_TAG, "bulk insert to " + contentUri + ". Added " + added);
         }
     }
 
@@ -191,12 +199,11 @@ public class MapHapService extends IntentService {
     }
 
     public int addCategoriesToDB(long  regionId, Set<String> categories) {
-        double dateAdded = DateUtils.getCurrentJulianDateTime();
+
+        mJulianDateAdded = DateUtils.getCurrentJulianDateTime();
 
         String[] categoriesArray = new String[categories.size()];
         categories.toArray(categoriesArray);
-
-        Log.i(LOG_TAG, "Date region added: " + dateAdded);
 
         ContentValues[] categoriesRegionCV = new ContentValues[categoriesArray.length];
 
@@ -204,6 +211,7 @@ public class MapHapService extends IntentService {
             ContentValues cv = new ContentValues();
             cv.put(CategoriesAndRegionsColumns.REGION_ID, regionId);
             cv.put(CategoriesAndRegionsColumns.CATEGORY_ID, categoriesArray[i]);
+            Log.i(LOG_TAG, "adding " + categoriesArray[i] + " to database");
             cv.put(CategoriesAndRegionsColumns.ADDED_DATE_TIME, mJulianDateAdded);
 
             categoriesRegionCV[i] = cv;

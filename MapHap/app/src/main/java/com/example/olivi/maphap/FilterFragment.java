@@ -11,6 +11,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.borax12.materialdaterangepicker.date.DatePickerDialog;
+import com.example.olivi.maphap.ui.CategoryDialog;
 import com.example.olivi.maphap.ui.MyDatePickerDialog;
 import com.example.olivi.maphap.utils.LocationUtils;
 import com.example.olivi.maphap.utils.Utility;
@@ -19,6 +20,7 @@ import java.util.Calendar;
 
 public class FilterFragment extends Fragment implements DatePickerDialog.OnDateSetListener {
     private static final String TAG = FilterFragment.class.getSimpleName();
+    private static final String DIALOG_FRAG_TAG = "category_dialog_fragment";
 
 
     private MyDatePickerDialog mDatePicker;
@@ -98,6 +100,14 @@ public class FilterFragment extends Fragment implements DatePickerDialog.OnDateS
             }
         });
 
+        Button categoryButton = (Button) view.findViewById(R.id.button_category_picker);
+        categoryButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                CategoryDialog cd = new CategoryDialog();
+                cd.show(getFragmentManager(), DIALOG_FRAG_TAG);
+            }
+        });
         return view;
     }
 

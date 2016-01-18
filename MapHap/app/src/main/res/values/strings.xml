@@ -61,7 +61,7 @@
     <string name="pref_longitude_default">-122.286307</string>
 
     <!--Pref Summaries-->
-    <string name="summary_category_preference">Select the categories of the
+    <string name="summary_category_preference">Select the categories of
     events you\'re interested in.</string>
         <string name="summary_radius_preference">Choose a search radius (in miles)
     for the events you\'re interested around your location</string>
@@ -89,5 +89,8 @@
     <string name="text_date_picker_button">Select a Date Range</string>
     <string name="fragment_filter_date_title">Date</string>
     <string name="fragment_filter_seekbar_title">Search Radius</string>
+
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
 
 </resources>

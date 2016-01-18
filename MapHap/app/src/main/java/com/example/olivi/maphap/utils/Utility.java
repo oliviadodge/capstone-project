@@ -3,9 +3,11 @@ package com.example.olivi.maphap.utils;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 import com.example.olivi.maphap.R;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 
@@ -28,6 +30,27 @@ public class Utility {
                         new HashSet<String>(Arrays.asList(defaultArray)));
     }
 
+
+    public static boolean[] getPreferredCategoriesBooleanArray(Context context) {
+
+        HashSet<String> prefCat = getPreferredCategories(context);
+        String[] allCats = context.getResources().getStringArray(R.array
+                .entryvalues_category_preference);
+
+        boolean[] categoriesForDialog = new boolean[allCats.length];
+
+        for (int i = 0; i < allCats.length; i++) {
+            String cat = allCats[i];
+            if (prefCat.contains(cat)) {
+                categoriesForDialog[i] = true;
+            } else {
+                categoriesForDialog[i] = false;
+            }
+        }
+
+        return categoriesForDialog;
+    }
+
     public static void savePreferredStartDate(Context context, long startMillis) {
         String key = context.getString(R.string.pref_start_date_key);
         savePreferredMillis(context, key, startMillis);
@@ -43,6 +66,25 @@ public class Utility {
         SharedPreferences.Editor editor = sp.edit();
 
         editor.putLong(key, millis);
+        editor.commit();
+    }
+
+    public static void savePreferredCategories(Context context, ArrayList<Integer> items) {
+        SharedPreferences sp = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences.Editor editor = sp.edit();
+
+        String[] categoryArray = context.getResources().getStringArray(R.array
+                .entryvalues_category_preference);
+
+        HashSet<String> prefCategories = new HashSet<>(items.size());
+
+        for (int item : items) {
+            String cat = categoryArray[item];
+            Log.i(TAG, "saving category " + cat + " to shared prefs");
+            prefCategories.add(cat);
+        }
+
+        editor.putStringSet(Constants.PREF_CATEGORY_KEY, prefCategories);
         editor.commit();
     }
 
