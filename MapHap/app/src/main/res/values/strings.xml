@@ -1,49 +1,36 @@
 <resources>
     <string name="app_name">MapHap</string>
-    <string name="activity_detail_name">Event\'s Details</string>
-
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
-
-    <string name="action_refresh">Refresh</string>
     <string name="action_settings">Settings</string>
 
     <!--API Strings-->
     <string name="my_personal_oauth_token">MAED5WF5RMQWUWLEWEXM</string>
 
-    <!--Design time strings for TextViews-->
-    <string name="list_item_event_name">Event Title Here (this is what happens when the event title is hecka long</string>
-    <string name="list_item_venue_name">San Francisco Center of the Performing Arts</string>
-    <string name="list_item_start_date_time">December 31 at 7:30 PM</string>
-    <string name="list_item_start_date">December 18</string>
-    <string name="list_item_end_date">January 3</string>
 
     <!-- List View Strings-->
     <string name="list_item_to">to</string>
 
     <!--Detail View Strings-->
-    <string name="detail_item_to">to</string>
     <string name="header_event_description">About</string>
     <string name="header_other_details">Other Details</string>
     <string name="detail_capacity">Capacity:&#160;</string>
     <string name="detail_status">Status:&#160;</string>
     <string name="detail_category">Event categorized as:&#160;</string>
-    <string name="detail_go_to_event_page">Go to event web page </string>
 
     <!--Activity Titles-->
     <string name="title_activity_settings">Settings</string>
-
+    <string name="title_activity_detail">Event Details</string>
 
     <!--Share-->
     <string name="action_share">Share</string>
-    <string name="title_activity_detail">Event Details</string>
 
     <!--Widget-->
     <string name="title_widget_detail">Upcoming Events</string>
     <string name="empty_events_list">No new events that match your criteria.</string>
 
 
-    <!--Preferences-->
+    <!--PREFERENCESE-->
 
     <!--Keys-->
     <string name="pref_radius_key">radius_key</string>
@@ -54,31 +41,20 @@
     <string name="pref_end_date_key">end_date_key</string>
     <string name="pref_category_key">category_key</string>
 
-
     <!--Pref Default Values-->
     <string name="pref_radius_default">30</string>
-    <string name="pref_latitude_default">37.809125</string>
-    <string name="pref_longitude_default">-122.286307</string>
+
+    <!--Pref Titles-->
+    <string name="pref_title_category">Categories</string>
+    <string name="pref_title_search_radius">Search Radius</string>
+    <string name="pref_title_location">Location Preferences</string>
+    <string name="pref_header_title_category">Category and Formats</string>
 
     <!--Pref Summaries-->
     <string name="summary_category_preference">Select the categories of
     events you\'re interested in.</string>
-        <string name="summary_radius_preference">Choose a search radius (in miles)
+    <string name="summary_radius_preference">Choose a search radius (in miles)
     for the events you\'re interested around your location</string>
-        <string name="summary_date_preference">Select the days for events you\'re
-    interested in</string>
-    <string name="summary_screen_preference">summary_screen_preference</string>
-
-
-
-    <!--Pref Titles-->
-    <string name="title_category_preference">Categories</string>
-    <string name="pref_title_search_radius">Search Radius</string>
-    <string name="date_preferences">Date Preferences</string>
-    <string name="title_date_preference">Categories</string>
-    <string name="pref_title_category_location_preferences">Location Preferences</string>
-    <string name="category_format_preferences">Category and Formats</string>
-    <string name="title_screen_preference">title_screen_preference</string>
 
     <!--Toasts-->
     <string name="toast_search_radius">Searching for events within %1$s</string>
@@ -86,11 +62,19 @@
 
     <!--Filter Activity and Fragment-->
     <string name="activity_filter_title_action_bar">Event Filters</string>
-    <string name="text_date_picker_button">Select a Date Range</string>
-    <string name="fragment_filter_date_title">Date</string>
-    <string name="fragment_filter_seekbar_title">Search Radius</string>
+    <string name="fragment_filter_button_text_date_picker">Select a Date Range</string>
+    <string name="fragment_filter_title_date">Date</string>
+    <string name="fragment_filter_title_seekbar">Search Radius</string>
 
+    <!--Dialog Strings-->
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
+
+    <!--Design time strings for TextViews-->
+    <string name="list_item_event_name">Event Title Here (this is what happens when the event title is hecka long</string>
+    <string name="list_item_venue_name">San Francisco Center of the Performing Arts</string>
+    <string name="list_item_start_date_time">December 31 at 7:30 PM</string>
+    <string name="list_item_start_date">December 18</string>
+    <string name="list_item_end_date">January 3</string>
 
 </resources>

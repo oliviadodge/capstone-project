@@ -51,8 +51,7 @@ public class EventsDataJsonParser {
     Vector<ContentValues>  mVenuesCVVector;
     Vector<ContentValues>  mEventsAndRegionCVVector;
 
-    public EventsDataJsonParser(String jsonStr, long regionId, double
-            julianDateAdded) {
+    public EventsDataJsonParser(String jsonStr, long regionId, double julianDateAdded) {
         mEventsJson = jsonStr;
         mRegionId = regionId;
         mJulianDateAdded = julianDateAdded;
@@ -63,17 +62,16 @@ public class EventsDataJsonParser {
         try {
             JSONObject eventsJson = new JSONObject(mEventsJson);
             JSONArray eventsArray = eventsJson.getJSONArray(EB_EVENTS);
+            int eventsArrayLength = eventsArray.length();
 
+            mVenuesCVVector = new Vector<ContentValues>(eventsArrayLength);
+            mEventsCVVector = new Vector<ContentValues>(eventsArrayLength);
+            mEventsAndRegionCVVector = new Vector<ContentValues>(eventsArrayLength);
 
-            mVenuesCVVector = new Vector<ContentValues>(eventsArray.length());
-            mEventsCVVector = new Vector<ContentValues>(eventsArray.length());
-            mEventsAndRegionCVVector = new Vector<ContentValues>(eventsArray.length());
-
-            Log.i(LOG_TAG, "eventsArray.length() is " + eventsArray.length());
+            Log.i(LOG_TAG, "eventsArray.length() is " + eventsArrayLength);
 
             for (int i = 0; i < (eventsArray.length() <= Constants.MAX_EVENTS_PER_REQUEST ?
                     eventsArray.length() : Constants.MAX_EVENTS_PER_REQUEST) ; i++) {
-                //TODO change for loop limit to size of array to be parsed
                 // These are the values that will be collected for the events table
                 String name;
                 String eventBriteId;
@@ -99,18 +97,13 @@ public class EventsDataJsonParser {
 
                 name = event.getJSONObject(EB_NAME).getString(EB_EVENT_TEXT);
                 eventBriteId = event.getString(EB_ID);
-
                 url = event.getString(EB_URL);
-
-                //Json objects representing start and end time date and timezones.
                 startLocal = DateUtils.convertDateTimeStringToLong(event.getJSONObject
                         (EB_EVENT_START)
                         .getString(EB_EVENT_DATE_TIME_LOCAL));
-
                 endLocal = DateUtils.convertDateTimeStringToLong(event.getJSONObject
                         (EB_EVENT_END).getString
                         (EB_EVENT_DATE_TIME_LOCAL));
-
                 capacity = event.getInt(EB_EVENT_CAPACITY);
                 status = event.getString(EB_EVENT_STATUS);
 
@@ -119,8 +112,9 @@ public class EventsDataJsonParser {
                 //are not null, otherwise a JSONException will be thrown.
 
                 if (!event.isNull(EB_EVENT_DESCRIPTION)) {
-                    description = event.getJSONObject
-                            (EB_EVENT_DESCRIPTION).getString(EB_EVENT_HTML);
+                    JSONObject descJsonObj = event.getJSONObject(EB_EVENT_DESCRIPTION);
+                    if (!descJsonObj.isNull(EB_EVENT_HTML))
+                        description = descJsonObj.getString(EB_EVENT_HTML);
                 }
 
                 if (!event.isNull(EB_LOGO)) {
