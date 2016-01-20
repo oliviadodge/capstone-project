@@ -264,8 +264,12 @@ public class DetailFragment extends Fragment implements LoaderManager
         ((TextView) v2.findViewById(R.id.detail_description_textview))
                 .setText(Html.fromHtml(descHtml));
 
-        setTextView(v2, R.id.detail_category_textview, data,
-                Projections.EventsDetailView.COL_CATEGORY);
+        String catId = data.getString(Projections.EventsDetailView.COL_CATEGORY);
+        String category = getCategoryFromId(catId);
+
+
+        ((TextView) v2.findViewById(R.id.detail_category_textview))
+                .setText(category);
     }
 
     public void setUpThirdCard(Cursor data) {
@@ -306,5 +310,21 @@ public class DetailFragment extends Fragment implements LoaderManager
                         .CONNECTIVITY_SERVICE);
 
         return connMgr.getActiveNetworkInfo();
+    }
+
+    private String getCategoryFromId(String categoryId) {
+        String [] catIds = getResources().getStringArray(R.array.entryvalues_category_preference);
+        int catIndex = -1;
+
+        for (int i = 0; i < catIds.length; i++) {
+            if (catIds[i].equals(categoryId))
+                catIndex = i;
+        }
+
+        if (catIndex != -1) {
+            return getResources().getStringArray(R.array.entries_category_preference)[catIndex];
+        } else {
+            return null;
+        }
     }
 }

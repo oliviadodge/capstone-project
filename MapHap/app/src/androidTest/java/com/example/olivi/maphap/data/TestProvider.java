@@ -23,6 +23,8 @@ import android.util.Log;
 
 import com.example.olivi.maphap.utils.DateUtils;
 
+import java.util.Calendar;
+
 /*
     Note: This is not a complete set of tests of the Sunshine ContentProvider, but it does test
     that at least the basic functionality has been implemented correctly.
@@ -142,11 +144,12 @@ public class TestProvider extends AndroidTestCase {
         mContext.getContentResolver().registerContentObserver(
                 EventProvider.Events.CONTENT_URI, true, eventObserver);
 
-        String cutOffDateString = DateUtils.getCutOffDateTime();
+        Calendar cutOffDateCal = DateUtils.getCutOffDateTime();
+        String cutOffString = cutOffDateCal.toString();
 
         mContext.getContentResolver().delete(EventProvider.Regions.CONTENT_URI_DELETE,
                 "julianday(" + RegionsColumns.ADDED_DATE_TIME + ") <= ?",
-                new String[]{"julianday(" + cutOffDateString + ")"});
+                new String[]{"julianday(" + cutOffString + ")"});
 
         // A eventCursor is your primary interface to the query results.
         Cursor eventCursor = mContext.getContentResolver().query(
@@ -158,7 +161,7 @@ public class TestProvider extends AndroidTestCase {
         );
 
 
-        assertTrue("events table not empty after deleting by cutoff date: " + cutOffDateString,
+        assertTrue("events table not empty after deleting by cutoff date: " + cutOffDateCal,
                 eventCursor.getCount() == 0);
 
         mContext.getContentResolver().unregisterContentObserver(regionObserver);
