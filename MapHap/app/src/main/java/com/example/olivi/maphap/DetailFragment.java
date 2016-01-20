@@ -155,9 +155,7 @@ public class DetailFragment extends Fragment implements LoaderManager
                 startActivity(Intent.createChooser(ShareCompat
                         .IntentBuilder.from(getActivity())
                         .setType("text/plain")
-                        .setText(shareText) //TODO add info
-                                // about event here and maybe
-                                // the url
+                        .setText(shareText)
                         .getIntent(), getString(R.string.action_share)));
             }
         });

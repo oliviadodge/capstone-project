@@ -270,10 +270,6 @@ public class MainActivity extends LocationActivity
 
     @Override
     public void onListFragmentReady(EventRecyclerViewAdapter adapter) {
-        //TODO The list fragment is ready to receive the cursor of data. Send it to the adapter
-        //and keep a handle on the adapter in case the cursor changes or the loader is reset.
-        //if the loader has not finished loading data, set a boolean to true so we can add the cursor
-        //to the adapter once the load has finished.
         mListFragmentReady = true;
         EventListFragment eventListFragment =
                 (EventListFragment) getFragmentManager()
@@ -501,8 +497,6 @@ public class MainActivity extends LocationActivity
         for (int i = 0; i < data.getCount(); i++) {
             String catID = data.getString(Projections.Categoires.COL_CATEGORY_ID);
             Log.i(TAG, "from cursor, category id is " + catID);
-            double julianDateAdded = data.getDouble(Projections.Categoires.COL_DATE_ADDED);
-            //TODO figure the julianDateAdded out.
 
             Log.i(TAG, "in checkCategories. Removing category ID " + catID);
             cloneSet.remove(catID);
@@ -623,9 +617,4 @@ public class MainActivity extends LocationActivity
             outState.putDouble(LONGITUDE_KEY, mLastLocation.longitude);
         }
     }
-    //TODO add a task to periodically check database for old data and delete it, so we don't rack up endless history
-    //TODO cont. data should be deleted from the regions table based on how old it is. Then cascade to the region_events
-    //TODO cont. table and events and venues unless there is another search region that is not too old that
-    //TODO cont. matches that same region. I think a simple join across all these tables will do, deleting the rows
-    //TODO cont. with the matching region ID of the old data.
 }

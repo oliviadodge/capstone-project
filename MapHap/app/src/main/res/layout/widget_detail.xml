@@ -31,8 +31,7 @@
             android:fontFamily="sans-serif-condensed"
             android:layout_gravity="center"
             android:textAppearance="?android:textAppearanceMedium"
-            android:text="today widget detail"
-            tools:text="Today's Football Fixtures" />
+            android:text="Events In Your Area" />
     </LinearLayout>
     <FrameLayout
         android:layout_width="match_parent"

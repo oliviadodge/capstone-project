@@ -18,6 +18,13 @@ public class FilterActivity extends AppCompatActivity implements
     public static final String PREF_START_DATE_CHANGED_EXTRA = "pref_start_date_changed";
     public static final String PREF_END_DATE_CHANGED_EXTRA = "pref_end_date_changed";
 
+
+    private boolean mRadiusChanged;
+    private boolean mCategoryChanged;
+    private boolean mStartDateChanged;
+    private boolean mEndDateChanged;
+
+
     private static final String TAG = FilterActivity.class.getSimpleName();
 
     private Intent mIntent;
@@ -39,6 +46,13 @@ public class FilterActivity extends AppCompatActivity implements
             ab.setDisplayHomeAsUpEnabled(true);
             ab.setTitle(getString(R.string.activity_filter_title_action_bar));
         }
+
+        if (savedInstanceState != null) {
+            mRadiusChanged = savedInstanceState.getBoolean(PREF_RADIUS_CHANGED_EXTRA);
+            mCategoryChanged = savedInstanceState.getBoolean(PREF_CATEGORY_CHANGED_EXTRA);
+            mStartDateChanged = savedInstanceState.getBoolean(PREF_START_DATE_CHANGED_EXTRA);
+            mEndDateChanged = savedInstanceState.getBoolean(PREF_END_DATE_CHANGED_EXTRA);
+        }
     }
 
     @Override
@@ -47,18 +61,25 @@ public class FilterActivity extends AppCompatActivity implements
             case Constants.PREF_RADIUS_KEY:
                 Log.i(TAG, "onSharedPreference changed and key is radius_key");
                 setExtra(PREF_RADIUS_CHANGED_EXTRA, true);
+                mRadiusChanged = true;
                 break;
 
             case Constants.PREF_CATEGORY_KEY:
                 setExtra(PREF_CATEGORY_CHANGED_EXTRA, true);
+                mCategoryChanged = true;
+
                 break;
 
             case Constants.PREF_START_DATE_KEY:
                 setExtra(PREF_START_DATE_CHANGED_EXTRA, true);
+                mStartDateChanged = true;
+
                 break;
 
             case Constants.PREF_END_DATE_KEY:
                 setExtra(PREF_END_DATE_CHANGED_EXTRA, true);
+                mEndDateChanged = true;
+
                 break;
         }
     }
@@ -77,4 +98,12 @@ public class FilterActivity extends AppCompatActivity implements
         super.onDestroy();
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        outState.putBoolean(PREF_RADIUS_CHANGED_EXTRA, mRadiusChanged);
+        outState.putBoolean(PREF_CATEGORY_CHANGED_EXTRA, mCategoryChanged);
+        outState.putBoolean(PREF_START_DATE_CHANGED_EXTRA, mStartDateChanged);
+        outState.putBoolean(PREF_END_DATE_CHANGED_EXTRA, mEndDateChanged);
+        super.onSaveInstanceState(outState);
+    }
 }

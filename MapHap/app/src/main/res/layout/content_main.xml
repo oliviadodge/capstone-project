@@ -11,7 +11,7 @@
     tools:showIn="@layout/app_bar_main"
     tools:context=".MainActivity">
 
-        <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+        <fragment
             android:id="@+id/mapFragment"
             android:layout_width="match_parent"
             android:layout_height="0dp"
@@ -19,7 +19,7 @@
             class="com.google.android.gms.maps.MapFragment"
             tools:layout="@android:layout/simple_gallery_item"/>
 
-        <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+        <fragment
             android:id="@+id/eventListFragment"
             android:name="com.example.olivi.maphap.EventListFragment"
             android:layout_width="match_parent"

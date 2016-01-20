@@ -252,8 +252,6 @@ public abstract class LocationActivity extends AppCompatActivity
         });
         builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                //TODO: permission has been denied again. Implement functionality allowing user
-                //to enter a location of their choosing.
             }
         });
         builder.setMessage(getString(R.string.dialog_location_request_rationale));
