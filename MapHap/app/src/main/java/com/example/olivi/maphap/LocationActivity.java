@@ -1,24 +1,23 @@
 package com.example.olivi.maphap;
 
 import android.Manifest;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.NavigationView;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
 
+import com.example.olivi.maphap.utils.Constants;
+import com.example.olivi.maphap.utils.LocationUtils;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationListener;
@@ -27,13 +26,17 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
 
 public abstract class LocationActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener,
+        implements
         GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener,
         LocationListener {
 
     private static final String TAG = LocationActivity.class.getSimpleName();
     private static final int MY_PERMISSIONS_REQUEST_ACCESS_LOCATION = 0;
+
+
+    private static final String ABOUT_FRAGMENT_TAG = "about_fragment";
+    private static final String ABOUT_BACKSTACK = "about_back";
 
     private GoogleApiClient mGoogleApiClient;
     private LatLng mLastLocation;
@@ -44,7 +47,7 @@ public abstract class LocationActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_location);
 
         mGoogleApiClient = new GoogleApiClient.Builder(this)
                 .addApi(LocationServices.API)
@@ -64,17 +67,17 @@ public abstract class LocationActivity extends AppCompatActivity
             }
         });
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
-                this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
-        drawer.setDrawerListener(toggle);
-        toggle.syncState();
 
-        NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
-        navigationView.setNavigationItemSelectedListener(this);
+        LatLng prefLatLng = new LatLng(LocationUtils.getPreferredLatitude(this), LocationUtils
+                .getPreferredLongitude(this));
+
+        if (prefLatLng.latitude != 0) {
+            mLastLocation = prefLatLng;
+            onUserLocationFoundOrChanged(mLastLocation);
+        }
     }
 
-    abstract void onUserLocationFound(LatLng latLng);
+    abstract void onUserLocationFoundOrChanged(LatLng latLng);
 
     @Override
     protected void onStart() {
@@ -106,8 +109,13 @@ public abstract class LocationActivity extends AppCompatActivity
     @Override
     public void onLocationChanged(Location location) {
         if (location != null) {
-            mLastLocation = new LatLng(location.getLatitude(), location.getLongitude());
-            onUserLocationFound(mLastLocation);
+            LatLng newLatLng = new LatLng(location.getLatitude(), location.getLongitude());
+            if (checkIfLocationChanged(newLatLng)) {
+                mLastLocation = new LatLng(location.getLatitude(), location.getLongitude());
+                LocationUtils.saveLocationToSharedPref(this, mLastLocation.latitude,
+                        mLastLocation.longitude);
+                onUserLocationFoundOrChanged(mLastLocation);
+            }
         }
     }
 
@@ -133,21 +141,29 @@ public abstract class LocationActivity extends AppCompatActivity
     public void onConnected(Bundle bundle) {
         if (isLocationPermissionGranted()) {
             Log.i(TAG, "mGoogleApiClient is connected and permission granted! Getting user location");
-            mLastLocation = getUserLocation();
-            onUserLocationFound(mLastLocation);
+            requestLocationUpdates();
+            LatLng lastLocation = getUserLocation();
+            if (checkIfLocationChanged(lastLocation)) {
+                mLastLocation = lastLocation;
+                LocationUtils.saveLocationToSharedPref(this, mLastLocation.latitude,
+                        mLastLocation.longitude);
+                onUserLocationFoundOrChanged(mLastLocation);
+            }
         } else {
             mAskPermissionForLocation = true;
-            Log.i(TAG, "mGoogleApiClient is connected, but location permission" +
-                    "has not been granted yet. Asking permission now.");
-            askPermissionForLocation();
+            askPermissionForLocation(false);
         }
     }
 
+    private void requestLocationUpdates() {
+        createLocationRequest();
+        startLocationUpdates();
+    }
     @Override
     protected void onResume() {
         super.onResume();
         if (mAskPermissionForLocation) {
-            askPermissionForLocation();
+            askPermissionForLocation(false);
         }
     }
 
@@ -155,15 +171,8 @@ public abstract class LocationActivity extends AppCompatActivity
         Location newLoc = LocationServices.FusedLocationApi
                 .getLastLocation(mGoogleApiClient);
 
-        createLocationRequest();
-        startLocationUpdates();
+        return new LatLng(newLoc.getLatitude(), newLoc.getLongitude());
 
-        if (newLoc != null) {
-            return new LatLng(newLoc.getLatitude(), newLoc.getLongitude());
-        } else {
-            Log.i(TAG, "couldn't get user location");
-            return null;
-        }
     }
 
     private boolean isLocationPermissionGranted() {
@@ -176,19 +185,14 @@ public abstract class LocationActivity extends AppCompatActivity
         return isLocationPermissionGranted;
     }
 
-    private void askPermissionForLocation() {
-        // TODO show an explanation of why location is needed for this app
-        Log.i(TAG, "askPermissionForLocation() called");
-        Log.d(TAG, "askPermissionForLocation() should only be called once - on installation");
+    private void askPermissionForLocation(boolean rationaleShown) {
 
         mAskPermissionForLocation = false;
-        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                Manifest.permission.READ_CONTACTS)) {
 
-            Log.i(TAG, "shouldShowRequestPermissionsRationale is true");
-            // TODO Show an expanation to the user *asynchronously* -- don't block
-            // this thread waiting for the user's response! After the user
-            // sees the explanation, try again to request the permission.
+
+        if ((!rationaleShown) && (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                Manifest.permission.READ_CONTACTS))) {
+            showRequestPermissionRationale();
 
         } else {
 
@@ -215,9 +219,11 @@ public abstract class LocationActivity extends AppCompatActivity
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     if ((mLastLocation == null) && (mGoogleApiClient.isConnected())) {
                         Log.i(TAG, "Location permission granted. Calling getUserLocation()" +
-                                "and onUserLocationFound");
-                        getUserLocation();
-                        onUserLocationFound(mLastLocation);
+                                "and onUserLocationFoundOrChanged");
+                        mLastLocation = getUserLocation();
+                        LocationUtils.saveLocationToSharedPref(this, mLastLocation.latitude,
+                                mLastLocation.longitude);
+                        onUserLocationFoundOrChanged(mLastLocation);
                     }
                 } else if (grantResults.length == 0) {
                     Log.i(TAG, "Request was canceled! Can't access user's location");
@@ -236,39 +242,40 @@ public abstract class LocationActivity extends AppCompatActivity
         Log.i(TAG, "Connection failed!");
     }
 
+    private void showRequestPermissionRationale() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                askPermissionForLocation(true);
+            }
+        });
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+                //TODO: permission has been denied again. Implement functionality allowing user
+                //to enter a location of their choosing.
+            }
+        });
+        builder.setMessage(getString(R.string.dialog_location_request_rationale));
 
-    @Override
-    public void onBackPressed() {
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
-            drawer.closeDrawer(GravityCompat.START);
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+
+
+    private boolean checkIfLocationChanged(LatLng newLatLng) {
+        if (newLatLng == null) throw new IllegalArgumentException("Parameter location must not be " +
+                "null");
+
+        if (mLastLocation != null) {
+            double dist = LocationUtils.milesBetweenTwoPoints(newLatLng.latitude,
+                    newLatLng.longitude, mLastLocation.latitude,
+                    mLastLocation.longitude);
+            return (dist > Constants.TOLERANCE_DIST_IN_MILES);
         } else {
-            super.onBackPressed();
+            return true;
         }
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
-    @Override
-    public boolean onNavigationItemSelected(MenuItem item) {
-        // Handle navigation view item clicks here.
-        int id = item.getItemId();
-
-        if (id == R.id.nav_camara) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
-
-        }
-
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
-        return true;
-    }
 }

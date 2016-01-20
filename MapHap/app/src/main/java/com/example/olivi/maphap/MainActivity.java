@@ -12,8 +12,6 @@ import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 
@@ -21,7 +19,6 @@ import com.example.olivi.maphap.data.EventProvider;
 import com.example.olivi.maphap.data.EventsColumns;
 import com.example.olivi.maphap.data.RegionsColumns;
 import com.example.olivi.maphap.preferences.NumberPickerPreference;
-import com.example.olivi.maphap.preferences.SettingsActivity;
 import com.example.olivi.maphap.service.MapHapService;
 import com.example.olivi.maphap.utils.Constants;
 import com.example.olivi.maphap.utils.DateUtils;
@@ -31,6 +28,8 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptor;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -125,19 +124,13 @@ public class MainActivity extends LocationActivity
     }
 
     @Override
-    void onUserLocationFound(LatLng latLng) {
-        if (checkIfLocationChanged(latLng)) {
-            double latitude = latLng.latitude;
-            double longitude = latLng.longitude;
-            zoomToPosition(latitude, longitude, LocationUtils.getMapZoomLevel(this));
-            addMarker("you're here", latitude, longitude);
-            mLastLocation = latLng;
-            Log.i(TAG, "onUserLocationFound called and location changed. Initializing " +
-                    "REGIONS loader");
-            getLoaderManager().initLoader(REGIONS_LOADER, null, this);
-
-            LocationUtils.saveLocationToSharedPref(this, latitude, longitude);
-        }
+    void onUserLocationFoundOrChanged(LatLng latLng) {
+        mLastLocation = latLng;
+        double latitude = latLng.latitude;
+        double longitude = latLng.longitude;
+        zoomToPosition(latitude, longitude, LocationUtils.getMapZoomLevel(this));
+        addYouAreHereMarker();
+        getLoaderManager().initLoader(REGIONS_LOADER, null, this);
     }
 
     private void clearMap() {
@@ -156,28 +149,32 @@ public class MainActivity extends LocationActivity
         if (mLastLocation != null) {
             zoomToPosition(mLastLocation.latitude, mLastLocation.longitude,
                     LocationUtils.getMapZoomLevel(this));
-            addMarker("you're here", mLastLocation.latitude, mLastLocation.longitude);
+            addYouAreHereMarker();
+            Log.i(TAG, "zooming to and adding marker to user's current location: " +
+                    mLastLocation.latitude + ", " + mLastLocation.longitude);
         }
     }
 
     private void zoomToPosition(double latitude, double longitude, float zoomLevel) {
-        Log.i(TAG, "zoomToPosition called. Zoom level is " + zoomLevel);
-        LatLng position = new LatLng(latitude,
-                longitude);
-        CameraPosition target = CameraPosition.builder()
-                .target(position)
-                .zoom(zoomLevel).build();
-        mMap.moveCamera(CameraUpdateFactory
-                .newCameraPosition(target));
+        if (mMapReady) {
+            Log.i(TAG, "zoomToPosition called. Zoom level is " + zoomLevel);
+            LatLng position = new LatLng(latitude,
+                    longitude);
+            CameraPosition target = CameraPosition.builder()
+                    .target(position)
+                    .zoom(zoomLevel).build();
+            mMap.moveCamera(CameraUpdateFactory
+                    .newCameraPosition(target));
+        }
     }
 
 
-    private void addMarker(String name, double latitude, double longitude) {
+    private void addMarker(String name, BitmapDescriptor icon, double latitude, double longitude) {
         if (mMapReady) {
-
             MarkerOptions place = new MarkerOptions()
                     .position(new LatLng(latitude, longitude))
-                    .title(name);
+                    .title(name)
+                    .icon(icon);
             mMap.addMarker(place);
 
         } else {
@@ -244,31 +241,6 @@ public class MainActivity extends LocationActivity
     }
 
 
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            Intent i = new Intent(this, SettingsActivity.class);
-            startActivity(i);
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
     public void startFilterActivity() {
         Intent i = new Intent(this, FilterActivity.class);
         startActivityForResult(i, REQUEST_FILTER);
@@ -309,26 +281,6 @@ public class MainActivity extends LocationActivity
         mAdapter = eventListFragment.setUpAdapter(mDataSet);
     }
 
-    private boolean checkIfLocationChanged(LatLng newLatLng) {
-        if ((newLatLng != null) && (mLastLocation != null)) {
-            double dist = LocationUtils.milesBetweenTwoPoints(newLatLng.latitude,
-                    newLatLng.longitude, mLastLocation.latitude,
-                    mLastLocation.longitude);
-            if (dist > Constants.TOLERANCE_DIST_IN_MILES) {
-                mLastLocation = newLatLng;
-                return true;
-            } else {
-                return false;
-            }
-        } else if (newLatLng != null) {
-            Log.d(TAG, "checkIfLocationChanged called and mLastLocation is null. Return true");
-            mLastLocation = newLatLng;
-            return true;
-        }
-
-        Log.d(TAG, "checkIfLocationChanged called but newLatLng is null! Returning false");
-        return false;
-    }
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
@@ -515,7 +467,6 @@ public class MainActivity extends LocationActivity
             default:
                 break;
         }
-
     }
 
     private boolean isDataCurrent(Cursor data) {
@@ -614,6 +565,7 @@ public class MainActivity extends LocationActivity
 
         clearMap();
 
+        addYouAreHereMarker();
         Log.i(TAG, "adding events to map");
         data.moveToFirst();
         for (int i = 0; i < data.getCount(); i++) {
@@ -622,11 +574,16 @@ public class MainActivity extends LocationActivity
 
             String eventName = data.getString(Projections.EventsListView.COL_NAME);
 
-
-            addMarker(eventName, lat, lon);
+            addMarker(eventName, null, lat, lon);
 
             data.moveToNext();
         }
+    }
+
+    private void addYouAreHereMarker() {
+        addMarker("You're here.", BitmapDescriptorFactory
+                .fromResource(R.mipmap.place_icon), mLastLocation.latitude, mLastLocation
+                .longitude);
     }
 
     @Override

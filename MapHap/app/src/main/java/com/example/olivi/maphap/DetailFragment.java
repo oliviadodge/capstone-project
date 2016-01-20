@@ -27,6 +27,7 @@ import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.ShareCompat;
+import android.text.Editable;
 import android.text.Html;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -38,6 +39,8 @@ import android.widget.TextView;
 import com.example.olivi.maphap.utils.Constants;
 import com.example.olivi.maphap.utils.DateUtils;
 import com.squareup.picasso.Picasso;
+
+import org.xml.sax.XMLReader;
 
 import it.gmariotti.cardslib.library.internal.Card;
 import it.gmariotti.cardslib.library.internal.CardHeader;
@@ -88,28 +91,36 @@ public class DetailFragment extends Fragment implements LoaderManager
     public void onActivityCreated(Bundle savedInstanceState) {
         Log.i(LOG_TAG, "onActivityCreated called");
         getLoaderManager().initLoader(DETAIL_LOADER, null, this);
-        //TODO add an interface for detail fragment's callbacks so we can
-        //let the activity know when we have some text for the user to
-        // share.
-        //Then the activity can decide what to do (get a reference to
-        // the fab button
-        //and change it's onClick listener method to share the info.
-        getActivity().findViewById(R.id.fab).setOnClickListener(new View
-                .OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(Intent.createChooser(ShareCompat
-                        .IntentBuilder.from(getActivity())
-                        .setType("text/plain")
-                        .setText("Some sample text") //TODO add info
-                                // about event here and maybe
-                                // the url
-                        .getIntent(), getString(R.string.action_share)));
-            }
-        });
+
         mImageView = (ImageView) getActivity().findViewById(R.id
                 .detail_image);
         super.onActivityCreated(savedInstanceState);
+    }
+
+    private String getEventShareText(Cursor data) {
+        if (!data.moveToFirst()) return null;
+
+        String eventName = data.getString(Projections.EventsDetailView.COL_NAME);
+        String venueName = data.getString(Projections.EventsDetailView.COL_VENUE_NAME);
+
+        long startMillis = data.getLong(Projections.EventsDetailView
+                .COL_START_DATE_TIME);
+        long endMillis = data.getLong(Projections.EventsDetailView
+                .COL_END_DATE_TIME);
+
+        String text = "";
+        if ((endMillis - startMillis) <= Constants.MILLIS_IN_A_DAY) {
+             text = DateUtils.getSingleDayStartTime(startMillis, endMillis);
+        } else {
+            String text1 = DateUtils.getStartDateTimeString(startMillis);
+            String text2 = DateUtils.getEndDateTimeString(endMillis);
+             text = text1 + text2;
+
+        }
+
+        String eventUrl = data.getString(Projections.EventsDetailView.COL_URL);
+
+        return eventName + " at " + venueName + " on " + text + ". Event URL: " + eventUrl;
     }
 
     @Override
@@ -135,6 +146,21 @@ public class DetailFragment extends Fragment implements LoaderManager
             setUpCards(data);
             setUpAppBarImage(data);
         }
+
+        final String shareText = getEventShareText(data);
+        getActivity().findViewById(R.id.fab).setOnClickListener(new View
+                .OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startActivity(Intent.createChooser(ShareCompat
+                        .IntentBuilder.from(getActivity())
+                        .setType("text/plain")
+                        .setText(shareText) //TODO add info
+                                // about event here and maybe
+                                // the url
+                        .getIntent(), getString(R.string.action_share)));
+            }
+        });
     }
 
     @Override
@@ -145,11 +171,9 @@ public class DetailFragment extends Fragment implements LoaderManager
     public void setUpAppBarImage(Cursor data) {
         String imageUrl = data.getString(Projections
                 .EventsDetailView.COL_LOGO_URL);
-        ConnectivityManager connMgr = (ConnectivityManager)
-                getActivity().getSystemService(Context
-                        .CONNECTIVITY_SERVICE);
 
-        NetworkInfo networkInfo = connMgr.getActiveNetworkInfo();
+        NetworkInfo networkInfo = getNetworkInfo();
+
         if ((imageUrl.length() > 0) && (networkInfo != null &&
                 networkInfo.isConnected())) {
             Picasso.with(getActivity()).load(imageUrl).placeholder(R
@@ -231,9 +255,16 @@ public class DetailFragment extends Fragment implements LoaderManager
         View v2 = descriptionCardView.getInternalContentLayout();
         String descHtml = data.getString(Projections.EventsDetailView
                 .COL_DESCRIPTION);
+
+        Html.TagHandler th = new Html.TagHandler() {
+            @Override
+            public void handleTag(boolean opening, String tag, Editable output, XMLReader xmlReader) {
+                Log.i(LOG_TAG, "handleTag called. Tag: " + tag);
+            }
+        };
+
         ((TextView) v2.findViewById(R.id.detail_description_textview))
                 .setText(Html.fromHtml(descHtml));
-
 
         setTextView(v2, R.id.detail_category_textview, data,
                 Projections.EventsDetailView.COL_CATEGORY);
@@ -269,5 +300,13 @@ public class DetailFragment extends Fragment implements LoaderManager
         CardHeader header = new CardHeader(getActivity());
         header.setTitle(title);
         card.addCardHeader(header);
+    }
+
+    private NetworkInfo getNetworkInfo() {
+        ConnectivityManager connMgr = (ConnectivityManager)
+                getActivity().getSystemService(Context
+                        .CONNECTIVITY_SERVICE);
+
+        return connMgr.getActiveNetworkInfo();
     }
 }

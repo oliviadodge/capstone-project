@@ -22,7 +22,7 @@
             app:contentScrim="?attr/colorPrimary"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
-            <com.example.olivi.maphap.ui.ThreeTwoImageView
+            <com.example.olivi.maphap.ui.TwoOneImageView
                 android:id="@+id/detail_image"
                 android:layout_width="wrap_content"
                 android:layout_height="0dp"

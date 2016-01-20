@@ -22,11 +22,11 @@
             app:contentScrim="?attr/colorPrimary"
             app:layout_scrollFlags="scroll|exitUntilCollapsed">
 
-            <com.example.olivi.maphap.ui.ThreeTwoImageView
+            <com.example.olivi.maphap.ui.TwoOneImageView
                 android:id="@+id/detail_image"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
-                android:scaleType="centerInside"
+                android:scaleType="fitCenter"
                 app:layout_collapseMode="parallax"
                 tools:src="@mipmap/ic_launcher"
                 />

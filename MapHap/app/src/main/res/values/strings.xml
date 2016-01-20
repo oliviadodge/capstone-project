@@ -69,6 +69,8 @@
     <!--Dialog Strings-->
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
+    <string name="dialog_location_request_rationale">MapHap needs access to your location
+        in order to find events in your area. Click cancel to deny request.</string>
 
     <!--Design time strings for TextViews-->
     <string name="list_item_event_name">Event Title Here (this is what happens when the event title is hecka long</string>
@@ -76,5 +78,16 @@
     <string name="list_item_start_date_time">December 31 at 7:30 PM</string>
     <string name="list_item_start_date">December 18</string>
     <string name="list_item_end_date">January 3</string>
+
+    <!--Drawer and Navigation Strings-->
+
+    <string name="nav_title_home">Home</string>
+    <string name="nav_title_favorites">Favorites</string>
+    <string name="nav_title_about">About</string>
+
+    <string name="developer_email">oliviadodge@gmail.com</string>
+
+    <string name="about_text">This application gets events data from the EventBrite API.</string>
+
 
 </resources>

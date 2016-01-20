@@ -13,6 +13,7 @@ import android.widget.RemoteViewsService;
 import com.example.olivi.maphap.Projections;
 import com.example.olivi.maphap.R;
 import com.example.olivi.maphap.data.EventProvider;
+import com.example.olivi.maphap.utils.Constants;
 import com.example.olivi.maphap.utils.DateUtils;
 import com.example.olivi.maphap.utils.LocationUtils;
 
@@ -89,21 +90,23 @@ public class DetailWidgetRemoteViewsService extends RemoteViewsService {
                 String logoUrl = data.getString(Projections.EventsListView.COL_LOGO_URL);
                 String name = data.getString(Projections.EventsListView.COL_NAME);
                 String venueName = data.getString(Projections.EventsListView.COL_VENUE_NAME);
-                String startTime = data.getString(Projections.EventsListView.COL_START_DATE_TIME);
-                String endTime = data.getString(Projections.EventsListView.COL_END_DATE_TIME);
+                long startTime = data.getLong(Projections.EventsListView.COL_START_DATE_TIME);
+                long endTime = data.getLong(Projections.EventsListView.COL_END_DATE_TIME);
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
-                    setRemoteContentDescription(views, name + " at " + venueName + " from "
-                            + startTime + " to " + endTime);
-                }
                 views.setTextViewText(R.id.widget_list_item_name_textview, name);
                 views.setTextViewText(R.id.widget_list_item_venue_textview, venueName);
 
-                String[] formattedDateTimes = DateUtils.formatStartAndEndDateTimes(startTime,
-                        endTime);
+                if ((startTime - endTime) <= Constants.MILLIS_IN_A_DAY) {
+                    String text = DateUtils.getSingleDayStartTime(startTime, endTime);
+                    views.setTextViewText(R.id.widget_list_item_start_textview, text);
+                } else {
+                    String text1 = DateUtils.getStartDateTimeString(startTime);
+                    String text2 = DateUtils.getEndDateTimeString(endTime);
+                    views.setTextViewText(R.id.widget_list_item_start_textview, text1);
+                    views.setTextViewText(R.id.widget_list_item_end_textview, text2);
 
-                views.setTextViewText(R.id.widget_list_item_start_textview, formattedDateTimes[0]);
-                views.setTextViewText(R.id.widget_list_item_end_textview, formattedDateTimes[1]);
+                }
+
 
                 //Set up the intent that will open the detail view of the match
                 long eventId = data.getLong(Projections.EventsListView.COL_EVENT_ID);
@@ -113,11 +116,6 @@ public class DetailWidgetRemoteViewsService extends RemoteViewsService {
                 views.setOnClickFillInIntent(R.id.widget_list_item, fillInIntent);
                 Log.i(LOG_TAG, "onClickFillInIntent set!! ");
                 return views;
-            }
-
-            @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1)
-            private void setRemoteContentDescription(RemoteViews views, String description) {
-                views.setContentDescription(R.id.widget_list_item_image, description);
             }
 
             @Override

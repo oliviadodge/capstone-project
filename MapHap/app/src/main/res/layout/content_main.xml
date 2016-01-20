@@ -6,6 +6,7 @@
     android:layout_height="match_parent"
     android:divider="?android:attr/dividerVertical"
     android:orientation="vertical"
+    android:id="@+id/frag_container"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:showIn="@layout/app_bar_main"
     tools:context=".MainActivity">

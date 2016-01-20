@@ -23,6 +23,7 @@
         card:card_layout_resourceID="@layout/native_card_layout"
         android:layout_marginTop="12dp"/>
 
+
     <it.gmariotti.cardslib.library.view.CardViewNative
         android:id="@+id/card_event_3"
         android:layout_width="match_parent"

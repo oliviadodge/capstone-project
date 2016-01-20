@@ -10,22 +10,6 @@
               android:orientation="horizontal"
               android:background="@drawable/touch_selector">
 
-    <FrameLayout
-        android:layout_width="64dp"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp">
-
-
-        <ImageView
-            android:id="@+id/widget_list_item_image"
-            android:layout_gravity="center"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            tools:src="@mipmap/ic_launcher"/>
-
-    </FrameLayout>
-
     <LinearLayout
         android:layout_height="wrap_content"
         android:layout_width="0dp"
@@ -68,17 +52,6 @@
             android:fontFamily="sans-serif-condensed"
             android:textAppearance="?android:textAppearanceSmall"
             tools:text="@string/list_item_start_date"
-            />
-
-        <TextView
-            android:id="@+id/widget_list_item_to_textview"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:fontFamily="sans-serif-condensed"
-            android:textAppearance="?android:textAppearanceSmall"
-            android:text="@string/list_item_to"
-            tools:text="@string/list_item_to"
             />
 
         <TextView

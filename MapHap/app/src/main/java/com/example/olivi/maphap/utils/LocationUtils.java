@@ -57,6 +57,9 @@ public class LocationUtils {
 
         long lat = prefs.getLong(context.getString(R.string.pref_latitude_key), 0);
 
+        if (lat == 0) {
+            return 0;
+        }
         return Double.longBitsToDouble(lat);
     }
     public static double getPreferredLongitude(Context context) {
@@ -64,6 +67,9 @@ public class LocationUtils {
 
         long lon = prefs.getLong(context.getString(R.string.pref_longitude_key), 0);
 
+        if (lon == 0) {
+            return 0;
+        }
         return Double.longBitsToDouble(lon);
     }
 
