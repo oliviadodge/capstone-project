@@ -5,8 +5,8 @@
     <string name="action_settings">Settings</string>
 
     <!--API Strings-->
-    <string name="my_personal_oauth_token">MAED5WF5RMQWUWLEWEXM</string>
-    <string name="maps_api_key">AIzaSyA0DkvvUgLe_RTxpkQ1Fq_X8qzndKrJRPc</string>
+    <string name="my_personal_oauth_token"></string>
+    <string name="maps_api_key"></string>
 
     <!-- List View Strings-->
     <string name="list_item_to">to</string>
