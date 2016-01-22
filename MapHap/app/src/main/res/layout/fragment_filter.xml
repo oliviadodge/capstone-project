@@ -27,7 +27,8 @@
             android:id="@+id/button_date_picker"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/fragment_filter_button_text_date_picker"/>
+            android:text="@string/fragment_filter_button_text_date_picker"
+            android:contentDescription="@string/fragment_filter_button_text_date_picker"/>
     </LinearLayout>
 
 
@@ -50,6 +51,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/summary_category_preference"
+            android:contentDescription="@string/summary_category_preference"
             tools:text="@string/summary_category_preference"
             />
     </LinearLayout>
@@ -76,6 +78,7 @@
                 android:id="@+id/seekbar_radius"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:contentDescription="@string/content_desc_seekbar_radius"
                 android:max="100"
                 />
             <LinearLayout

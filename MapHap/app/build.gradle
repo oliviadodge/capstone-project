@@ -14,6 +14,7 @@ android {
     }
     signingConfigs {
         release {
+            storeFile file('maphapkeystore.jks')
             keyAlias 'MapHapAndroidKey'
             keyPassword 'password'
             storePassword 'keystorepassword'
@@ -23,6 +24,7 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
         debug {
             applicationIdSuffix ".debug"
