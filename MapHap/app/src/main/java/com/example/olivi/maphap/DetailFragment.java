@@ -26,6 +26,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.CalendarContract;
 import android.support.v4.app.ShareCompat;
 import android.text.Editable;
 import android.text.Html;
@@ -34,9 +35,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.example.olivi.maphap.utils.Constants;
 import com.example.olivi.maphap.utils.DateUtils;
 import com.squareup.picasso.Picasso;
 
@@ -108,19 +109,12 @@ public class DetailFragment extends Fragment implements LoaderManager
         long endMillis = data.getLong(Projections.EventsDetailView
                 .COL_END_DATE_TIME);
 
-        String text = "";
-        if ((endMillis - startMillis) <= Constants.MILLIS_IN_A_DAY) {
-             text = DateUtils.getSingleDayStartTime(startMillis, endMillis);
-        } else {
-            String text1 = DateUtils.getStartDateTimeString(startMillis);
-            String text2 = DateUtils.getEndDateTimeString(endMillis);
-             text = text1 + text2;
-
-        }
+        String dateTimeText = DateUtils.getShareDateTIme(DateUtils
+                .FORMAT_DETAIL_TEXTVIEW_DATE_TIME, startMillis, endMillis);
 
         String eventUrl = data.getString(Projections.EventsDetailView.COL_URL);
 
-        return eventName + " at " + venueName + " on " + text + ". Event URL: " + eventUrl;
+        return eventName + " at " + venueName + " on " + dateTimeText + ". Event URL: " + eventUrl;
     }
 
     @Override
@@ -215,21 +209,14 @@ public class DetailFragment extends Fragment implements LoaderManager
         long endMillis = data.getLong(Projections.EventsDetailView
                 .COL_END_DATE_TIME);
 
-        if ((endMillis - startMillis) <= Constants.MILLIS_IN_A_DAY) {
-            String text = DateUtils.getSingleDayStartTime(startMillis, endMillis);
-            ((TextView) v.findViewById(R.id.detail_start_textview))
-                    .setText(text);
-            v.findViewById(R.id.detail_end_textview)
-                    .setVisibility(View.GONE);
-        } else {
-            String text1 = DateUtils.getStartDateTimeString(startMillis);
-            String text2 = DateUtils.getEndDateTimeString(endMillis);
-            ((TextView) v.findViewById(R.id.detail_start_textview))
-                    .setText(text1);
-            ((TextView) v.findViewById(R.id.detail_end_textview))
-                    .setText(text2);
+        LinearLayout addToCalendar = (LinearLayout) v.findViewById(R.id.detail_button_add_event_to_calendar);
+        addToCalendar.setOnClickListener(new AddToCalendarClickListener(data));
 
-        }
+        TextView start = (TextView)v.findViewById(R.id.detail_start_textview);
+        TextView end = (TextView)v.findViewById(R.id.detail_end_textview);
+
+        DateUtils.setUpDateTimeTextViews(DateUtils.FORMAT_DETAIL_TEXTVIEW_DATE_TIME,
+                start, end, startMillis, endMillis);
 
         setTextView(v, R.id.detail_venue_textview, data,
                 Projections.EventsDetailView.COL_VENUE_NAME);
@@ -325,6 +312,33 @@ public class DetailFragment extends Fragment implements LoaderManager
             return getResources().getStringArray(R.array.entries_category_preference)[catIndex];
         } else {
             return null;
+        }
+    }
+
+    private class AddToCalendarClickListener implements View.OnClickListener {
+
+        Cursor data;
+        long startMillis;
+        long endMillis;
+
+        public AddToCalendarClickListener(Cursor cursor) {
+            data = cursor;
+            startMillis = cursor.getLong(Projections.EventsDetailView.COL_START_DATE_TIME);
+            endMillis = cursor.getLong(Projections.EventsDetailView.COL_END_DATE_TIME);
+        }
+        @Override
+        public void onClick(View v) {
+            Intent intent = new Intent(Intent.ACTION_INSERT)
+                    .setData(CalendarContract.Events.CONTENT_URI)
+                    .putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, startMillis)
+                    .putExtra(CalendarContract.EXTRA_EVENT_END_TIME, endMillis)
+                    .putExtra(CalendarContract.Events.TITLE, data.getString(Projections
+                            .EventsDetailView.COL_NAME))
+                    .putExtra(CalendarContract.Events.DESCRIPTION, Projections.EventsDetailView
+                            .COL_URL)
+                    .putExtra(CalendarContract.Events.EVENT_LOCATION, Projections
+                            .EventsDetailView.COL_VENUE_NAME);
+            startActivity(intent);
         }
     }
 }

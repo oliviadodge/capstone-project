@@ -97,15 +97,20 @@ public class DetailWidgetRemoteViewsService extends RemoteViewsService {
                 views.setTextViewText(R.id.widget_list_item_venue_textview, venueName);
 
                 if ((startTime - endTime) <= Constants.MILLIS_IN_A_DAY) {
-                    String text = DateUtils.getSingleDayStartTime(startTime, endTime);
+                    String text = DateUtils.getSingleDayStartAndEndTime(DateUtils
+                                    .FORMAT_LIST_TEXTVIEW_DATE_TIME, startTime,
+                            endTime);
                     views.setTextViewText(R.id.widget_list_item_start_textview, text);
                 } else {
-                    String text1 = DateUtils.getStartDateTimeString(startTime);
-                    String text2 = DateUtils.getEndDateTimeString(endTime);
+                    String text1 = DateUtils.formatDateTime(DateUtils
+                            .FORMAT_LIST_TEXTVIEW_DATE_TIME,startTime);
+                    String text2 = DateUtils.formatEndDateTimeString(DateUtils
+                            .FORMAT_LIST_TEXTVIEW_DATE_TIME, endTime);
                     views.setTextViewText(R.id.widget_list_item_start_textview, text1);
                     views.setTextViewText(R.id.widget_list_item_end_textview, text2);
 
                 }
+
 
 
                 //Set up the intent that will open the detail view of the match

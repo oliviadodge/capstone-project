@@ -11,6 +11,9 @@
     <dimen name="toolbar_height">56dp</dimen>
     <dimen name="app_bar_height_landscape">160dp</dimen>
 
+    <dimen name="list_item_textview_padding">4dp</dimen>
+    <dimen name="list_item_margin">4dp</dimen>
+
 
     <dimen name="fab_elevation">6dp</dimen>
     <dimen name="fab_press_translation_z">12dp</dimen>

@@ -4,10 +4,6 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="action_settings">Settings</string>
 
-    <!--API Strings-->
-    <string name="my_personal_oauth_token"></string>
-    <string name="maps_api_key"></string>
-
     <!-- List View Strings-->
     <string name="list_item_to">to</string>
 
@@ -76,8 +72,8 @@
     <string name="list_item_event_name">Event Title Here (this is what happens when the event title is hecka long</string>
     <string name="list_item_venue_name">San Francisco Center of the Performing Arts</string>
     <string name="list_item_start_date_time">December 31 at 7:30 PM</string>
-    <string name="list_item_start_date">December 18</string>
-    <string name="list_item_end_date">January 3</string>
+    <string name="list_item_start_date">Saturday, Dec 18 at 5:30 PM</string>
+    <string name="list_item_end_date">to Wednesday, Dec 25 at 11:30 PM</string>
 
     <!--Drawer and Navigation Strings-->
 
