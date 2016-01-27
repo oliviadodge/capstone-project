@@ -13,12 +13,10 @@ public class Constants {
     public static final int MAP_ZOOM_LEVEL = 10;
     public static final int MAP_ZOOM_LEVEL_CLOSE = 14;
 
-
     //Networking constants
     public static final boolean RETURN_POPULAR_ARG = true;
     public static final String SORT_BY_ARG = "best";
     public static final int MAX_EVENTS_PER_REQUEST = 1000;
-
 
     public static final long MILLIS_IN_A_DAY = 86400000;
 
@@ -30,6 +28,5 @@ public class Constants {
     public static final String PREF_START_DATE_KEY = "start_date_key";
     public static final String PREF_END_DATE_KEY = "end_date_key";
     public static final String PREF_CATEGORY_KEY = "category_key";
-
 
 }

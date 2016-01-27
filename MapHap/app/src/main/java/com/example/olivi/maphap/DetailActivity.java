@@ -20,7 +20,6 @@ public class DetailActivity extends AppCompatActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-
         if (savedInstanceState == null) {
             // Create the detail fragment and add it to the activity
             // using a fragment transaction.
@@ -36,7 +35,6 @@ public class DetailActivity extends AppCompatActivity {
                     .commit();
         }
     }
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

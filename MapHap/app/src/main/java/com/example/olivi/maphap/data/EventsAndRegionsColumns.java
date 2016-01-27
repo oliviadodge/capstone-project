@@ -16,14 +16,12 @@ public interface EventsAndRegionsColumns {
     String EVENT_ID =
             "event_id";
 
-
     @DataType(DataType.Type.INTEGER)
     @PrimaryKey
     @References(table = EventDatabase.REGIONS,
             column = RegionsColumns._ID)
     String REGION_ID =
             "region_id";
-
 
     //in Julian days so we can compare
     @DataType(DataType.Type.REAL)

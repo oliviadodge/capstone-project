@@ -47,9 +47,9 @@ public class EventsDataJsonParser {
     String mEventsJson;
     long mRegionId;
     double mJulianDateAdded;
-    Vector<ContentValues>  mEventsCVVector;
-    Vector<ContentValues>  mVenuesCVVector;
-    Vector<ContentValues>  mEventsAndRegionCVVector;
+    Vector<ContentValues> mEventsCVVector;
+    Vector<ContentValues> mVenuesCVVector;
+    Vector<ContentValues> mEventsAndRegionCVVector;
 
     public EventsDataJsonParser(String jsonStr, long regionId, double julianDateAdded) {
         mEventsJson = jsonStr;
@@ -71,7 +71,7 @@ public class EventsDataJsonParser {
             Log.i(LOG_TAG, "eventsArray.length() is " + eventsArrayLength);
 
             for (int i = 0; i < (eventsArray.length() <= Constants.MAX_EVENTS_PER_REQUEST ?
-                    eventsArray.length() : Constants.MAX_EVENTS_PER_REQUEST) ; i++) {
+                    eventsArray.length() : Constants.MAX_EVENTS_PER_REQUEST); i++) {
                 // These are the values that will be collected for the events table
                 String name;
                 String eventBriteId;
@@ -164,10 +164,10 @@ public class EventsDataJsonParser {
                 ContentValues eventsAndRegionValues = new ContentValues();
                 eventsAndRegionValues.put(EventsAndRegionsColumns.REGION_ID, mRegionId);
                 eventsAndRegionValues.put(EventsAndRegionsColumns.EVENT_ID, eventBriteId);
-                eventsAndRegionValues.put(EventsAndRegionsColumns.ADDED_DATE_TIME, mJulianDateAdded);
+                eventsAndRegionValues.put(EventsAndRegionsColumns.ADDED_DATE_TIME,
+                        mJulianDateAdded);
                 mEventsAndRegionCVVector.add(eventsAndRegionValues);
             }
-
 
         } catch (JSONException e) {
             Log.e(LOG_TAG, e.getMessage(), e);
@@ -184,7 +184,8 @@ public class EventsDataJsonParser {
             case MapHapService.EVENTS_REGIONS:
                 return getContentValuesArray(mEventsAndRegionCVVector);
             default:
-                throw new IllegalArgumentException("dataType must correspond to one of the values " +
+                throw new IllegalArgumentException("dataType must correspond to one of the values" +
+                        " " +
                         "in MapHapService.REQUIRED_CONTENT_VALUES");
         }
     }

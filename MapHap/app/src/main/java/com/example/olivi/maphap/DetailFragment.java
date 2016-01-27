@@ -192,7 +192,7 @@ public class DetailFragment extends Fragment implements LoaderManager
 
     private void setUpFirstCard(Cursor data) {
         //Create first card containing event title, date, and place.
-        Card detailCard = new Card(getActivity(),R.layout.card_event_layout1);
+        Card detailCard = new Card(getActivity(), R.layout.card_event_layout1);
 
         String name = data.getString(Projections.EventsDetailView
                 .COL_NAME);
@@ -209,11 +209,12 @@ public class DetailFragment extends Fragment implements LoaderManager
         long endMillis = data.getLong(Projections.EventsDetailView
                 .COL_END_DATE_TIME);
 
-        LinearLayout addToCalendar = (LinearLayout) v.findViewById(R.id.detail_button_add_event_to_calendar);
+        LinearLayout addToCalendar = (LinearLayout) v.findViewById(R.id
+                .detail_button_add_event_to_calendar);
         addToCalendar.setOnClickListener(new AddToCalendarClickListener(data));
 
-        TextView start = (TextView)v.findViewById(R.id.detail_start_textview);
-        TextView end = (TextView)v.findViewById(R.id.detail_end_textview);
+        TextView start = (TextView) v.findViewById(R.id.detail_start_textview);
+        TextView end = (TextView) v.findViewById(R.id.detail_end_textview);
 
         DateUtils.setUpDateTimeTextViews(DateUtils.FORMAT_DETAIL_TEXTVIEW_DATE_TIME,
                 start, end, startMillis, endMillis);
@@ -243,7 +244,8 @@ public class DetailFragment extends Fragment implements LoaderManager
 
         Html.TagHandler th = new Html.TagHandler() {
             @Override
-            public void handleTag(boolean opening, String tag, Editable output, XMLReader xmlReader) {
+            public void handleTag(boolean opening, String tag, Editable output, XMLReader
+                    xmlReader) {
                 Log.i(LOG_TAG, "handleTag called. Tag: " + tag);
             }
         };
@@ -253,7 +255,6 @@ public class DetailFragment extends Fragment implements LoaderManager
 
         String catId = data.getString(Projections.EventsDetailView.COL_CATEGORY);
         String category = getCategoryFromId(catId);
-
 
         ((TextView) v2.findViewById(R.id.detail_category_textview))
                 .setText(category);
@@ -300,7 +301,7 @@ public class DetailFragment extends Fragment implements LoaderManager
     }
 
     private String getCategoryFromId(String categoryId) {
-        String [] catIds = getResources().getStringArray(R.array.entryvalues_category_preference);
+        String[] catIds = getResources().getStringArray(R.array.entryvalues_category_preference);
         int catIndex = -1;
 
         for (int i = 0; i < catIds.length; i++) {
@@ -326,6 +327,7 @@ public class DetailFragment extends Fragment implements LoaderManager
             startMillis = cursor.getLong(Projections.EventsDetailView.COL_START_DATE_TIME);
             endMillis = cursor.getLong(Projections.EventsDetailView.COL_END_DATE_TIME);
         }
+
         @Override
         public void onClick(View v) {
             Intent intent = new Intent(Intent.ACTION_INSERT)

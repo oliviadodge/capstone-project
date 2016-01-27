@@ -20,8 +20,8 @@ import com.example.olivi.maphap.utils.LocationUtils;
 /**
  * RemoteViewsService controlling the data being shown in the scrollable events
  * detail com.example.olivi.maphap.widget
- *Much of this code comes from the open source app Sunshine, built by Google. See
- *the Licenses tab under the menu.
+ * Much of this code comes from the open source app Sunshine, built by Google. See
+ * the Licenses tab under the menu.
  */
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class DetailWidgetRemoteViewsService extends RemoteViewsService {
@@ -42,7 +42,8 @@ public class DetailWidgetRemoteViewsService extends RemoteViewsService {
                 if (data != null) {
                     data.close();
                 }
-                // This method is called by the app hosting the com.example.olivi.maphap.widget (e.g., the launcher)
+                // This method is called by the app hosting the com.example.olivi.maphap.widget
+                // (e.g., the launcher)
                 // However, our ContentProvider is not exported so it doesn't have access to the
                 // data. Therefore we need to clear (and finally restore) the calling identity so
                 // that calls use our process and permission
@@ -103,15 +104,13 @@ public class DetailWidgetRemoteViewsService extends RemoteViewsService {
                     views.setTextViewText(R.id.widget_list_item_start_textview, text);
                 } else {
                     String text1 = DateUtils.formatDateTime(DateUtils
-                            .FORMAT_LIST_TEXTVIEW_DATE_TIME,startTime);
+                            .FORMAT_LIST_TEXTVIEW_DATE_TIME, startTime);
                     String text2 = DateUtils.formatEndDateTimeString(DateUtils
                             .FORMAT_LIST_TEXTVIEW_DATE_TIME, endTime);
                     views.setTextViewText(R.id.widget_list_item_start_textview, text1);
                     views.setTextViewText(R.id.widget_list_item_end_textview, text2);
 
                 }
-
-
 
                 //Set up the intent that will open the detail view of the match
                 long eventId = data.getLong(Projections.EventsListView.COL_EVENT_ID);

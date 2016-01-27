@@ -12,7 +12,6 @@ import com.example.olivi.maphap.R;
  */
 public class LocationUtils {
 
-
     private static final String TAG = LocationUtils.class.getSimpleName();
 
     //Taken from https://www.geodatasource.com/developers/java
@@ -32,7 +31,6 @@ public class LocationUtils {
     private static double deg2rad(double deg) {
         return (deg * Math.PI / 180.0);
     }
-
 
     private static double rad2deg(double rad) {
         return (rad * 180 / Math.PI);
@@ -62,6 +60,7 @@ public class LocationUtils {
         }
         return Double.longBitsToDouble(lat);
     }
+
     public static double getPreferredLongitude(Context context) {
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
 
@@ -86,14 +85,14 @@ public class LocationUtils {
         editor.commit();
     }
 
-
     public static void saveLocationToSharedPref(Context context, double latitude, double
             longitude) {
         Log.i(TAG, "saving latitude and longitude to shared prefs " + latitude + " " + longitude);
 
         SharedPreferences sharedPref = PreferenceManager.getDefaultSharedPreferences(context);
         SharedPreferences.Editor editor = sharedPref.edit();
-        editor.putLong(context.getString(R.string.pref_latitude_key), Double.doubleToLongBits(latitude));
+        editor.putLong(context.getString(R.string.pref_latitude_key), Double.doubleToLongBits
+                (latitude));
         editor.putLong(context.getString(R.string.pref_longitude_key), Double.doubleToLongBits
                 (longitude));
         editor.commit();
@@ -104,6 +103,5 @@ public class LocationUtils {
         double x = (0.9375 * 24901) / radius;
         return ((int) (Math.log(x) / Math.log(2))) - 1;
     }
-
 
 }

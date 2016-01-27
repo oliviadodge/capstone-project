@@ -15,7 +15,7 @@ import java.util.Set;
 
 /**
  * Created by olivi on 1/4/2016.
- *
+ * <p/>
  * Must be called from a background thread (e.g. MapHapService.onHandleIntent()) so that
  * network operation may remain off the main (UI) thread.
  */
@@ -31,8 +31,8 @@ public class EventsNetworker {
     private Callback mCallback;
 //    private final StethoURLConnectionManager stethoManager;
 
-
-    public static synchronized EventsNetworker getsInstance(HttpRequest request, Callback callback) {
+    public static synchronized EventsNetworker getsInstance(HttpRequest request, Callback
+            callback) {
         if (sInstance == null) {
             sInstance = new EventsNetworker(request, callback);
         } else {
@@ -75,7 +75,6 @@ public class EventsNetworker {
         //Delete the last comma
         sb.deleteCharAt(sb.length() - 1);
 
-
         try {
             // Construct the URL for the Eventbrite query
             // Possible parameters are avaiable at
@@ -97,7 +96,8 @@ public class EventsNetworker {
                     .appendQueryParameter(LONGITUDE_PARAM, Double.toString(mRequest.longitude))
                     .appendQueryParameter(WITHIN_PARAM, Integer.toString(mRequest.radius) + "mi")
                     .appendQueryParameter(CATEGORIES_PARAM, sb.toString())
-                    .appendQueryParameter(POPULAR_PARAM, Boolean.toString(Constants.RETURN_POPULAR_ARG))
+                    .appendQueryParameter(POPULAR_PARAM, Boolean.toString(Constants
+                            .RETURN_POPULAR_ARG))
                     .appendQueryParameter(SORT_BY_PARAM, Constants.SORT_BY_ARG)
                     .appendQueryParameter(EXPAND_PARAM, EXPANSIONS)
                     .appendQueryParameter(OAUTH_TOKEN, mRequest.authToken)
@@ -169,7 +169,6 @@ public class EventsNetworker {
 
     }
 
-
     public static class HttpRequest {
         public final String friendlyName;
         public final double latitude;
@@ -186,7 +185,8 @@ public class EventsNetworker {
 
         HttpRequest(Builder b) {
             if (b.method != HttpMethod.GET) {
-                throw new IllegalArgumentException("GET is the only method allowed for this operation");
+                throw new IllegalArgumentException("GET is the only method allowed for this " +
+                        "operation");
             } else if (b.body != null) {
                 throw new IllegalArgumentException("GET cannot have a body");
             }
@@ -213,34 +213,42 @@ public class EventsNetworker {
 
             Builder() {
             }
+
             public Builder friendlyName(String friendlyName) {
                 this.friendlyName = friendlyName;
                 return this;
             }
+
             public Builder latitude(double latitude) {
                 this.latitude = latitude;
                 return this;
             }
+
             public Builder longitude(double longitude) {
                 this.longitude = longitude;
                 return this;
             }
+
             public Builder categories(Set<String> categories) {
                 this.categories = categories;
                 return this;
             }
+
             public Builder radius(int radius) {
                 this.radius = radius;
                 return this;
             }
+
             public Builder method(EventsNetworker.HttpMethod method) {
                 this.method = method;
                 return this;
             }
+
             public Builder authToken(String token) {
                 this.authToken = token;
                 return this;
             }
+
             public HttpRequest build() {
                 return new HttpRequest(this);
             }
@@ -263,6 +271,7 @@ public class EventsNetworker {
 
     public interface Callback {
         void onResponse(HttpResponse result);
+
         void onFailure(IOException e);
     }
 }

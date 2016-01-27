@@ -40,14 +40,13 @@ import java.util.Set;
 public class MainActivity extends LocationActivity
         implements LoaderManager.LoaderCallbacks<Cursor>,
         OnMapReadyCallback, EventListFragment.OnListFragmentInteractionListener,
-        SharedPreferences.OnSharedPreferenceChangeListener{
+        SharedPreferences.OnSharedPreferenceChangeListener {
 
     private static final String TAG = MainActivity.class.getSimpleName();
     private static final int REGIONS_LOADER = 0;
     private static final int CATEGORIES_LOADER = 1;
     private static final int EVENTS_LOADER = 2;
     private static final int EVENT_LOADER = 3;
-
 
     private static final int REQUEST_FILTER = 0;
 
@@ -69,7 +68,6 @@ public class MainActivity extends LocationActivity
     private boolean mThreePane;
     private boolean mCategoriesChanged;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,15 +80,16 @@ public class MainActivity extends LocationActivity
             // fragment transaction.
             if (savedInstanceState == null) {
                 getFragmentManager().beginTransaction()
-                        .replace(R.id.event_detail_container, new DetailFragment(), DETAILFRAGMENT_TAG)
+                        .replace(R.id.event_detail_container, new DetailFragment(),
+                                DETAILFRAGMENT_TAG)
                         .commit();
             }
         } else {
             mThreePane = false;
         }
 
-        ((FloatingActionButton)findViewById(R.id.fab)).setOnClickListener(new View.OnClickListener() {
-
+        ((FloatingActionButton) findViewById(R.id.fab)).setOnClickListener(new View
+                .OnClickListener() {
 
             @Override
             public void onClick(View v) {
@@ -111,7 +110,6 @@ public class MainActivity extends LocationActivity
             Log.i(TAG, "in onCreate. Regions loader restarted to query for regions");
             getLoaderManager().restartLoader(REGIONS_LOADER, null, this);
         }
-
 
         Log.i(TAG, "in onCreate. Registering the onSharedPreferenceChangeListener");
         PreferenceManager.getDefaultSharedPreferences(this)
@@ -167,7 +165,6 @@ public class MainActivity extends LocationActivity
                     .newCameraPosition(target));
         }
     }
-
 
     private void addMarker(String name, BitmapDescriptor icon, double latitude, double longitude) {
         if (mMapReady) {
@@ -240,7 +237,6 @@ public class MainActivity extends LocationActivity
         }
     }
 
-
     public void startFilterActivity() {
         Intent i = new Intent(this, FilterActivity.class);
         startActivityForResult(i, REQUEST_FILTER);
@@ -276,7 +272,6 @@ public class MainActivity extends LocationActivity
                         .findFragmentById(R.id.eventListFragment);
         mAdapter = eventListFragment.setUpAdapter(mDataSet);
     }
-
 
     @Override
     public Loader<Cursor> onCreateLoader(int id, Bundle args) {
@@ -333,10 +328,10 @@ public class MainActivity extends LocationActivity
                 long endMillis = Utility.getPreferredMillis(this, getString(R.string
                         .pref_end_date_key), -1);
 
-                String dateSelection ="";
+                String dateSelection = "";
 
                 if (startMillis != -1) {
-                    dateSelection = "(" + EventsColumns.START_DATE_TIME + " >= "+ Long.toString
+                    dateSelection = "(" + EventsColumns.START_DATE_TIME + " >= " + Long.toString
                             (startMillis) + ") AND (" +
                             EventsColumns.START_DATE_TIME + " <= " + Long.toString(endMillis) + ")";
                 }
@@ -431,16 +426,16 @@ public class MainActivity extends LocationActivity
 
                     addEventsToMap(data);
 
-
                     Log.i(TAG, "EVENTS_LOADER finished. Swapping out data set.");
                     mAdapter.changeCursor(mDataSet);
 
                     if (mListFragmentReady) {
                         Log.i(TAG, "onLoadFinished called and mListFragmentReady is true." +
                                 "get event list fragment so we can scroll to previous position");
-                        // If we don't need to restart the loader, and there's a desired position to restore
+                        // If we don't need to restart the loader, and there's a desired position
+                        // to restore
                         // to, do so now.
-                        EventListFragment fragment = (EventListFragment)getFragmentManager()
+                        EventListFragment fragment = (EventListFragment) getFragmentManager()
                                 .findFragmentById(R.id.eventListFragment);
                         if (fragment != null) {
                             fragment.scrollToPreviousPosition();
@@ -488,7 +483,7 @@ public class MainActivity extends LocationActivity
     private String[] checkCategories(Cursor data) {
         data.moveToFirst();
         HashSet<String> set = Utility.getPreferredCategories(this);
-        HashSet<String> cloneSet = (HashSet<String>)set.clone();
+        HashSet<String> cloneSet = (HashSet<String>) set.clone();
 
         for (String cat : cloneSet) {
             Log.i(TAG, "in checkCategories. Preferred category: " + cat);
@@ -541,7 +536,7 @@ public class MainActivity extends LocationActivity
             double addedDate = cursor.getDouble(Projections.Regions.ADDED_DATE_TIME);
 
             if ((distInMi <= Constants.TOLERANCE_DIST_IN_MILES) && (DateUtils
-                    .isDateTimeAfterCutOff(addedDate))){
+                    .isDateTimeAfterCutOff(addedDate))) {
 
                 regionId = cursor.getLong(Projections.Regions.COL_ID);
 

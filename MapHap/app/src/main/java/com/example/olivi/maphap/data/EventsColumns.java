@@ -8,10 +8,10 @@ import net.simonvt.schematic.annotation.PrimaryKey;
 import net.simonvt.schematic.annotation.References;
 import net.simonvt.schematic.annotation.Unique;
 
-
 public interface EventsColumns {
 
-    @DataType(DataType.Type.INTEGER) @PrimaryKey
+    @DataType(DataType.Type.INTEGER)
+    @PrimaryKey
     @AutoIncrement
     String _ID =
             "_id";
@@ -21,11 +21,13 @@ public interface EventsColumns {
     String EVENTBRITE_VENUE_ID =
             "eb_venue_id";
 
-    @DataType(DataType.Type.TEXT) @NotNull
+    @DataType(DataType.Type.TEXT)
+    @NotNull
     String NAME =
             "event_name";
 
-    @DataType(DataType.Type.TEXT) @NotNull
+    @DataType(DataType.Type.TEXT)
+    @NotNull
     @Unique(onConflict = ConflictResolutionType.REPLACE)
     String EB_ID =
             "eb_id";
@@ -33,16 +35,17 @@ public interface EventsColumns {
     @DataType(DataType.Type.TEXT)
     String DESCRIPTION = "description";
 
-
     @DataType(DataType.Type.TEXT)
     String URL =
             "event_url";
 
-    @DataType(DataType.Type.INTEGER) @NotNull
+    @DataType(DataType.Type.INTEGER)
+    @NotNull
     String START_DATE_TIME =
             "start_date_time";
 
-    @DataType(DataType.Type.INTEGER) @NotNull
+    @DataType(DataType.Type.INTEGER)
+    @NotNull
     String END_DATE_TIME =
             "end_date_time";
 
@@ -50,7 +53,8 @@ public interface EventsColumns {
     String CAPACITY =
             "capacity";
 
-    @DataType(DataType.Type.TEXT) @NotNull
+    @DataType(DataType.Type.TEXT)
+    @NotNull
     String STATUS =
             "status";
 

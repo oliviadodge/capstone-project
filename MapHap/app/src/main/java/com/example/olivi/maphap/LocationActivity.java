@@ -34,7 +34,6 @@ public abstract class LocationActivity extends AppCompatActivity
     private static final String TAG = LocationActivity.class.getSimpleName();
     private static final int MY_PERMISSIONS_REQUEST_ACCESS_LOCATION = 0;
 
-
     private static final String ABOUT_FRAGMENT_TAG = "about_fragment";
     private static final String ABOUT_BACKSTACK = "about_back";
 
@@ -66,7 +65,6 @@ public abstract class LocationActivity extends AppCompatActivity
                         .setAction("Action", null).show();
             }
         });
-
 
         LatLng prefLatLng = new LatLng(LocationUtils.getPreferredLatitude(this), LocationUtils
                 .getPreferredLongitude(this));
@@ -140,7 +138,8 @@ public abstract class LocationActivity extends AppCompatActivity
     @Override
     public void onConnected(Bundle bundle) {
         if (isLocationPermissionGranted()) {
-            Log.i(TAG, "mGoogleApiClient is connected and permission granted! Getting user location");
+            Log.i(TAG, "mGoogleApiClient is connected and permission granted! Getting user " +
+                    "location");
             requestLocationUpdates();
             LatLng lastLocation = getUserLocation();
             if (checkIfLocationChanged(lastLocation)) {
@@ -159,6 +158,7 @@ public abstract class LocationActivity extends AppCompatActivity
         createLocationRequest();
         startLocationUpdates();
     }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -188,7 +188,6 @@ public abstract class LocationActivity extends AppCompatActivity
     private void askPermissionForLocation(boolean rationaleShown) {
 
         mAskPermissionForLocation = false;
-
 
         if ((!rationaleShown) && (ActivityCompat.shouldShowRequestPermissionRationale(this,
                 Manifest.permission.READ_CONTACTS))) {
@@ -260,11 +259,10 @@ public abstract class LocationActivity extends AppCompatActivity
         dialog.show();
     }
 
-
-
     private boolean checkIfLocationChanged(LatLng newLatLng) {
-        if (newLatLng == null) throw new IllegalArgumentException("Parameter location must not be " +
-                "null");
+        if (newLatLng == null)
+            throw new IllegalArgumentException("Parameter location must not be " +
+                    "null");
 
         if (mLastLocation != null) {
             double dist = LocationUtils.milesBetweenTwoPoints(newLatLng.latitude,

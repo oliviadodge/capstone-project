@@ -21,7 +21,7 @@ import com.example.olivi.maphap.service.MapHapService;
  * Created by olivi on 9/25/2015.
  */
 //Much of this code comes from the open source app Sunshine, built by Google. See
-    //the Licenses tabe under the menu.
+//the Licenses tabe under the menu.
 @TargetApi(Build.VERSION_CODES.HONEYCOMB)
 public class DetailWidgetProvider extends AppWidgetProvider {
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {

@@ -7,7 +7,6 @@ import net.simonvt.schematic.annotation.ContentUri;
 import net.simonvt.schematic.annotation.InexactContentUri;
 import net.simonvt.schematic.annotation.TableEndpoint;
 
-
 @ContentProvider(authority = EventProvider.AUTHORITY, database = EventDatabase.class)
 public final class EventProvider {
     public static final String AUTHORITY =
@@ -15,7 +14,7 @@ public final class EventProvider {
 
     static final Uri BASE_CONTENT_URI = Uri.parse("content://" + AUTHORITY);
 
-    interface Path{
+    interface Path {
         String EVENTS = "events";
         String REGIONS = "regions";
         String REGIONS_DELETE = "regions_delete";
@@ -24,16 +23,16 @@ public final class EventProvider {
         String CATEGORIES_REGIONS = "categories_regions";
     }
 
-    private static Uri buildUri(String ... paths){
+    private static Uri buildUri(String... paths) {
         Uri.Builder builder = BASE_CONTENT_URI.buildUpon();
-        for (String path : paths){
+        for (String path : paths) {
             builder.appendPath(path);
         }
         return builder.build();
     }
 
-
-    @TableEndpoint(table = EventDatabase.EVENTS) public static class Events {
+    @TableEndpoint(table = EventDatabase.EVENTS)
+    public static class Events {
 
         @ContentUri(
                 path = Path.EVENTS,
@@ -41,25 +40,24 @@ public final class EventProvider {
                 defaultSort = EventsColumns._ID + " ASC")
         public static final Uri CONTENT_URI = buildUri(Path.EVENTS);
 
-
         @InexactContentUri(
                 name = "EVENTS_WITH_REGION",
                 path = Path.EVENTS + "/" + Path.REGIONS + "/#",
-                type= "vnd.android.cursor.dir/event",
+                type = "vnd.android.cursor.dir/event",
                 whereColumn = EventsAndRegionsColumns.REGION_ID,
                 pathSegment = 2,
                 join = "INNER JOIN " + EventDatabase.EVENTS_REGIONS + " ON "
-                + EventDatabase.EVENTS + "." + EventsColumns.EB_ID
-                + " = "
-                + EventDatabase.EVENTS_REGIONS + "." + EventsAndRegionsColumns.EVENT_ID
-                + " INNER JOIN " + EventDatabase.VENUES + " ON "
-                + EventDatabase.EVENTS + "." + EventsColumns.EVENTBRITE_VENUE_ID
-                + " = "
-                + EventDatabase.VENUES + "." + VenuesColumns.EB_VENUE_ID
+                        + EventDatabase.EVENTS + "." + EventsColumns.EB_ID
+                        + " = "
+                        + EventDatabase.EVENTS_REGIONS + "." + EventsAndRegionsColumns.EVENT_ID
+                        + " INNER JOIN " + EventDatabase.VENUES + " ON "
+                        + EventDatabase.EVENTS + "." + EventsColumns.EVENTBRITE_VENUE_ID
+                        + " = "
+                        + EventDatabase.VENUES + "." + VenuesColumns.EB_VENUE_ID
 
         )
 
-        public static Uri withRegionId(long id){
+        public static Uri withRegionId(long id) {
             return buildUri(Path.EVENTS, Path.REGIONS, String.valueOf(id));
         }
 
@@ -71,13 +69,13 @@ public final class EventProvider {
                 type = "vnd.android.cursor.item/event",
                 whereColumn = EventDatabase.EVENTS + "." + EventsColumns._ID,
                 pathSegment = 1,
-                join =  "INNER JOIN " + EventDatabase.VENUES + " ON "
+                join = "INNER JOIN " + EventDatabase.VENUES + " ON "
                         + EventDatabase.EVENTS + "." + EventsColumns.EVENTBRITE_VENUE_ID
                         + " = "
                         + EventDatabase.VENUES + "." + VenuesColumns.EB_VENUE_ID
         )
 
-        public static Uri withId(long id){
+        public static Uri withId(long id) {
             return Uri.parse("content://" + AUTHORITY + "/events/" + id);
         }
 //
@@ -95,7 +93,8 @@ public final class EventProvider {
 //        }
     }
 
-    @TableEndpoint(table = EventDatabase.VENUES) public static class Venues{
+    @TableEndpoint(table = EventDatabase.VENUES)
+    public static class Venues {
         @ContentUri(
                 path = Path.VENUES,
                 type = "vnd.android.cursor.dir/venue",
@@ -115,7 +114,8 @@ public final class EventProvider {
 //        }
     }
 
-    @TableEndpoint(table = EventDatabase.REGIONS) public static class Regions{
+    @TableEndpoint(table = EventDatabase.REGIONS)
+    public static class Regions {
         @ContentUri(
                 path = Path.REGIONS,
                 type = "vnd.android.cursor.dir/region",
@@ -127,14 +127,14 @@ public final class EventProvider {
                 path = Path.REGIONS_DELETE,
                 type = "vnd.android.cursor.dir/region",
 
-                join= "INNER JOIN " + EventDatabase.EVENTS_REGIONS + " ON "
-                + EventDatabase.EVENTS_REGIONS + "." + EventsAndRegionsColumns.REGION_ID
-                + " = "
-                + EventDatabase.REGIONS + "." + RegionsColumns._ID
-                + " INNER JOIN " + EventDatabase.EVENTS + " ON "
-                + EventDatabase.EVENTS + "." + EventsColumns.EB_ID
-                + " = "
-                + EventDatabase.EVENTS_REGIONS + "." + EventsAndRegionsColumns.EVENT_ID
+                join = "INNER JOIN " + EventDatabase.EVENTS_REGIONS + " ON "
+                        + EventDatabase.EVENTS_REGIONS + "." + EventsAndRegionsColumns.REGION_ID
+                        + " = "
+                        + EventDatabase.REGIONS + "." + RegionsColumns._ID
+                        + " INNER JOIN " + EventDatabase.EVENTS + " ON "
+                        + EventDatabase.EVENTS + "." + EventsColumns.EB_ID
+                        + " = "
+                        + EventDatabase.EVENTS_REGIONS + "." + EventsAndRegionsColumns.EVENT_ID
         )
 
         public static final Uri CONTENT_URI_DELETE = buildUri(Path.REGIONS_DELETE);
@@ -146,13 +146,13 @@ public final class EventProvider {
                 whereColumn = RegionsColumns._ID,
                 pathSegment = 1
         )
-        public static Uri withId(long id){
+        public static Uri withId(long id) {
             return buildUri(Path.REGIONS, String.valueOf(id));
         }
     }
 
-
-    @TableEndpoint(table = EventDatabase.EVENTS_REGIONS) public static class EventsAndRegions{
+    @TableEndpoint(table = EventDatabase.EVENTS_REGIONS)
+    public static class EventsAndRegions {
         @ContentUri(
                 path = Path.EVENTS_REGIONS,
                 type = "vnd.android.cursor.dir/event_region",
@@ -173,7 +173,7 @@ public final class EventProvider {
     }
 
     @TableEndpoint(table = EventDatabase.CATEGORIES_REGIONS)
-    public static class CategoriesAndRegions{
+    public static class CategoriesAndRegions {
         @ContentUri(
                 path = Path.CATEGORIES_REGIONS,
                 type = "vnd.android.cursor.dir/category_region",
@@ -188,7 +188,7 @@ public final class EventProvider {
                 whereColumn = CategoriesAndRegionsColumns.REGION_ID,
                 pathSegment = 1
         )
-        public static Uri withRegionId(long id){
+        public static Uri withRegionId(long id) {
             return buildUri(Path.CATEGORIES_REGIONS, String.valueOf(id));
         }
     }

@@ -3,10 +3,10 @@ package com.example.olivi.maphap.data;
 import net.simonvt.schematic.annotation.Database;
 import net.simonvt.schematic.annotation.Table;
 
-
 @Database(version = EventDatabase.VERSION)
 public final class EventDatabase {
-    private EventDatabase(){}
+    private EventDatabase() {
+    }
 
     public static final int VERSION = 1;
 

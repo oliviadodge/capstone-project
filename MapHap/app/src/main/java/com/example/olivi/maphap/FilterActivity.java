@@ -18,12 +18,10 @@ public class FilterActivity extends AppCompatActivity implements
     public static final String PREF_START_DATE_CHANGED_EXTRA = "pref_start_date_changed";
     public static final String PREF_END_DATE_CHANGED_EXTRA = "pref_end_date_changed";
 
-
     private boolean mRadiusChanged;
     private boolean mCategoryChanged;
     private boolean mStartDateChanged;
     private boolean mEndDateChanged;
-
 
     private static final String TAG = FilterActivity.class.getSimpleName();
 
@@ -88,7 +86,6 @@ public class FilterActivity extends AppCompatActivity implements
         mIntent.putExtra(extra, changed);
         setResult(RESULT_OK, mIntent);
     }
-
 
     @Override
     protected void onDestroy() {

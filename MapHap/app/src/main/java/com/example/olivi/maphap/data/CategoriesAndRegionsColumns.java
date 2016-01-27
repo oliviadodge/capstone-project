@@ -17,14 +17,12 @@ public interface CategoriesAndRegionsColumns {
     String CATEGORY_ID =
             "category_id";
 
-
     @DataType(DataType.Type.INTEGER)
     @PrimaryKey(onConflict = ConflictResolutionType.REPLACE)
     @References(table = EventDatabase.REGIONS,
             column = RegionsColumns._ID)
     String REGION_ID =
             "region_id";
-
 
     //in Julian days so we can compare
     @DataType(DataType.Type.REAL)

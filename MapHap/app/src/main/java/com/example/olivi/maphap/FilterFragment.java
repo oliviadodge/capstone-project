@@ -22,17 +22,14 @@ public class FilterFragment extends Fragment implements DatePickerDialog.OnDateS
     private static final String TAG = FilterFragment.class.getSimpleName();
     private static final String DIALOG_FRAG_TAG = "category_dialog_fragment";
 
-
     private MyDatePickerDialog mDatePicker;
     private SeekBar mSeekBar;
     private TextView mSeekBarLabel;
     private int mRadius;
 
-
     public FilterFragment() {
         // Required empty public constructor
     }
-
 
     public static FilterFragment newInstance(String param1, String param2) {
         return new FilterFragment();
@@ -43,7 +40,6 @@ public class FilterFragment extends Fragment implements DatePickerDialog.OnDateS
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_filter, container, false);
-
 
         mRadius = LocationUtils.getPreferredRadius(getActivity());
 
@@ -87,11 +83,11 @@ public class FilterFragment extends Fragment implements DatePickerDialog.OnDateS
         if (startMillis != -1) {
             startCal.setTimeInMillis(startMillis);
         }
-         mDatePicker = MyDatePickerDialog.newInstance(
-                 this,
-                 startCal.get(Calendar.YEAR),
-                 startCal.get(Calendar.MONTH),
-                 startCal.get(Calendar.DAY_OF_MONTH));
+        mDatePicker = MyDatePickerDialog.newInstance(
+                this,
+                startCal.get(Calendar.YEAR),
+                startCal.get(Calendar.MONTH),
+                startCal.get(Calendar.DAY_OF_MONTH));
 
         datePickerButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -115,6 +111,7 @@ public class FilterFragment extends Fragment implements DatePickerDialog.OnDateS
         String s = radius > 1 ? " miles." : " mile.";
         mSeekBarLabel.setText("Search Radius: " + radius + s);
     }
+
     @Override
     public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth, int
             yearEnd, int monthOfYearEnd, int dayOfMonthEnd) {
@@ -124,7 +121,8 @@ public class FilterFragment extends Fragment implements DatePickerDialog.OnDateS
         Calendar endCal = Calendar.getInstance();
         endCal.set(yearEnd, monthOfYearEnd, dayOfMonthEnd);
 
-        Log.i(TAG, "onDateSet called. Start: " + startCal.toString() + " end: " + endCal.toString());
+        Log.i(TAG, "onDateSet called. Start: " + startCal.toString() + " end: " + endCal.toString
+                ());
 
         Utility.savePreferredStartDate(getActivity(), startCal.getTimeInMillis());
         Utility.savePreferredEndDate(getActivity(), endCal.getTimeInMillis());

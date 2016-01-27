@@ -10,7 +10,8 @@ import net.simonvt.schematic.annotation.PrimaryKey;
  */
 public interface RegionsColumns {
 
-    @DataType(DataType.Type.INTEGER) @PrimaryKey
+    @DataType(DataType.Type.INTEGER)
+    @PrimaryKey
     @AutoIncrement
     public static final String _ID =
             "_id";
@@ -29,7 +30,6 @@ public interface RegionsColumns {
     @NotNull
     public static final String RADIUS =
             "radius";
-
 
     //in Julian days so we can compare
     @DataType(DataType.Type.REAL)

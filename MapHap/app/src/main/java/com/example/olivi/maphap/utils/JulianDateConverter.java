@@ -15,7 +15,7 @@ import java.util.Calendar;
 
 /**
  * Convert dates to Julian dates.
- *
+ * <p/>
  * For more information on using this class, look at
  * http://www.jstott.me.uk/jsuntimes/
  *
@@ -32,7 +32,7 @@ class JulianDateConverter {
      */
     public static double dateToJulian(Calendar date) {
         int year = date.get(Calendar.YEAR);
-        int month = date.get(Calendar.MONTH)+1;
+        int month = date.get(Calendar.MONTH) + 1;
         int day = date.get(Calendar.DAY_OF_MONTH);
         int hour = date.get(Calendar.HOUR_OF_DAY);
         int minute = date.get(Calendar.MINUTE);

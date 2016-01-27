@@ -51,6 +51,7 @@ public class MapHapService extends IntentService {
     };
 
     private static final String LOG_TAG = MapHapService.class.getSimpleName();
+
     public MapHapService() {
         super("MapHap");
     }
@@ -124,8 +125,9 @@ public class MapHapService extends IntentService {
                         Log.i(LOG_TAG, "Categories added " + added);
                         //Update shared preferences with the new region ID.
 
-                        EventsDataJsonParser parser = new EventsDataJsonParser(result.body, mRegionId,
-                                        mJulianDateAdded);
+                        EventsDataJsonParser parser = new EventsDataJsonParser(result.body,
+                                mRegionId,
+                                mJulianDateAdded);
                         parser.parse();
 
                         for (int i = 0; i < REQUIRED_CONTENT_VALUES.length; i++) {
@@ -190,7 +192,7 @@ public class MapHapService extends IntentService {
         return getIdFromUri(regionUri);
     }
 
-    private int addCategoriesToDB(long  regionId, Set<String> categories) {
+    private int addCategoriesToDB(long regionId, Set<String> categories) {
 
         mJulianDateAdded = DateUtils.getCurrentJulianDateTime();
 

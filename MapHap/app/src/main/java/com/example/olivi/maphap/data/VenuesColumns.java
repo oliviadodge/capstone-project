@@ -9,7 +9,8 @@ import net.simonvt.schematic.annotation.Unique;
 
 public interface VenuesColumns {
 
-    @DataType(DataType.Type.INTEGER) @PrimaryKey
+    @DataType(DataType.Type.INTEGER)
+    @PrimaryKey
     @AutoIncrement
     public static final String _ID =
             "_id";
@@ -18,16 +19,19 @@ public interface VenuesColumns {
     public static final String NAME =
             "venue_name";
 
-    @DataType(DataType.Type.TEXT) @NotNull
+    @DataType(DataType.Type.TEXT)
+    @NotNull
     @Unique(onConflict = ConflictResolutionType.REPLACE)
     public static final String EB_VENUE_ID =
             "eb_venue_id";
 
-    @DataType(DataType.Type.REAL) @NotNull
+    @DataType(DataType.Type.REAL)
+    @NotNull
     public static final String LATITUDE =
             "venue_latitude";
 
-    @DataType(DataType.Type.REAL) @NotNull
+    @DataType(DataType.Type.REAL)
+    @NotNull
     public static final String LONGITUDE =
             "venue_longitude";
 }

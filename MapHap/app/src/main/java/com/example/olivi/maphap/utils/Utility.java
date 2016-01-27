@@ -16,20 +16,17 @@ import java.util.HashSet;
  */
 public class Utility {
 
-
     private static final String TAG = Utility.class.getSimpleName();
-
 
     public static HashSet<String> getPreferredCategories(Context context) {
 
         String[] defaultArray = context.getResources()
                 .getStringArray(R.array.defaultValues_category_preference);
 
-        return (HashSet<String>)PreferenceManager.getDefaultSharedPreferences(context)
+        return (HashSet<String>) PreferenceManager.getDefaultSharedPreferences(context)
                 .getStringSet(context.getString(R.string.pref_category_key),
                         new HashSet<String>(Arrays.asList(defaultArray)));
     }
-
 
     public static boolean[] getPreferredCategoriesBooleanArray(Context context) {
 

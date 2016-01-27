@@ -44,13 +44,11 @@ public class MyDatePickerDialog extends DatePickerDialog {
         Calendar startCal = Calendar.getInstance();
         Calendar endCal = Calendar.getInstance();
 
-
         if ((savedInstanceState == null) && (startMillis != -1) && (endMillis != -1)) {
             startCal.setTimeInMillis(startMillis);
             endCal.setTimeInMillis(endMillis);
             Log.i(TAG, "savedInstanceState = " + savedInstanceState + " and startMillis = "
                     + startMillis);
-
 
             savedInstanceState = new Bundle();
             savedInstanceState.putInt(KEY_SELECTED_YEAR, startCal.get(Calendar.YEAR));
@@ -63,6 +61,5 @@ public class MyDatePickerDialog extends DatePickerDialog {
         }
         super.onCreate(savedInstanceState);
     }
-
 
 }

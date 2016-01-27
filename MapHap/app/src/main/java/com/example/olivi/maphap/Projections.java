@@ -19,12 +19,10 @@ public class Projections {
             EventDatabase.REGIONS + "." + RegionsColumns.RADIUS,
             EventDatabase.REGIONS + "." + RegionsColumns.ADDED_DATE_TIME
 
-
     };
     public static final String[] CATEGORIES_COLUMNS = {
             EventDatabase.CATEGORIES_REGIONS + "." + CategoriesAndRegionsColumns.CATEGORY_ID,
             EventDatabase.CATEGORIES_REGIONS + "." + CategoriesAndRegionsColumns.ADDED_DATE_TIME,
-
 
     };
 
@@ -44,7 +42,6 @@ public class Projections {
         public static final int COL_CATEGORY_ID = 0;
         public static final int COL_DATE_ADDED = 1;
     }
-
 
     public static final String[] EVENT_COLUMNS_LIST_VIEW = {
             EventsColumns.NAME,
@@ -73,7 +70,6 @@ public class Projections {
         public static final int COL_VENUE_LON = 7;
         public static final int COL_EVENT_ID = 8;
     }
-
 
     public static final String[] EVENT_COLUMNS_DETAIL_VIEW = {
             EventsColumns.NAME,
