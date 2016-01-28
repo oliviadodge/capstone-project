@@ -80,9 +80,12 @@ public class FilterFragment extends Fragment implements DatePickerDialog.OnDateS
                 .pref_start_date_key), -1);
 
         Calendar startCal = Calendar.getInstance();
+        long today = DateUtils.getTodayInMillis();
 
-        if ((startMillis != -1) && (startMillis >= DateUtils.getTodayInMillis())) {
+        if ((startMillis != -1) && (startMillis >= today)) {
             startCal.setTimeInMillis(startMillis);
+        } else {
+            startCal.setTimeInMillis(today);
         }
         mDatePicker = MyDatePickerDialog.newInstance(
                 this,
