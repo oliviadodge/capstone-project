@@ -13,6 +13,7 @@ import android.widget.TextView;
 import com.borax12.materialdaterangepicker.date.DatePickerDialog;
 import com.example.olivi.maphap.ui.CategoryDialog;
 import com.example.olivi.maphap.ui.MyDatePickerDialog;
+import com.example.olivi.maphap.utils.DateUtils;
 import com.example.olivi.maphap.utils.LocationUtils;
 import com.example.olivi.maphap.utils.Utility;
 
@@ -80,7 +81,7 @@ public class FilterFragment extends Fragment implements DatePickerDialog.OnDateS
 
         Calendar startCal = Calendar.getInstance();
 
-        if (startMillis != -1) {
+        if ((startMillis != -1) && (startMillis >= DateUtils.getTodayInMillis())) {
             startCal.setTimeInMillis(startMillis);
         }
         mDatePicker = MyDatePickerDialog.newInstance(
